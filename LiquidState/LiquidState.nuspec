@@ -8,7 +8,7 @@
     <owners>Prasanna V. Loganathar</owners>
     <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
     <projectUrl>https://github.com/prasannavl/LiquidState</projectUrl>
-    <iconUrl>https://github.com/prasannavl/LiquidState/blob/master/Misc/Logo.png</iconUrl>
+    <iconUrl>https://raw.githubusercontent.com/prasannavl/LiquidState/master/Misc/Logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>Initial release</releaseNotes>
