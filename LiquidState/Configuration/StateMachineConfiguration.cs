@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 2:12 AM 27-11-2014
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -9,8 +13,8 @@ namespace LiquidState.Configuration
 {
     public class StateConfigurationHelper<TState, TTrigger>
     {
-        private Dictionary<TState, StateRepresentation<TState, TTrigger>> config;
-        private StateRepresentation<TState, TTrigger> currentStateRepresentation;
+        private readonly Dictionary<TState, StateRepresentation<TState, TTrigger>> config;
+        private readonly StateRepresentation<TState, TTrigger> currentStateRepresentation;
 
         internal StateConfigurationHelper(Dictionary<TState, StateRepresentation<TState, TTrigger>> config,
             TState currentState)
@@ -265,10 +269,7 @@ namespace LiquidState.Configuration
             {
                 return rep;
             }
-            else
-            {
-                return config.Values.FirstOrDefault();
-            }
+            return config.Values.FirstOrDefault();
         }
 
         public StateConfigurationHelper<TState, TTrigger> Configure(TState state)

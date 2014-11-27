@@ -1,13 +1,16 @@
 LiquidState
 ===========
 
-Efficient state machine for .NET with both synchronous and asynchronous support.  
+Efficient state machines for .NET with both synchronous and asynchronous support.  
 Heavily inspired by the excellent state machine library [**Stateless**](https://github.com/nblumhardt/stateless) by 
 **Nicholas Blumhardt.**
 
-##### Differences:
+**NuGet:** 
 
+> Install-Package LiquidState
+  
 
+  
 ######Why LiquidState:
 
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
@@ -38,7 +41,7 @@ A terrible example:
                 () => { Console.WriteLine("Connecting"); });
 
     var connectTriggerWithParameter = 
-				config.SetTriggerParameter<string>(Trigger.Connect);
+                config.SetTriggerParameter<string>(Trigger.Connect);
 
     config.Configure(State.Ringing)
         .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
@@ -90,7 +93,7 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
               async () => { Console.WriteLine("Connecting"); });
 
     var connectTriggerWithParameter = 
-				config.SetTriggerParameter<string>(Trigger.Connect);
+                config.SetTriggerParameter<string>(Trigger.Connect);
 
     config.Configure(State.Ringing)
         .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))

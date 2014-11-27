@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 2:12 AM 27-11-2014
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -134,7 +138,7 @@ namespace LiquidState.Machines
                     {
                         if (triggerRep.WrappedTriggerAction == null)
                         {
-                            var func = (Func<Task>)triggerRep.OnTriggerAction;
+                            var func = (Func<Task>) triggerRep.OnTriggerAction;
 
                             Contract.Assert(func != null);
                             // Will never be null if wrapper is not null => Enforced on creation.
@@ -143,7 +147,7 @@ namespace LiquidState.Machines
                         }
                         else
                         {
-                            var wrappedFunc = (Func<object, Task>)triggerRep.WrappedTriggerAction;
+                            var wrappedFunc = (Func<object, Task>) triggerRep.WrappedTriggerAction;
 
                             Contract.Assert(wrappedFunc != null);
                             // Will never be null if wrapper is not null => Enforced on creation.
@@ -158,7 +162,7 @@ namespace LiquidState.Machines
                     {
                         if (triggerRep.WrappedTriggerAction == null)
                         {
-                            var action = (Action)triggerRep.OnTriggerAction;
+                            var action = (Action) triggerRep.OnTriggerAction;
 
                             Contract.Assert(action != null);
                             // Will never be null if wrapper is not null => Enforced on creation.
@@ -167,7 +171,7 @@ namespace LiquidState.Machines
                         }
                         else
                         {
-                            var wrappedAction = (Action<object>)triggerRep.WrappedTriggerAction;
+                            var wrappedAction = (Action<object>) triggerRep.WrappedTriggerAction;
 
                             Contract.Assert(wrappedAction != null);
                             // Will never be null if wrapper is not null => Enforced on creation.

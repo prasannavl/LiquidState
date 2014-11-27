@@ -1,9 +1,11 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 2:12 AM 27-11-2014
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Linq.Expressions;
 using LiquidState.Configuration;
 using LiquidState.Representations;
 
@@ -83,8 +85,8 @@ namespace LiquidState.Machines
             {
                 if (triggerRep.WrappedTriggerAction == null)
                 {
-                    var action = (Action)triggerRep.OnTriggerAction;
-                    
+                    var action = (Action) triggerRep.OnTriggerAction;
+
                     Contract.Assert(action != null);
                     // Will never be null if wrapper is not null => Enforced on creation.
                     // ReSharper disable once PossibleNullReferenceException

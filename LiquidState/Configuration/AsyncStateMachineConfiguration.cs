@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 2:12 AM 27-11-2014
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
@@ -68,13 +72,16 @@ namespace LiquidState.Configuration
 
             return PermitInternalSync(null, trigger, currentStateRepresentation.State, onEntryAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentry<TArgument>(ParameterizedTrigger<TTrigger, TArgument> trigger, Action<TArgument> onEntryAction)
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentry<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger, Action<TArgument> onEntryAction)
         {
             Contract.Requires(trigger != null);
             Contract.Assume(currentStateRepresentation.State != null);
 
             return PermitInternalSync(null, trigger, currentStateRepresentation.State, onEntryAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentry(TTrigger trigger,
             Func<Task> onEntryAsyncAction)
         {
@@ -83,7 +90,9 @@ namespace LiquidState.Configuration
 
             return PermitInternalTriggerAsync(null, trigger, currentStateRepresentation.State, onEntryAsyncAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentry<TArgument>(ParameterizedTrigger<TTrigger, TArgument> trigger,
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentry<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
             Func<TArgument, Task> onEntryAsyncAction)
         {
             Contract.Requires(trigger != null);
@@ -91,6 +100,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalTriggerAsync(null, trigger, currentStateRepresentation.State, onEntryAsyncAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger)
         {
             Contract.Requires(trigger != null);
@@ -116,7 +126,9 @@ namespace LiquidState.Configuration
 
             return PermitInternalSync(predicate, trigger, currentStateRepresentation.State, onEntryAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentryIf<TArgument>(Func<bool> predicate, ParameterizedTrigger<TTrigger, TArgument> trigger,
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentryIf<TArgument>(Func<bool> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
             Action<TArgument> onEntryAction)
         {
             Contract.Requires(trigger != null);
@@ -124,6 +136,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalSync(predicate, trigger, currentStateRepresentation.State, onEntryAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentryIf(Func<Task<bool>> predicate,
             TTrigger trigger, Action onEntryAction)
         {
@@ -132,6 +145,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalPredicateAsync(predicate, trigger, currentStateRepresentation.State, onEntryAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> PermitReentryIf<TArgument>(Func<Task<bool>> predicate,
             ParameterizedTrigger<TTrigger, TArgument> trigger, Action<TArgument> onEntryAction)
         {
@@ -140,6 +154,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalPredicateAsync(predicate, trigger, currentStateRepresentation.State, onEntryAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> Permit(TTrigger trigger, TState resultingState)
         {
             Contract.Requires(trigger != null);
@@ -156,7 +171,9 @@ namespace LiquidState.Configuration
 
             return PermitInternalSync(null, trigger, resultingState, onEntryAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> Permit<TArgument>(ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> Permit<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
             Action<TArgument> onEntryAction)
         {
             Contract.Requires(trigger != null);
@@ -164,6 +181,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalSync(null, trigger, resultingState, onEntryAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> Permit(TTrigger trigger, TState resultingState,
             Func<Task> onEntryAsyncAction)
         {
@@ -172,7 +190,9 @@ namespace LiquidState.Configuration
 
             return PermitInternalTriggerAsync(null, trigger, resultingState, onEntryAsyncAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> Permit<TArgument>(ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> Permit<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
             Func<TArgument, Task> onEntryAsyncAction)
         {
             Contract.Requires(trigger != null);
@@ -180,6 +200,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalTriggerAsync(null, trigger, resultingState, onEntryAsyncAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf(Func<bool> predicate, TTrigger trigger,
             TState resultingState)
         {
@@ -206,7 +227,9 @@ namespace LiquidState.Configuration
 
             return PermitInternalSync(predicate, trigger, resultingState, onEntryAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf<TArgument>(Func<bool> predicate, ParameterizedTrigger<TTrigger, TArgument> trigger,
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf<TArgument>(Func<bool> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Action<TArgument> onEntryAction)
         {
             Contract.Requires(trigger != null);
@@ -214,6 +237,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalSync(predicate, trigger, resultingState, onEntryAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf(Func<Task<bool>> predicate, TTrigger trigger,
             TState resultingState, Action onEntryAction)
         {
@@ -222,7 +246,9 @@ namespace LiquidState.Configuration
 
             return PermitInternalPredicateAsync(predicate, trigger, resultingState, onEntryAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf<TArgument>(Func<Task<bool>> predicate, ParameterizedTrigger<TTrigger, TArgument> trigger,
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf<TArgument>(Func<Task<bool>> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Action<TArgument> onEntryAction)
         {
             Contract.Requires(trigger != null);
@@ -230,6 +256,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalPredicateAsync(predicate, trigger, resultingState, onEntryAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf(Func<bool> predicate, TTrigger trigger,
             TState resultingState, Func<Task> onEntryAsyncAction)
         {
@@ -238,7 +265,9 @@ namespace LiquidState.Configuration
 
             return PermitInternalTriggerAsync(predicate, trigger, resultingState, onEntryAsyncAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf<TArgument>(Func<bool> predicate, ParameterizedTrigger<TTrigger, TArgument> trigger,
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf<TArgument>(Func<bool> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Func<TArgument, Task> onEntryAsyncAction)
         {
             Contract.Requires(trigger != null);
@@ -246,6 +275,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalTriggerAsync(predicate, trigger, resultingState, onEntryAsyncAction);
         }
+
         public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf(Func<Task<bool>> predicate, TTrigger trigger,
             TState resultingState, Func<Task> onEntryAsyncAction)
         {
@@ -254,7 +284,9 @@ namespace LiquidState.Configuration
 
             return PermitInternalAsync(predicate, trigger, resultingState, onEntryAsyncAction);
         }
-        public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf<TArgument>(Func<Task<bool>> predicate, ParameterizedTrigger<TTrigger, TArgument> trigger,
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> PermitIf<TArgument>(Func<Task<bool>> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Func<TArgument, Task> onEntryAsyncAction)
         {
             Contract.Requires(trigger != null);
@@ -262,6 +294,7 @@ namespace LiquidState.Configuration
 
             return PermitInternalAsync(predicate, trigger, resultingState, onEntryAsyncAction);
         }
+
         private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalSync(Func<bool> predicate,
             TTrigger trigger,
             TState resultingState, Action onEntryAction)
@@ -279,8 +312,8 @@ namespace LiquidState.Configuration
         }
 
         private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalSync<TArgument>(Func<bool> predicate,
-    ParameterizedTrigger<TTrigger, TArgument> trigger,
-    TState resultingState, Action<TArgument> onEntryAction)
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            TState resultingState, Action<TArgument> onEntryAction)
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
@@ -291,7 +324,7 @@ namespace LiquidState.Configuration
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAction;
-            rep.WrappedTriggerAction = new Action<object>(o => onEntryAction((TArgument)o));
+            rep.WrappedTriggerAction = new Action<object>(o => onEntryAction((TArgument) o));
             rep.ConditionalTriggerPredicate = predicate;
 
             return this;
@@ -314,9 +347,11 @@ namespace LiquidState.Configuration
 
             return this;
         }
-        private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalAsync<TArgument>(Func<Task<bool>> predicate,
-    ParameterizedTrigger<TTrigger, TArgument> trigger,
-    TState resultingState, Func<TArgument,Task> onEntryAsyncAction)
+
+        private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalAsync<TArgument>(
+            Func<Task<bool>> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            TState resultingState, Func<TArgument, Task> onEntryAsyncAction)
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
@@ -351,9 +386,11 @@ namespace LiquidState.Configuration
 
             return this;
         }
-        private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalTriggerAsync<TArgument>(Func<bool> predicate,
-    ParameterizedTrigger<TTrigger, TArgument> trigger,
-    TState resultingState, Func<TArgument, Task> onEntryAsyncAction)
+
+        private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalTriggerAsync<TArgument>(
+            Func<bool> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            TState resultingState, Func<TArgument, Task> onEntryAsyncAction)
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
@@ -364,7 +401,7 @@ namespace LiquidState.Configuration
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
-            rep.WrappedTriggerAction = new Func<object, Task>(o => onEntryAsyncAction((TArgument)o));
+            rep.WrappedTriggerAction = new Func<object, Task>(o => onEntryAsyncAction((TArgument) o));
             rep.ConditionalTriggerPredicate = predicate;
             rep.TransitionFlags |= AsyncStateTransitionFlag.TriggerActionReturnsTask;
 
@@ -387,9 +424,11 @@ namespace LiquidState.Configuration
 
             return this;
         }
-        private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalPredicateAsync<TArgument>(Func<Task<bool>> predicate,
-    ParameterizedTrigger<TTrigger, TArgument> trigger,
-    TState resultingState, Action<TArgument> onEntryAsyncAction)
+
+        private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalPredicateAsync<TArgument>(
+            Func<Task<bool>> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            TState resultingState, Action<TArgument> onEntryAsyncAction)
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
@@ -400,7 +439,7 @@ namespace LiquidState.Configuration
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
-            rep.WrappedTriggerAction = new Action<object>(o => onEntryAsyncAction((TArgument)o));
+            rep.WrappedTriggerAction = new Action<object>(o => onEntryAsyncAction((TArgument) o));
             rep.ConditionalTriggerPredicate = predicate;
             rep.TransitionFlags |= AsyncStateTransitionFlag.TriggerPredicateReturnsTask;
 
@@ -492,10 +531,7 @@ namespace LiquidState.Configuration
             {
                 return rep;
             }
-            else
-            {
-                return config.Values.FirstOrDefault();
-            }
+            return config.Values.FirstOrDefault();
         }
 
         public AsyncStateConfigurationHelper<TState, TTrigger> Configure(TState state)
