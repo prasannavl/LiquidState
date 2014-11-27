@@ -46,7 +46,6 @@ namespace LiquidState.Sample
                 .PermitReentry(Trigger.TurnOn)
                 .Permit(Trigger.Ring, State.Ringing, () => { Console.WriteLine("Attempting to ring"); })
                 .Permit(Trigger.Connect, State.Connected, () => { Console.WriteLine("Connecting"); });
-
             var connectTriggerWithParameter = config.SetTriggerParameter<string>(Trigger.Connect);
 
             config.Configure(State.Ringing)
