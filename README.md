@@ -25,6 +25,22 @@ Supported Platforms:
 **Note:** 
 I personally think switching states dynamically should never be the job of the machine. It should be a part of your domain logic, or better yet write a facade for the statemachine, making the intent very clear. 
 
+**Banchmarks**
+
+Comparing with Sync Machine of Stateless:
+
+```
+Benchmarks.StateMachines.StatelessTest .. Passed. Time taken: 23.293s
+
+Synchronous StateMachine - Stateless => Time taken: 00:00:22.9425084
+
+Benchmarks.StateMachines.LiquidStateSyncTest .. Passed. Time taken: 4.09s
+
+Synchronous StateMachines - LiquidState => Time taken: 00:00:03.8172853
+```
+
+Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](https://github.com/prasannavl/Benchmarks)
+
 **Example:** 
 
 A terrible example: 
