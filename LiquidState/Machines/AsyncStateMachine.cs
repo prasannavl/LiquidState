@@ -12,7 +12,7 @@ namespace LiquidState.Machines
     {
         internal AsyncStateRepresentation<TState, TTrigger> currentStateRepresentation;
 
-        public AsyncStateMachine(TState initialState, AsyncStateMachineConfiguration<TState, TTrigger> configuration)
+        internal AsyncStateMachine(TState initialState, AsyncStateMachineConfiguration<TState, TTrigger> configuration)
         {
             Contract.Requires(configuration != null);
             Contract.Requires(initialState != null);

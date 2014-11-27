@@ -13,7 +13,7 @@ namespace LiquidState.Machines
     {
         internal StateRepresentation<TState, TTrigger> currentStateRepresentation;
 
-        public StateMachine(TState initialState, StateMachineConfiguration<TState, TTrigger> configuration)
+        internal StateMachine(TState initialState, StateMachineConfiguration<TState, TTrigger> configuration)
         {
             Contract.Requires(configuration != null);
             Contract.Requires(initialState != null);
