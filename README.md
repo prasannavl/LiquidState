@@ -27,7 +27,7 @@ I personally think switching states dynamically should never be the job of the m
 
 **Banchmarks**
 
-Comparing with Sync Machine of Stateless:
+Comparing with Sync Machine of Stateless for 10 million state changes:
 
 ```
 Benchmarks.StateMachines.StatelessTest .. Passed. Time taken: 23.293s
