@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
+using LiquidState.Common;
 using LiquidState.Machines;
 using LiquidState.Representations;
 
@@ -102,6 +103,20 @@ namespace LiquidState.Configuration
             return PermitInternal(null, trigger, resultingState, null);
         }
 
+        public StateConfigurationHelper<TState, TTrigger> Ignore(TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+
+            return IgnoreInternal(null, trigger);
+        }
+
+        public StateConfigurationHelper<TState, TTrigger> IgnoreIf(Func<bool> predicate, TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+
+            return IgnoreInternal(predicate, trigger);
+        }
+
         public StateConfigurationHelper<TState, TTrigger> Permit(TTrigger trigger, TState resultingState,
             Action onEntryAction)
         {
@@ -178,6 +193,18 @@ namespace LiquidState.Configuration
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAction;
             rep.WrappedTriggerAction = new Action<object>(o => onEntryAction((TArgument) o));
+            rep.ConditionalTriggerPredicate = predicate;
+
+            return this;
+        }
+
+        private StateConfigurationHelper<TState, TTrigger> IgnoreInternal(Func<bool> predicate, TTrigger trigger)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
+
+            rep.NextStateRepresentation = null;
             rep.ConditionalTriggerPredicate = predicate;
 
             return this;

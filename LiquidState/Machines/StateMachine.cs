@@ -40,7 +40,7 @@ namespace LiquidState.Machines
         }
 
         public bool IsEnabled { get; private set; }
-        public event Action<TState, TTrigger> UnhandledTriggerExecuted;
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
         public event Action<TState, TState> StateChanged;
 
         public bool CanHandleTrigger(TTrigger trigger)
@@ -104,6 +104,13 @@ namespace LiquidState.Machines
             }
         }
 
+        private void HandleInvalidTrigger(TTrigger trigger)
+        {
+            var handler = UnhandledTriggerExecuted;
+            if (handler != null)
+                handler(trigger, currentStateRepresentation.State);
+        }
+
         public void Fire(TTrigger trigger, object parameter = null)
         {
             if (IsEnabled)
@@ -113,9 +120,7 @@ namespace LiquidState.Machines
 
                 if (triggerRep == null)
                 {
-                    var handler = UnhandledTriggerExecuted;
-                    if (handler != null)
-                        handler(currentStateRepresentation.State, trigger);
+                    HandleInvalidTrigger(trigger);
                     return;
                 }
 
@@ -126,8 +131,16 @@ namespace LiquidState.Machines
                 {
                     if (!predicate())
                     {
+                        HandleInvalidTrigger(trigger);
                         return;
                     }
+                }
+
+                // Handle ignored trigger
+
+                if (triggerRep.NextStateRepresentation == null)
+                {
+                    return;
                 }
 
                 // Current exit

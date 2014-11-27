@@ -6,6 +6,7 @@ using System;
 using System.Diagnostics.Contracts;
 using LiquidState.Configuration;
 using LiquidState.Machines;
+using LiquidState.Common;
 
 namespace LiquidState
 {
@@ -17,7 +18,10 @@ namespace LiquidState
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
 
-            return new StateMachine<TState, TTrigger>(initialState, config);
+            var sm = new StateMachine<TState, TTrigger>(initialState, config);
+            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.ThrowInvalidTriggerException;
+
+            return sm;
         }
 
         public static AsyncStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
@@ -26,7 +30,10 @@ namespace LiquidState
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
 
-            return new AsyncStateMachine<TState, TTrigger>(initialState, config);
+            var sm = new AsyncStateMachine<TState, TTrigger>(initialState, config);
+            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.ThrowInvalidTriggerException;
+
+            return sm;
         }
 
         public static StateMachineConfiguration<TState, TTrigger> CreateConfiguration<TState, TTrigger>()

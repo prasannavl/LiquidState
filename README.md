@@ -144,3 +144,16 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
     await machine.Fire(Trigger.Connect, "John Doe");
 
 ```
+
+Release notes:
+
+v1.1
+
+- Added removable invalid trigger event handler by default.
+- Added `Ignore` and `IgnoreIf` to configurations
+
+Breaking changes:  
+
+- Invalid trigger handler takes `<TTrigger, TState>`.
+
+

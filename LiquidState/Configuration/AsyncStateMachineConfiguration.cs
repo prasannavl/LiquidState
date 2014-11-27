@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Threading.Tasks;
+using LiquidState.Common;
 using LiquidState.Machines;
 using LiquidState.Representations;
 
@@ -295,6 +296,27 @@ namespace LiquidState.Configuration
             return PermitInternalAsync(predicate, trigger, resultingState, onEntryAsyncAction);
         }
 
+        public AsyncStateConfigurationHelper<TState, TTrigger> Ignore(TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+
+            return IgnoreInternal(null, trigger);
+        }
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> IgnoreIf(Func<bool> predicate, TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+
+            return IgnoreInternal(predicate, trigger);
+        }
+
+        public AsyncStateConfigurationHelper<TState, TTrigger> IgnoreIf(Func<Task<bool>> predicate, TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+
+            return IgnoreInternalPredicateAsync(predicate, trigger);
+        }
+
         private AsyncStateConfigurationHelper<TState, TTrigger> PermitInternalSync(Func<bool> predicate,
             TTrigger trigger,
             TState resultingState, Action onEntryAction)
@@ -440,6 +462,31 @@ namespace LiquidState.Configuration
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.WrappedTriggerAction = new Action<object>(o => onEntryAsyncAction((TArgument) o));
+            rep.ConditionalTriggerPredicate = predicate;
+            rep.TransitionFlags |= AsyncStateTransitionFlag.TriggerPredicateReturnsTask;
+
+            return this;
+        }
+
+        private AsyncStateConfigurationHelper<TState, TTrigger> IgnoreInternal(Func<bool> predicate, TTrigger trigger)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+
+            var rep = FindOrCreateTriggerConfig(trigger, currentStateRepresentation);
+
+            rep.NextStateRepresentation = null;
+            rep.ConditionalTriggerPredicate = predicate;
+
+            return this;
+        }
+
+        private AsyncStateConfigurationHelper<TState, TTrigger> IgnoreInternalPredicateAsync(Func<Task<bool>> predicate, TTrigger trigger)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+
+            var rep = FindOrCreateTriggerConfig(trigger, currentStateRepresentation);
+
+            rep.NextStateRepresentation = null;
             rep.ConditionalTriggerPredicate = predicate;
             rep.TransitionFlags |= AsyncStateTransitionFlag.TriggerPredicateReturnsTask;
 

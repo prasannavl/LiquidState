@@ -82,8 +82,15 @@ namespace LiquidState.Machines
             }
         }
 
-        public event Action<TState, TTrigger> UnhandledTriggerExecuted;
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
         public event Action<TState, TState> StateChanged;
+
+        private void HandleInvalidTrigger(TTrigger trigger)
+        {
+            var handler = UnhandledTriggerExecuted;
+            if (handler != null)
+                handler(trigger, currentStateRepresentation.State);
+        }
 
         public async Task Fire(TTrigger trigger, object parameter = null)
         {
@@ -93,24 +100,37 @@ namespace LiquidState.Machines
                     currentStateRepresentation);
                 if (triggerRep == null)
                 {
-                    var h = UnhandledTriggerExecuted;
-                    if (h != null)
-                        h(currentStateRepresentation.State, trigger);
+                    HandleInvalidTrigger(trigger);
                     return;
                 }
 
                 if ((triggerRep.TransitionFlags & AsyncStateTransitionFlag.TriggerPredicateReturnsTask) ==
                     AsyncStateTransitionFlag.ExitReturnsTask)
                 {
-                    var exit = triggerRep.ConditionalTriggerPredicate as Func<Task<bool>>;
-                    if (exit != null)
-                        if (!await exit()) return;
+                    var predicate = triggerRep.ConditionalTriggerPredicate as Func<Task<bool>>;
+                    if (predicate != null)
+                        if (!await predicate())
+                        {
+                            HandleInvalidTrigger(trigger);
+                            return;
+                        }
                 }
                 else
                 {
-                    var exit = triggerRep.ConditionalTriggerPredicate as Func<bool>;
-                    if (exit != null)
-                        if (!exit()) return;
+                    var predicate = triggerRep.ConditionalTriggerPredicate as Func<bool>;
+                    if (predicate != null)
+                        if (!predicate())
+                        {
+                            HandleInvalidTrigger(trigger);                            
+                            return;
+                        }
+                }
+
+                // Handle ignored trigger
+
+                if (triggerRep.NextStateRepresentation == null)
+                {
+                    return;
                 }
 
                 // Current exit

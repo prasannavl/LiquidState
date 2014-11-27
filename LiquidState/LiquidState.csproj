@@ -124,10 +124,11 @@
     <!-- A reference to the entire .NET Framework is automatically included -->
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\Exceptions.cs" />
+    <Compile Include="Common\ParameterizedTrigger.cs" />
     <Compile Include="Representations\AsyncRepresentation.cs" />
     <Compile Include="Machines\AsyncStateMachine.cs" />
     <Compile Include="Configuration\AsyncStateMachineConfiguration.cs" />
-    <Compile Include="Configuration\Common.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Representations\Representation.cs" />
     <Compile Include="Machines\StateMachine.cs" />
