@@ -9,7 +9,8 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 
 > Install-Package LiquidState
   
-
+Supported Platforms:
+> PCL profile 259: Supports all platform including Xamarin.iOS and Xamarin.Android. 
   
 ######Why LiquidState:
 
