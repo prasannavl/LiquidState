@@ -90,7 +90,7 @@ A terrible example:
 
     machine.Fire(Trigger.Talk);
     machine.Fire(Trigger.Ring);
-    machine.Fire(Trigger.Connect, "John Doe");
+    machine.Fire(connectTriggerWithParameter, "John Doe");
 ```
 
 Now, let's take the same terrible example, but now do it **asynchronously**!  
@@ -141,19 +141,27 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
     await machine.Fire(Trigger.Talk);
     await machine.Fire(Trigger.Ring);
-    await machine.Fire(Trigger.Connect, "John Doe");
+    await machine.Fire(connectTriggerWithParameter, "John Doe");
 
 ```
 
-Release notes:
+**Release notes:**
 
-v1.1
+######v1.2
 
-- Added removable invalid trigger event handler by default.
+- Added generic parameterized triggers
+
+*Breaking changes:*
+
+- Non-parameterized argument (object) has been removed in favour of parameterized triggers
+
+######v1.1
+
+- Added removable invalid trigger event handler by default
 - Added `Ignore` and `IgnoreIf` to configurations
 
-Breaking changes:  
+*Breaking changes:*  
 
-- Invalid trigger handler takes `<TTrigger, TState>`.
+- Invalid trigger handler takes `<TTrigger, TState>`
 
 

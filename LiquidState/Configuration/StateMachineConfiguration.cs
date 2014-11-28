@@ -192,7 +192,6 @@ namespace LiquidState.Configuration
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAction;
-            rep.WrappedTriggerAction = new Action<object>(o => onEntryAction((TArgument) o));
             rep.ConditionalTriggerPredicate = predicate;
 
             return this;

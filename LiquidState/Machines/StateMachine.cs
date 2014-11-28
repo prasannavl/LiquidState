@@ -5,7 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
+using LiquidState.Common;
 using LiquidState.Configuration;
 using LiquidState.Representations;
 
@@ -36,7 +36,13 @@ namespace LiquidState.Machines
 
         public IEnumerable<TTrigger> CurrentPermittedTriggers
         {
-            get { return currentStateRepresentation.Triggers.Select(x => x.Trigger); }
+            get
+            {
+                foreach (var triggerRepresentation in currentStateRepresentation.Triggers)
+                {
+                    yield return triggerRepresentation.Trigger;
+                }
+            }
         }
 
         public bool IsEnabled { get; private set; }
@@ -45,12 +51,24 @@ namespace LiquidState.Machines
 
         public bool CanHandleTrigger(TTrigger trigger)
         {
-            return currentStateRepresentation.Triggers.Any(x => x.Trigger.Equals(trigger));
+            foreach (var current in currentStateRepresentation.Triggers)
+            {
+                if (current.Equals(trigger))
+                    return true;
+            }
+
+            return false;
         }
 
         public bool CanTransitionTo(TState state)
         {
-            return currentStateRepresentation.Triggers.Any(x => x.NextStateRepresentation.State.Equals(state));
+            foreach (var current in currentStateRepresentation.Triggers)
+            {
+                if (current.NextStateRepresentation.State.Equals(state))
+                    return true;
+            }
+
+            return false;
         }
 
         public void Pause()
@@ -77,33 +95,6 @@ namespace LiquidState.Machines
                 action();
         }
 
-        private void ExecuteTriggerAction(TriggerRepresentation<TTrigger, TState> triggerRep, object parameter)
-        {
-            Contract.Requires(triggerRep != null);
-
-            if (triggerRep.OnTriggerAction != null)
-            {
-                if (triggerRep.WrappedTriggerAction == null)
-                {
-                    var action = (Action) triggerRep.OnTriggerAction;
-
-                    Contract.Assert(action != null);
-                    // Will never be null if wrapper is not null => Enforced on creation.
-                    // ReSharper disable once PossibleNullReferenceException
-                    action();
-                }
-                else
-                {
-                    var wrappedAction = (Action<object>) triggerRep.WrappedTriggerAction;
-
-                    Contract.Assert(wrappedAction != null);
-                    // Will never be null if wrapper is not null => Enforced on creation.
-                    // ReSharper disable once PossibleNullReferenceException
-                    wrappedAction(parameter);
-                }
-            }
-        }
-
         private void HandleInvalidTrigger(TTrigger trigger)
         {
             var handler = UnhandledTriggerExecuted;
@@ -111,7 +102,80 @@ namespace LiquidState.Machines
                 handler(trigger, currentStateRepresentation.State);
         }
 
-        public void Fire(TTrigger trigger, object parameter = null)
+        public void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
+        {
+            if (IsEnabled)
+            {
+                var trigger = parameterizedTrigger.Trigger;
+                var triggerRep = StateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+                    currentStateRepresentation);
+
+                if (triggerRep == null)
+                {
+                    HandleInvalidTrigger(trigger);
+                    return;
+                }
+
+                var previousState = CurrentState;
+
+                var predicate = triggerRep.ConditionalTriggerPredicate;
+                if (predicate != null)
+                {
+                    if (!predicate())
+                    {
+                        HandleInvalidTrigger(trigger);
+                        return;
+                    }
+                }
+
+                // Handle ignored trigger
+
+                if (triggerRep.NextStateRepresentation == null)
+                {
+                    return;
+                }
+
+                // Catch invalid paramters before execution.
+
+                Action<TArgument> triggerAction = null;
+                try
+                {
+                    triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
+                }
+                catch (InvalidCastException e)
+                {
+                    InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                    return;
+                }
+
+
+                // Current exit
+                var currentExit = currentStateRepresentation.OnExitAction;
+                ExecuteAction(currentExit);
+
+                // Trigger entry
+                if (triggerAction != null)
+                    triggerAction(argument);
+
+
+                var nextStateRep = triggerRep.NextStateRepresentation;
+
+                // Next entry
+                var nextEntry = nextStateRep.OnEntryAction;
+                ExecuteAction(nextEntry);
+
+                currentStateRepresentation = nextStateRep;
+
+                // Raise state change event
+                var stateChangedHandler = StateChanged;
+                if (stateChangedHandler != null)
+                {
+                    stateChangedHandler(previousState, currentStateRepresentation.State);
+                }
+            }
+        }
+
+        public void Fire(TTrigger trigger)
         {
             if (IsEnabled)
             {
@@ -143,12 +207,26 @@ namespace LiquidState.Machines
                     return;
                 }
 
+                // Catch invalid paramters before execution.
+
+                Action triggerAction = null;
+                try
+                {
+                    triggerAction = (Action) triggerRep.OnTriggerAction;
+                }
+                catch (InvalidCastException e)
+                {
+                    InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                    return;
+                }
+
+
                 // Current exit
                 var currentExit = currentStateRepresentation.OnExitAction;
                 ExecuteAction(currentExit);
 
                 // Trigger entry
-                ExecuteTriggerAction(triggerRep, parameter);
+                ExecuteAction(triggerAction);
 
                 var nextStateRep = triggerRep.NextStateRepresentation;
 

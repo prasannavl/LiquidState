@@ -1,20 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Author: Prasanna V. Loganathar
+// Created: 1:09 AM 28-11-2014
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LiquidState.Common
 {
     public class ParameterizedTrigger<TTrigger, TArgument>
     {
-        public readonly Type ArgumentType = typeof(TArgument);
         public readonly TTrigger Trigger;
 
         internal ParameterizedTrigger(TTrigger trigger)
         {
             Contract.Requires(trigger != null);
+
             Trigger = trigger;
         }
     }

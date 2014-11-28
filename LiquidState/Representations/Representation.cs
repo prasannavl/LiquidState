@@ -31,7 +31,6 @@ namespace LiquidState.Representations
         public Func<bool> ConditionalTriggerPredicate;
         public StateRepresentation<TState, TTrigger> NextStateRepresentation;
         public object OnTriggerAction;
-        public object WrappedTriggerAction;
         public readonly TTrigger Trigger;
 
         internal TriggerRepresentation(TTrigger trigger)

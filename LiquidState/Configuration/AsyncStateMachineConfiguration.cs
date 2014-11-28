@@ -346,7 +346,6 @@ namespace LiquidState.Configuration
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAction;
-            rep.WrappedTriggerAction = new Action<object>(o => onEntryAction((TArgument) o));
             rep.ConditionalTriggerPredicate = predicate;
 
             return this;
@@ -384,7 +383,6 @@ namespace LiquidState.Configuration
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
-            rep.WrappedTriggerAction = new Func<object, Task>(o => onEntryAsyncAction((TArgument) o));
             rep.ConditionalTriggerPredicate = predicate;
             rep.TransitionFlags |= AsyncStateTransitionFlag.TriggerPredicateReturnsTask;
             rep.TransitionFlags |= AsyncStateTransitionFlag.TriggerActionReturnsTask;
@@ -423,7 +421,6 @@ namespace LiquidState.Configuration
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
-            rep.WrappedTriggerAction = new Func<object, Task>(o => onEntryAsyncAction((TArgument) o));
             rep.ConditionalTriggerPredicate = predicate;
             rep.TransitionFlags |= AsyncStateTransitionFlag.TriggerActionReturnsTask;
 
@@ -461,7 +458,6 @@ namespace LiquidState.Configuration
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
-            rep.WrappedTriggerAction = new Action<object>(o => onEntryAsyncAction((TArgument) o));
             rep.ConditionalTriggerPredicate = predicate;
             rep.TransitionFlags |= AsyncStateTransitionFlag.TriggerPredicateReturnsTask;
 
@@ -480,7 +476,8 @@ namespace LiquidState.Configuration
             return this;
         }
 
-        private AsyncStateConfigurationHelper<TState, TTrigger> IgnoreInternalPredicateAsync(Func<Task<bool>> predicate, TTrigger trigger)
+        private AsyncStateConfigurationHelper<TState, TTrigger> IgnoreInternalPredicateAsync(Func<Task<bool>> predicate,
+            TTrigger trigger)
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
 

@@ -73,7 +73,7 @@ namespace LiquidState.Sample
 
             machine.Fire(Trigger.Talk);
             machine.Fire(Trigger.Ring);
-            machine.Fire(Trigger.Connect, "John Doe");
+            machine.Fire(connectTriggerWithParameter, "John Doe");
         }
 
         static async Task AsyncMachineExample()
@@ -113,7 +113,7 @@ namespace LiquidState.Sample
 
             await machine.Fire(Trigger.Talk);
             await machine.Fire(Trigger.Ring);
-            await machine.Fire(Trigger.Connect, "John Doe");
+            await machine.Fire(connectTriggerWithParameter, "John Doe");
 
         }
     }

@@ -4,9 +4,9 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using LiquidState.Common;
 using LiquidState.Configuration;
 using LiquidState.Machines;
-using LiquidState.Common;
 
 namespace LiquidState
 {
@@ -19,7 +19,7 @@ namespace LiquidState
             Contract.Requires<ArgumentNullException>(config != null);
 
             var sm = new StateMachine<TState, TTrigger>(initialState, config);
-            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.ThrowInvalidTriggerException;
+            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
 
             return sm;
         }
@@ -31,7 +31,7 @@ namespace LiquidState
             Contract.Requires<ArgumentNullException>(config != null);
 
             var sm = new AsyncStateMachine<TState, TTrigger>(initialState, config);
-            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.ThrowInvalidTriggerException;
+            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
 
             return sm;
         }

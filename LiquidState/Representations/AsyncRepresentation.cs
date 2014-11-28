@@ -35,7 +35,6 @@ namespace LiquidState.Representations
         public AsyncStateRepresentation<TState, TTrigger> NextStateRepresentation;
         public object OnTriggerAction;
         public AsyncStateTransitionFlag TransitionFlags;
-        public object WrappedTriggerAction;
         public readonly TTrigger Trigger;
 
         internal AsyncTriggerRepresentation(TTrigger trigger)
