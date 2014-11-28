@@ -15,7 +15,7 @@ Supported Platforms:
 ######Why LiquidState:
 
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
-- Builds a linked object graph internally during configuration making it a slightly faster and more efficient implementation.
+- Builds a linked object graph internally during configuration making it a much faster and more efficient implementation.
 
 ######Why Stateless:
 
@@ -30,13 +30,9 @@ I personally think switching states dynamically should never be the job of the m
 Comparing with Sync Machine of Stateless for 10 million state changes:
 
 ```
-Benchmarks.StateMachines.StatelessTest .. Passed. Time taken: 23.293s
+Synchronous StateMachines - LiquidState => Time taken: 00:00:02.5407924
 
-Synchronous StateMachine - Stateless => Time taken: 00:00:22.9425084
-
-Benchmarks.StateMachines.LiquidStateSyncTest .. Passed. Time taken: 4.09s
-
-Synchronous StateMachines - LiquidState => Time taken: 00:00:03.8172853
+Synchronous StateMachine - Stateless => Time taken: 00:00:22.9038585
 ```
 
 Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](https://github.com/prasannavl/Benchmarks)
