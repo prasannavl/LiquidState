@@ -24,17 +24,20 @@ namespace LiquidState
             return sm;
         }
 
-        public static AsyncStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
-            AsyncStateMachineConfiguration<TState, TTrigger> config)
+        public static IAsyncStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
+            AsyncStateMachineConfiguration<TState, TTrigger> config, bool queuedAsyncMachine = false)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
 
-            var sm = new AsyncStateMachine<TState, TTrigger>(initialState, config);
+            var sm = queuedAsyncMachine ?
+                (IAsyncStateMachine<TState, TTrigger>)new QueuedAsyncStateMachine<TState, TTrigger>(initialState, config) :
+                (IAsyncStateMachine<TState, TTrigger>)new AsyncStateMachine<TState, TTrigger>(initialState, config);
             sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
 
             return sm;
         }
+
 
         public static StateMachineConfiguration<TState, TTrigger> CreateConfiguration<TState, TTrigger>()
         {

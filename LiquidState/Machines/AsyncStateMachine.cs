@@ -5,6 +5,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Common;
 using LiquidState.Configuration;
@@ -12,7 +13,7 @@ using LiquidState.Representations;
 
 namespace LiquidState.Machines
 {
-    public class AsyncStateMachine<TState, TTrigger>
+    public class AsyncStateMachine<TState, TTrigger> : IAsyncStateMachine<TState, TTrigger>
     {
         internal AsyncStateRepresentation<TState, TTrigger> currentStateRepresentation;
 
@@ -167,7 +168,7 @@ namespace LiquidState.Machines
                     {
                         triggerFunc = (Func<TArgument, Task>) triggerRep.OnTriggerAction;
                     }
-                    catch (InvalidCastException e)
+                    catch (InvalidCastException)
                     {
                         InvalidTriggerParameterException<TTrigger>.Throw(trigger);
                         return;
@@ -179,7 +180,7 @@ namespace LiquidState.Machines
                     {
                         triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
                     }
-                    catch (InvalidCastException e)
+                    catch (InvalidCastException)
                     {
                         InvalidTriggerParameterException<TTrigger>.Throw(trigger);
                         return;
@@ -295,7 +296,7 @@ namespace LiquidState.Machines
                     {
                         triggerFunc = (Func<Task>) triggerRep.OnTriggerAction;
                     }
-                    catch (InvalidCastException e)
+                    catch (InvalidCastException)
                     {
                         InvalidTriggerParameterException<TTrigger>.Throw(trigger);
                         return;
@@ -307,7 +308,7 @@ namespace LiquidState.Machines
                     {
                         triggerAction = (Action) triggerRep.OnTriggerAction;
                     }
-                    catch (InvalidCastException e)
+                    catch (InvalidCastException)
                     {
                         InvalidTriggerParameterException<TTrigger>.Throw(trigger);
                         return;

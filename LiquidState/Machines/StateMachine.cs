@@ -11,7 +11,7 @@ using LiquidState.Representations;
 
 namespace LiquidState.Machines
 {
-    public class StateMachine<TState, TTrigger>
+    public class StateMachine<TState, TTrigger> : IStateMachine<TState, TTrigger>
     {
         internal StateRepresentation<TState, TTrigger> currentStateRepresentation;
 
@@ -142,7 +142,7 @@ namespace LiquidState.Machines
                 {
                     triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
                 }
-                catch (InvalidCastException e)
+                catch (InvalidCastException)
                 {
                     InvalidTriggerParameterException<TTrigger>.Throw(trigger);
                     return;
@@ -214,7 +214,7 @@ namespace LiquidState.Machines
                 {
                     triggerAction = (Action) triggerRep.OnTriggerAction;
                 }
-                catch (InvalidCastException e)
+                catch (InvalidCastException)
                 {
                     InvalidTriggerParameterException<TTrigger>.Throw(trigger);
                     return;

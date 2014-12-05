@@ -10,7 +10,7 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 > Install-Package LiquidState
   
 Supported Platforms:
-> PCL profile 259: Supports all platform including Xamarin.iOS and Xamarin.Android. 
+> PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
   
 ######Why LiquidState:
 
@@ -142,6 +142,10 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 ```
 
 **Release notes:**
+
+######v1.3-beta
+
+- Added QueuedAsyncStateMachine with customizable synchronization context, and queued Fire semantics.
 
 ######v1.2
 
