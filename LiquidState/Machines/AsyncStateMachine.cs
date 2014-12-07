@@ -15,13 +15,14 @@ namespace LiquidState.Machines
         private IImmutableQueue<Action> actionsQueue;
         private volatile bool isPaused;
         private AwaitableStateMachine<TState, TTrigger> machine;
+        private IDispatcher dispatcher;
 
         public AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
         {
             machine = new AwaitableStateMachine<TState, TTrigger>(initialState, config);
             machine.UnhandledTriggerExecuted += UnhandledTriggerExecuted;
             machine.StateChanged += StateChanged;
-            DispatchHelper.Current.Initialize();
+            dispatcher = new SynchronizationContextDispatcher();
         }
 
         public TState CurrentState
@@ -81,7 +82,7 @@ namespace LiquidState.Machines
 
                 if (isPaused)
                 {
-                    Action action = () => DispatchHelper.Current.Execute(async () =>
+                    Action action = () => dispatcher.Execute(async () =>
                     {
                         await machine.FireAsync(parameterizedTrigger, argument);
                         tcs.SetResult(true);
@@ -91,7 +92,7 @@ namespace LiquidState.Machines
                 }
                 else
                 {
-                    DispatchHelper.Current.Execute(async () =>
+                    dispatcher.Execute(async () =>
                     {
                         await machine.FireAsync(parameterizedTrigger, argument);
                         tcs.SetResult(true);
@@ -111,7 +112,7 @@ namespace LiquidState.Machines
 
                 if (isPaused)
                 {
-                    Action action = () => DispatchHelper.Current.Execute(async () =>
+                    Action action = () => dispatcher.Execute(async () =>
                     {
                         await machine.FireAsync(trigger);
                         tcs.SetResult(true);
@@ -121,7 +122,7 @@ namespace LiquidState.Machines
                 }
                 else
                 {
-                    DispatchHelper.Current.Execute(async () =>
+                    dispatcher.Execute(async () =>
                     {
                         await machine.FireAsync(trigger);
                         tcs.SetResult(true);
