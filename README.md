@@ -15,7 +15,7 @@ Supported Platforms:
 > PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
 
 
-**Available StateMachines:***
+**Available State Machines:**
 
 1. **StateMachine** - Fully synchronous.
 2. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited.
