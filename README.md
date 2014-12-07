@@ -144,13 +144,14 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
     var machine = StateMachine.Create(State.Ringing, config);
 
-    await machine.Fire(Trigger.Talk);
-    await machine.Fire(Trigger.Ring);
-    await machine.Fire(connectTriggerWithParameter, "John Doe");
+    await machine.FireAsync(Trigger.Talk);
+    await machine.FireAsync(Trigger.Ring);
+    await machine.FireAsync(connectTriggerWithParameter, "John Doe");
 
 ```
 
 **Release notes:**
+
 ######v.2.0-beta
 
 - Changed AsyncStateMachine to AwaitableStateMachine

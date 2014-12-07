@@ -16,12 +16,7 @@ namespace LiquidState.Common
         public void Initialize()
         {
             _managedThreadId = Environment.CurrentManagedThreadId;
-            _uiContext = SynchronizationContext.Current;
-
-            if (_uiContext == null)
-            {
-                throw new Exception("Synchronization context unavailable.");
-            }
+            _uiContext = SynchronizationContext.Current ?? new SynchronizationContext();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
