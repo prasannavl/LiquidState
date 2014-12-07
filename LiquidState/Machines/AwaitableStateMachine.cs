@@ -189,7 +189,7 @@ namespace LiquidState.Machines
 
                 // Current exit
 
-                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
+                if (CheckFlag(currentStateRepresentation.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
                 {
                     var exit = (Func<Task>) currentStateRepresentation.OnExitAction;
                     if (exit != null)
@@ -324,7 +324,7 @@ namespace LiquidState.Machines
 
                 // Current exit
 
-                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
+                if (CheckFlag(currentStateRepresentation.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
                 {
                     var exit = (Func<Task>) currentStateRepresentation.OnExitAction;
                     if (exit != null)
