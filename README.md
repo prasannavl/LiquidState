@@ -9,7 +9,7 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 
 > Install-Package LiquidState -Pre
 
-Note: The latest version is beta (pre-release) due to the dependency on System.Collections.Immutable, which is still under beta.), and is otherwise stable. The latest stable is still v1.2 for which the release notes are below.
+Note: The latest version is beta (pre-release) due to the dependency on System.Collections.Immutable, which is still under beta.), and is otherwise stable. The release notes are at the end.
   
 Supported Platforms:
 > PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
