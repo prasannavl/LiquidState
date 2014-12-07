@@ -14,6 +14,7 @@ namespace LiquidState.Machines
     public class StateMachine<TState, TTrigger> : IStateMachine<TState, TTrigger>
     {
         internal StateRepresentation<TState, TTrigger> currentStateRepresentation;
+        private volatile bool isRunning;
 
         internal StateMachine(TState initialState, StateMachineConfiguration<TState, TTrigger> configuration)
         {
@@ -27,6 +28,11 @@ namespace LiquidState.Machines
             }
 
             IsEnabled = true;
+        }
+
+        public bool IsInTransition
+        {
+            get { return isRunning; }
         }
 
         public TState CurrentState
@@ -89,23 +95,15 @@ namespace LiquidState.Machines
             ExecuteAction(currentExit);
         }
 
-        private void ExecuteAction(Action action)
-        {
-            if (action != null)
-                action();
-        }
-
-        private void HandleInvalidTrigger(TTrigger trigger)
-        {
-            var handler = UnhandledTriggerExecuted;
-            if (handler != null)
-                handler(trigger, currentStateRepresentation.State);
-        }
-
         public void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
         {
+            if (isRunning)
+                throw new InvalidOperationException("State cannot be changed while in transition");
+
             if (IsEnabled)
             {
+                isRunning = true;
+
                 var trigger = parameterizedTrigger.Trigger;
                 var triggerRep = StateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
                     currentStateRepresentation);
@@ -172,13 +170,20 @@ namespace LiquidState.Machines
                 {
                     stateChangedHandler(previousState, currentStateRepresentation.State);
                 }
+
+                isRunning = false;
             }
         }
 
         public void Fire(TTrigger trigger)
         {
+            if (isRunning)
+                throw new InvalidOperationException("State cannot be changed while in transition");
+
             if (IsEnabled)
             {
+                isRunning = true;
+
                 var triggerRep = StateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
                     currentStateRepresentation);
 
@@ -242,7 +247,22 @@ namespace LiquidState.Machines
                 {
                     stateChangedHandler(previousState, currentStateRepresentation.State);
                 }
+
+                isRunning = false;
             }
+        }
+
+        private void ExecuteAction(Action action)
+        {
+            if (action != null)
+                action();
+        }
+
+        private void HandleInvalidTrigger(TTrigger trigger)
+        {
+            var handler = UnhandledTriggerExecuted;
+            if (handler != null)
+                handler(trigger, currentStateRepresentation.State);
         }
     }
 }

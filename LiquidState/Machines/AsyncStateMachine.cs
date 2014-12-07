@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,9 +14,12 @@ namespace LiquidState.Machines
     public class AsyncStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
         private IImmutableQueue<Action> actionsQueue;
-        private volatile bool isPaused;
-        private AwaitableStateMachine<TState, TTrigger> machine;
         private IDispatcher dispatcher;
+        private volatile bool isInQueue;
+        private volatile bool isPaused;
+        private volatile bool isRunning;
+        private AwaitableStateMachine<TState, TTrigger> machine;
+        private volatile int queueCount;
 
         public AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
         {
@@ -24,6 +28,12 @@ namespace LiquidState.Machines
             machine.StateChanged += StateChanged;
             dispatcher = new SynchronizationContextDispatcher();
             dispatcher.Initialize();
+            actionsQueue = ImmutableQueue.Create<Action>();
+        }
+
+        public bool IsInTransition
+        {
+            get { return isRunning; }
         }
 
         public TState CurrentState
@@ -38,7 +48,7 @@ namespace LiquidState.Machines
 
         public bool IsEnabled
         {
-            get { return machine.IsEnabled; }
+            get { return !isPaused && machine.IsEnabled; }
         }
 
         public bool CanHandleTrigger(TTrigger trigger)
@@ -54,17 +64,12 @@ namespace LiquidState.Machines
         public void Pause()
         {
             isPaused = true;
-            actionsQueue = ImmutableQueue.Create<Action>();
         }
 
         public void Resume()
         {
             isPaused = false;
-            foreach (var action in actionsQueue)
-            {
-                action();
-            }
-            actionsQueue = null;
+            RunFromQueueIfNotEmpty();
         }
 
         public Task Stop()
@@ -75,31 +80,33 @@ namespace LiquidState.Machines
         public event Action<TTrigger, TState> UnhandledTriggerExecuted;
         public event Action<TState, TState> StateChanged;
 
-        public Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
+        public Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+            TArgument argument)
         {
             if (IsEnabled)
             {
                 var tcs = new TaskCompletionSource<bool>();
-
-                if (isPaused)
+                Action action = () => dispatcher.Execute(async () =>
                 {
-                    Action action = () => dispatcher.Execute(async () =>
-                    {
-                        await machine.FireAsync(parameterizedTrigger, argument);
-                        tcs.SetResult(true);
-                    });
+                    await machine.FireAsync(parameterizedTrigger, argument);
+                    tcs.SetResult(true);
 
-                    Interlocked.CompareExchange(ref actionsQueue, actionsQueue.Enqueue(action), actionsQueue);
-                }
-                else
+                    if (!isInQueue)
+                        RunFromQueueIfNotEmpty();
+                });
+
+                if (isRunning || isPaused)
                 {
-                    dispatcher.Execute(async () =>
+                    lock (actionsQueue)
                     {
-                        await machine.FireAsync(parameterizedTrigger, argument);
-                        tcs.SetResult(true);
-                    });
+                        actionsQueue = actionsQueue.Enqueue(action);
+                        queueCount++;
+                    }
+                    return tcs.Task;
                 }
 
+                isRunning = true;
+                action();
                 return tcs.Task;
             }
             return TaskCache.FalseTask;
@@ -110,29 +117,51 @@ namespace LiquidState.Machines
             if (IsEnabled)
             {
                 var tcs = new TaskCompletionSource<bool>();
-
-                if (isPaused)
+                Action action = () => dispatcher.Execute(async () =>
                 {
-                    Action action = () => dispatcher.Execute(async () =>
-                    {
-                        await machine.FireAsync(trigger);
-                        tcs.SetResult(true);
-                    });
+                    await machine.FireAsync(trigger);
+                    tcs.SetResult(true);
 
-                    Interlocked.CompareExchange(ref actionsQueue, actionsQueue.Enqueue(action), actionsQueue);
-                }
-                else
+                    if (!isInQueue)
+                        RunFromQueueIfNotEmpty();
+                });
+
+                if (isRunning || isPaused)
                 {
-                    dispatcher.Execute(async () =>
+                    lock (actionsQueue)
                     {
-                        await machine.FireAsync(trigger);
-                        tcs.SetResult(true);
-                    });
+                        actionsQueue = actionsQueue.Enqueue(action);
+                        queueCount++;
+                    }
+                    return tcs.Task;
                 }
 
+                isRunning = true;
+                action();
                 return tcs.Task;
             }
             return TaskCache.FalseTask;
+        }
+
+        private void RunFromQueueIfNotEmpty()
+        {
+            isRunning = true;
+            isInQueue = true;
+
+            while (queueCount > 0)
+            {
+                Action current = null;
+                lock (actionsQueue)
+                {
+                    current = actionsQueue.Peek();
+                    actionsQueue = actionsQueue.Dequeue();
+                    queueCount--;
+                }
+                current();
+            }
+
+            isInQueue = false;
+            isRunning = false;
         }
     }
 }

@@ -11,6 +11,7 @@ namespace LiquidState.Machines
         bool IsEnabled { get; }
         event Action<TTrigger, TState> UnhandledTriggerExecuted;
         event Action<TState, TState> StateChanged;
+        bool IsInTransition { get; }
         bool CanHandleTrigger(TTrigger trigger);
         bool CanTransitionTo(TState state);
         void Pause();

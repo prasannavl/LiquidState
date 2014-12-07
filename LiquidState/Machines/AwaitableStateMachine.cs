@@ -16,8 +16,10 @@ namespace LiquidState.Machines
     public class AwaitableStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
         internal AwaitableStateRepresentation<TState, TTrigger> currentStateRepresentation;
+        private volatile bool isRunning;
 
-        internal AwaitableStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> configuration)
+        internal AwaitableStateMachine(TState initialState,
+            AwaitableStateMachineConfiguration<TState, TTrigger> configuration)
         {
             Contract.Requires(configuration != null);
             Contract.Requires(initialState != null);
@@ -29,6 +31,11 @@ namespace LiquidState.Machines
             }
 
             IsEnabled = true;
+        }
+
+        public bool IsInTransition
+        {
+            get { return isRunning; }
         }
 
         public TState CurrentState
@@ -103,23 +110,16 @@ namespace LiquidState.Machines
         public event Action<TTrigger, TState> UnhandledTriggerExecuted;
         public event Action<TState, TState> StateChanged;
 
-        private void HandleInvalidTrigger(TTrigger trigger)
-        {
-            var handler = UnhandledTriggerExecuted;
-            if (handler != null)
-                handler(trigger, currentStateRepresentation.State);
-        }
-
-        private bool CheckFlag(AwaitableStateTransitionFlag source, AwaitableStateTransitionFlag flagToCheck)
-        {
-            return (source & flagToCheck) == flagToCheck;
-        }
-
         public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
+            if (isRunning)
+                throw new InvalidOperationException("State cannot be changed while in transition");
+
             if (IsEnabled)
             {
+                isRunning = true;
+
                 var trigger = parameterizedTrigger.Trigger;
                 var triggerRep = AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
                     currentStateRepresentation);
@@ -242,13 +242,20 @@ namespace LiquidState.Machines
                 {
                     sc(previousState, currentStateRepresentation.State);
                 }
+
+                isRunning = false;
             }
         }
 
         public async Task FireAsync(TTrigger trigger)
         {
+            if (isRunning)
+                throw new InvalidOperationException("State cannot be changed while in transition");
+
             if (IsEnabled)
             {
+                isRunning = true;
+
                 var triggerRep = AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
                     currentStateRepresentation);
 
@@ -370,7 +377,21 @@ namespace LiquidState.Machines
                 {
                     sc(previousState, currentStateRepresentation.State);
                 }
+
+                isRunning = false;
             }
+        }
+
+        private void HandleInvalidTrigger(TTrigger trigger)
+        {
+            var handler = UnhandledTriggerExecuted;
+            if (handler != null)
+                handler(trigger, currentStateRepresentation.State);
+        }
+
+        private bool CheckFlag(AwaitableStateTransitionFlag source, AwaitableStateTransitionFlag flagToCheck)
+        {
+            return (source & flagToCheck) == flagToCheck;
         }
     }
 }

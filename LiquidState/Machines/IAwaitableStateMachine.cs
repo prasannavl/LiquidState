@@ -9,6 +9,7 @@ namespace LiquidState.Machines
     {
         TState CurrentState { get; }
         IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
+        bool IsInTransition { get; }
         bool IsEnabled { get; }
         bool CanHandleTrigger(TTrigger trigger);
         bool CanTransitionTo(TState state);
