@@ -39,9 +39,26 @@ I personally think switching states dynamically should never be the job of the m
 Comparing with Sync Machine of Stateless for 10 million state changes:
 
 ```
-Synchronous StateMachines - LiquidState => Time taken: 00:00:02.5407924
+Benchmarks.StateMachines.StatelessTest .. Passed. Time taken: 21.923s
 
-Synchronous StateMachine - Stateless => Time taken: 00:00:22.9038585
+Count: 10000000
+Synchronous StateMachines - Stateless => Time taken: 00:00:21.5919263
+
+Benchmarks.StateMachines.LiquidStateSyncTest .. Passed. Time taken: 2.483s
+
+Count: 10000000
+Synchronous StateMachines - LiquidState => Time taken: 00:00:02.2374253
+
+Benchmarks.StateMachines.LiquidStateAwaitableSyncTest .. Passed. Time taken: 14.334s
+
+Count: 10000000
+Synchronous StateMachines - LiquidState (Task/Async Awaitable) => Time taken: 00:00:13.9579566
+
+Benchmarks.StateMachines.LiquidStateAsyncTest .. Passed. Time taken: 19.714s
+
+Count: 10000000
+Asynchronous StateMachines - LiquidState => Time taken: 00:00:19.4116743
+
 ```
 
 Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](https://github.com/prasannavl/Benchmarks)
