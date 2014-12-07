@@ -103,7 +103,7 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 ```
     // Note the "CreateAsyncConfiguration"
-    var config = StateMachine.CreateAsyncConfiguration<State, Trigger>();
+    var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 
     config.Configure(State.Off)
         .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
