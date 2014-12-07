@@ -12,20 +12,23 @@ using LiquidState.Representations;
 
 namespace LiquidState.Configuration
 {
-    public class StateMachineConfiguration<TState, TTrigger>
+    public class AwaitableStateMachineConfiguration<TState, TTrigger>
     {
-        internal Dictionary<TState, StateRepresentation<TState, TTrigger>> config;
+        internal readonly Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> config;
 
-        internal StateMachineConfiguration(int statesConfigStoreInitalCapacity = 4)
+        internal AwaitableStateMachineConfiguration(int statesConfigStoreInitalCapacity = 4)
         {
-            config = new Dictionary<TState, StateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
+            Contract.Ensures(config != null);
+
+            config = new Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
         }
 
-        internal StateMachineConfiguration(StateMachine<TState, TTrigger> existingMachine)
+        internal AwaitableStateMachineConfiguration(AwaitableStateMachine<TState, TTrigger> existingMachine)
         {
             Contract.Requires(existingMachine != null);
+            Contract.Ensures(config != null);
 
-            config = new Dictionary<TState, StateRepresentation<TState, TTrigger>>();
+            config = new Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>>();
             var currentStateRep = existingMachine.currentStateRepresentation;
             var currentTriggers = currentStateRep.Triggers.ToArray();
 
@@ -42,11 +45,11 @@ namespace LiquidState.Configuration
             }
         }
 
-        internal StateRepresentation<TState, TTrigger> GetStateRepresentation(TState initialState)
+        internal AwaitableStateRepresentation<TState, TTrigger> GetStateRepresentation(TState initialState)
         {
             Contract.Requires(initialState != null);
 
-            StateRepresentation<TState, TTrigger> rep;
+            AwaitableStateRepresentation<TState, TTrigger> rep;
             if (config.TryGetValue(initialState, out rep))
             {
                 return rep;
@@ -54,11 +57,11 @@ namespace LiquidState.Configuration
             return config.Values.FirstOrDefault();
         }
 
-        public StateConfigurationHelper<TState, TTrigger> Configure(TState state)
+        public AwaitableStateConfigurationHelper<TState, TTrigger> Configure(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
 
-            return new StateConfigurationHelper<TState, TTrigger>(config, state);
+            return new AwaitableStateConfigurationHelper<TState, TTrigger>(config, state);
         }
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)

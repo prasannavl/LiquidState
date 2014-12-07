@@ -112,9 +112,9 @@ namespace LiquidState.Sample
 
             var machine = StateMachine.Create(State.Ringing, config);
 
-            await machine.Fire(Trigger.Talk);
-            await machine.Fire(Trigger.Ring);
-            await machine.Fire(connectTriggerWithParameter, "John Doe");
+            await machine.FireAsync(Trigger.Talk);
+            await machine.FireAsync(Trigger.Ring);
+            await machine.FireAsync(connectTriggerWithParameter, "John Doe");
 
         }
     }

@@ -10,19 +10,19 @@ using LiquidState.Configuration;
 
 namespace LiquidState.Machines
 {
-    public class QueuedAsyncStateMachine<TState, TTrigger> : IAsyncStateMachine<TState, TTrigger>
+    public class QueuedAwaitableStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
         private static Task<bool> cachedFalseTask = Task.FromResult(false);
 
         private IImmutableQueue<Action> actionsQueue;
         private SynchronizationContext context;
         private volatile bool isPaused;
-        private AsyncStateMachine<TState, TTrigger> machine;
+        private AwaitableStateMachine<TState, TTrigger> machine;
 
-        public QueuedAsyncStateMachine(TState initialState, AsyncStateMachineConfiguration<TState, TTrigger> config,
+        public QueuedAwaitableStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config,
             SynchronizationContext context = null)
         {
-            machine = new AsyncStateMachine<TState, TTrigger>(initialState, config);
+            machine = new AwaitableStateMachine<TState, TTrigger>(initialState, config);
             machine.UnhandledTriggerExecuted += UnhandledTriggerExecuted;
             machine.StateChanged += StateChanged;
             this.context = context ?? SynchronizationContext.Current ?? new SynchronizationContext();
@@ -77,7 +77,7 @@ namespace LiquidState.Machines
         public event Action<TTrigger, TState> UnhandledTriggerExecuted;
         public event Action<TState, TState> StateChanged;
 
-        public Task Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
+        public Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
         {
             if (IsEnabled)
             {
@@ -87,7 +87,7 @@ namespace LiquidState.Machines
                 {
                     Action action = () => context.Post(async o =>
                     {
-                        await machine.Fire(parameterizedTrigger, argument);
+                        await machine.FireAsync(parameterizedTrigger, argument);
                         tcs.SetResult(true);
                     }, null);
 
@@ -97,7 +97,7 @@ namespace LiquidState.Machines
                 {
                     context.Post(async o =>
                     {
-                        await machine.Fire(parameterizedTrigger, argument);
+                        await machine.FireAsync(parameterizedTrigger, argument);
                         tcs.SetResult(true);
                     }, null);
                 }
@@ -107,7 +107,7 @@ namespace LiquidState.Machines
             return cachedFalseTask;
         }
 
-        public Task Fire(TTrigger trigger)
+        public Task FireAsync(TTrigger trigger)
         {
             if (IsEnabled)
             {

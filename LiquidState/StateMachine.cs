@@ -24,15 +24,15 @@ namespace LiquidState
             return sm;
         }
 
-        public static IAsyncStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
-            AsyncStateMachineConfiguration<TState, TTrigger> config, bool queuedAsyncMachine = false)
+        public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
+            AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine = true)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
 
-            var sm = queuedAsyncMachine ?
-                (IAsyncStateMachine<TState, TTrigger>)new QueuedAsyncStateMachine<TState, TTrigger>(initialState, config) :
-                (IAsyncStateMachine<TState, TTrigger>)new AsyncStateMachine<TState, TTrigger>(initialState, config);
+            var sm = asyncMachine ?
+                (IAwaitableStateMachine<TState, TTrigger>)new QueuedAwaitableStateMachine<TState, TTrigger>(initialState, config) :
+                (IAwaitableStateMachine<TState, TTrigger>)new AwaitableStateMachine<TState, TTrigger>(initialState, config);
             sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
 
             return sm;
@@ -44,9 +44,9 @@ namespace LiquidState
             return new StateMachineConfiguration<TState, TTrigger>();
         }
 
-        public static AsyncStateMachineConfiguration<TState, TTrigger> CreateAsyncConfiguration<TState, TTrigger>()
+        public static AwaitableStateMachineConfiguration<TState, TTrigger> CreateAsyncConfiguration<TState, TTrigger>()
         {
-            return new AsyncStateMachineConfiguration<TState, TTrigger>();
+            return new AwaitableStateMachineConfiguration<TState, TTrigger>();
         }
 
         public static StateMachineConfiguration<TState, TTrigger> Reconfigure<TState, TTrigger>(
@@ -57,12 +57,12 @@ namespace LiquidState
             return new StateMachineConfiguration<TState, TTrigger>(existingMachine);
         }
 
-        public static AsyncStateMachineConfiguration<TState, TTrigger> Reconfigure<TState, TTrigger>(
-            AsyncStateMachine<TState, TTrigger> existingAsyncMachine)
+        public static AwaitableStateMachineConfiguration<TState, TTrigger> Reconfigure<TState, TTrigger>(
+            AwaitableStateMachine<TState, TTrigger> existingAwaitableMachine)
         {
-            Contract.Requires<ArgumentNullException>(existingAsyncMachine != null);
+            Contract.Requires<ArgumentNullException>(existingAwaitableMachine != null);
 
-            return new AsyncStateMachineConfiguration<TState, TTrigger>(existingAsyncMachine);
+            return new AwaitableStateMachineConfiguration<TState, TTrigger>(existingAwaitableMachine);
         }
     }
 }

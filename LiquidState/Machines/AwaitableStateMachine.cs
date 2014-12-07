@@ -13,11 +13,11 @@ using LiquidState.Representations;
 
 namespace LiquidState.Machines
 {
-    public class AsyncStateMachine<TState, TTrigger> : IAsyncStateMachine<TState, TTrigger>
+    public class AwaitableStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
-        internal AsyncStateRepresentation<TState, TTrigger> currentStateRepresentation;
+        internal AwaitableStateRepresentation<TState, TTrigger> currentStateRepresentation;
 
-        internal AsyncStateMachine(TState initialState, AsyncStateMachineConfiguration<TState, TTrigger> configuration)
+        internal AwaitableStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> configuration)
         {
             Contract.Requires(configuration != null);
             Contract.Requires(initialState != null);
@@ -86,7 +86,7 @@ namespace LiquidState.Machines
             IsEnabled = false;
 
             var current = currentStateRepresentation;
-            if (CheckFlag(current.TransitionFlags, AsyncStateTransitionFlag.ExitReturnsTask))
+            if (CheckFlag(current.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
             {
                 var exit = current.OnExitAction as Func<Task>;
                 if (exit != null)
@@ -110,18 +110,18 @@ namespace LiquidState.Machines
                 handler(trigger, currentStateRepresentation.State);
         }
 
-        private bool CheckFlag(AsyncStateTransitionFlag source, AsyncStateTransitionFlag flagToCheck)
+        private bool CheckFlag(AwaitableStateTransitionFlag source, AwaitableStateTransitionFlag flagToCheck)
         {
             return (source & flagToCheck) == flagToCheck;
         }
 
-        public async Task Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+        public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
             if (IsEnabled)
             {
                 var trigger = parameterizedTrigger.Trigger;
-                var triggerRep = AsyncStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+                var triggerRep = AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
                     currentStateRepresentation);
 
                 if (triggerRep == null)
@@ -130,7 +130,7 @@ namespace LiquidState.Machines
                     return;
                 }
 
-                if (CheckFlag(triggerRep.TransitionFlags, AsyncStateTransitionFlag.TriggerPredicateReturnsTask))
+                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
                 {
                     var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
                     if (predicate != null)
@@ -162,7 +162,7 @@ namespace LiquidState.Machines
 
                 Action<TArgument> triggerAction = null;
                 Func<TArgument, Task> triggerFunc = null;
-                if (CheckFlag(triggerRep.TransitionFlags, AsyncStateTransitionFlag.TriggerActionReturnsTask))
+                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
                 {
                     try
                     {
@@ -189,7 +189,7 @@ namespace LiquidState.Machines
 
                 // Current exit
 
-                if (CheckFlag(triggerRep.TransitionFlags, AsyncStateTransitionFlag.ExitReturnsTask))
+                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
                 {
                     var exit = (Func<Task>) currentStateRepresentation.OnExitAction;
                     if (exit != null)
@@ -217,7 +217,7 @@ namespace LiquidState.Machines
 
                 var nextStateRep = triggerRep.NextStateRepresentation;
 
-                if (CheckFlag(nextStateRep.TransitionFlags, AsyncStateTransitionFlag.EntryReturnsTask))
+                if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
                 {
                     var entry = (Func<Task>) nextStateRep.OnEntryAction;
                     if (entry != null)
@@ -245,11 +245,11 @@ namespace LiquidState.Machines
             }
         }
 
-        public async Task Fire(TTrigger trigger)
+        public async Task FireAsync(TTrigger trigger)
         {
             if (IsEnabled)
             {
-                var triggerRep = AsyncStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+                var triggerRep = AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
                     currentStateRepresentation);
 
                 if (triggerRep == null)
@@ -258,7 +258,7 @@ namespace LiquidState.Machines
                     return;
                 }
 
-                if (CheckFlag(triggerRep.TransitionFlags, AsyncStateTransitionFlag.TriggerPredicateReturnsTask))
+                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
                 {
                     var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
                     if (predicate != null)
@@ -290,7 +290,7 @@ namespace LiquidState.Machines
 
                 Action triggerAction = null;
                 Func<Task> triggerFunc = null;
-                if (CheckFlag(triggerRep.TransitionFlags, AsyncStateTransitionFlag.TriggerActionReturnsTask))
+                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
                 {
                     try
                     {
@@ -317,7 +317,7 @@ namespace LiquidState.Machines
 
                 // Current exit
 
-                if (CheckFlag(triggerRep.TransitionFlags, AsyncStateTransitionFlag.ExitReturnsTask))
+                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
                 {
                     var exit = (Func<Task>) currentStateRepresentation.OnExitAction;
                     if (exit != null)
@@ -345,7 +345,7 @@ namespace LiquidState.Machines
 
                 var nextStateRep = triggerRep.NextStateRepresentation;
 
-                if (CheckFlag(nextStateRep.TransitionFlags, AsyncStateTransitionFlag.EntryReturnsTask))
+                if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
                 {
                     var entry = (Func<Task>) nextStateRep.OnEntryAction;
                     if (entry != null)

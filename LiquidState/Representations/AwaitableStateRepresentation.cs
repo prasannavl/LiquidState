@@ -1,22 +1,18 @@
-﻿// Author: Prasanna V. Loganathar
-// Created: 2:12 AM 27-11-2014
-// License: http://www.apache.org/licenses/LICENSE-2.0
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
 namespace LiquidState.Representations
 {
-    internal class AsyncStateRepresentation<TState, TTrigger>
+    internal class AwaitableStateRepresentation<TState, TTrigger>
     {
         public object OnEntryAction;
         public object OnExitAction;
-        public AsyncStateTransitionFlag TransitionFlags;
+        public AwaitableStateTransitionFlag TransitionFlags;
         public readonly TState State;
-        public readonly List<AsyncTriggerRepresentation<TTrigger, TState>> Triggers;
+        public readonly List<AwaitableTriggerRepresentation<TTrigger, TState>> Triggers;
 
-        internal AsyncStateRepresentation(TState state)
+        internal AwaitableStateRepresentation(TState state)
         {
             Contract.Requires(state != null);
 
@@ -25,19 +21,19 @@ namespace LiquidState.Representations
 
             State = state;
             // Allocate with capacity as 1 to avoid wastage of memory.
-            Triggers = new List<AsyncTriggerRepresentation<TTrigger, TState>>(1);
+            Triggers = new List<AwaitableTriggerRepresentation<TTrigger, TState>>(1);
         }
     }
 
-    internal class AsyncTriggerRepresentation<TTrigger, TState>
+    internal class AwaitableTriggerRepresentation<TTrigger, TState>
     {
         public object ConditionalTriggerPredicate;
-        public AsyncStateRepresentation<TState, TTrigger> NextStateRepresentation;
+        public AwaitableStateRepresentation<TState, TTrigger> NextStateRepresentation;
         public object OnTriggerAction;
-        public AsyncStateTransitionFlag TransitionFlags;
+        public AwaitableStateTransitionFlag TransitionFlags;
         public readonly TTrigger Trigger;
 
-        internal AsyncTriggerRepresentation(TTrigger trigger)
+        internal AwaitableTriggerRepresentation(TTrigger trigger)
         {
             Contract.Requires(trigger != null);
             Contract.Ensures(Trigger != null);
@@ -47,7 +43,7 @@ namespace LiquidState.Representations
     }
 
     [Flags]
-    internal enum AsyncStateTransitionFlag : byte
+    internal enum AwaitableStateTransitionFlag : byte
     {
         None = 0x0,
         Synchronous = 0x01,

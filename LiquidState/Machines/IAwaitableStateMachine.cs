@@ -5,7 +5,7 @@ using LiquidState.Common;
 
 namespace LiquidState.Machines
 {
-    public interface IAsyncStateMachine<TState, TTrigger>
+    public interface IAwaitableStateMachine<TState, TTrigger>
     {
         TState CurrentState { get; }
         IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
@@ -18,9 +18,9 @@ namespace LiquidState.Machines
         event Action<TTrigger, TState> UnhandledTriggerExecuted;
         event Action<TState, TState> StateChanged;
 
-        Task Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+        Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument);
 
-        Task Fire(TTrigger trigger);
+        Task FireAsync(TTrigger trigger);
     }
 }
