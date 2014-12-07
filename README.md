@@ -7,10 +7,19 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 
 **NuGet:** 
 
-> Install-Package LiquidState
+> Install-Package LiquidState -Pre
+
+Note: The latest version is beta (pre-release) due to the dependency on System.Collections.Immutable, which is still under beta.), and is otherwise stable. The latest stable is still v1.2 for which the release notes are below.
   
 Supported Platforms:
 > PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
+
+
+**Available StateMachines:***
+
+1. **StateMachine** - Fully synchronous.
+2. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited.
+3. **AsyncStateMachine** - Fully asynchronous, and is queued by default.
   
 ######Why LiquidState:
 
@@ -142,6 +151,14 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 ```
 
 **Release notes:**
+######v.2.0-beta
+
+- Changed AsyncStateMachine to AwaitableStateMachine
+- Changed QueuedAsyncStateMachine to AsyncStateMachine
+- AwaitableStateMachine are logically synchronous but accepts Task and async methods and can be awaited.
+- AsyncStateMachine is fully asynchronous and dispatched onto the instantiated synchronization context, and is thread safe.
+- AsyncStateMachines are queued by default.
+- All except AsyncStateMachines will throw InvalidOperationException if attempted to Fire while a transition is in progress.
 
 ######v1.3-beta
 
