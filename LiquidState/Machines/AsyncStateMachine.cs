@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -21,8 +22,11 @@ namespace LiquidState.Machines
         private AwaitableStateMachine<TState, TTrigger> machine;
         private volatile int queueCount;
 
-        public AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
+        internal AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
         {
+            Contract.Requires(initialState != null);
+            Contract.Requires(config !=  null);
+
             machine = new AwaitableStateMachine<TState, TTrigger>(initialState, config);
             machine.UnhandledTriggerExecuted += UnhandledTriggerExecuted;
             machine.StateChanged += StateChanged;
