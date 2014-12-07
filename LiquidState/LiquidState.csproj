@@ -121,13 +121,17 @@
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Common\DispatchHelper.cs" />
     <Compile Include="Common\Exceptions.cs" />
+    <Compile Include="Common\IDispatcher.cs" />
     <Compile Include="Common\ParameterizedTrigger.cs" />
+    <Compile Include="Common\SynchronizationContextDispatcher.cs" />
+    <Compile Include="Common\TaskCache.cs" />
     <Compile Include="Configuration\AwaitableStateConfigurationHelper.cs" />
     <Compile Include="Configuration\StateConfigurationHelper.cs" />
     <Compile Include="Machines\IAwaitableStateMachine.cs" />
     <Compile Include="Machines\IStateMachine.cs" />
-    <Compile Include="Machines\QueuedAsyncStateMachine.cs" />
+    <Compile Include="Machines\AsyncStateMachine.cs" />
     <Compile Include="Machines\AwaitableStateMachine.cs" />
     <Compile Include="Configuration\AwaitableStateMachineConfiguration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -80,7 +80,7 @@ namespace LiquidState.Sample
         static async Task AsyncMachineExample()
         {
             // Note the "CreateAsyncConfiguration"
-            var config = StateMachine.CreateAsyncConfiguration<State, Trigger>();
+            var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 
             config.Configure(State.Off)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Off"))

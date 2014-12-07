@@ -31,7 +31,7 @@ namespace LiquidState
             Contract.Requires<ArgumentNullException>(config != null);
 
             var sm = asyncMachine ?
-                (IAwaitableStateMachine<TState, TTrigger>)new QueuedAwaitableStateMachine<TState, TTrigger>(initialState, config) :
+                (IAwaitableStateMachine<TState, TTrigger>)new AsyncStateMachine<TState, TTrigger>(initialState, config) :
                 (IAwaitableStateMachine<TState, TTrigger>)new AwaitableStateMachine<TState, TTrigger>(initialState, config);
             sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
 
@@ -44,7 +44,7 @@ namespace LiquidState
             return new StateMachineConfiguration<TState, TTrigger>();
         }
 
-        public static AwaitableStateMachineConfiguration<TState, TTrigger> CreateAsyncConfiguration<TState, TTrigger>()
+        public static AwaitableStateMachineConfiguration<TState, TTrigger> CreateAwaitableConfiguration<TState, TTrigger>()
         {
             return new AwaitableStateMachineConfiguration<TState, TTrigger>();
         }
