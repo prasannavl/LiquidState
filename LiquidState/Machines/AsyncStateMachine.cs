@@ -23,6 +23,7 @@ namespace LiquidState.Machines
             machine.UnhandledTriggerExecuted += UnhandledTriggerExecuted;
             machine.StateChanged += StateChanged;
             dispatcher = new SynchronizationContextDispatcher();
+            dispatcher.Initialize();
         }
 
         public TState CurrentState

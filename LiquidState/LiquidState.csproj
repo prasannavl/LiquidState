@@ -121,7 +121,6 @@
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Common\DispatchHelper.cs" />
     <Compile Include="Common\Exceptions.cs" />
     <Compile Include="Common\IDispatcher.cs" />
     <Compile Include="Common\ParameterizedTrigger.cs" />
