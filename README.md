@@ -167,7 +167,7 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 ######v.2.1-beta
 
-- Critical Fix: All the state machines never reset the IsRunning value on error or unhandled state, leading to the machine not being dormant
+- Critical Fix: All the state machines never reset the IsRunning value on error or unhandled state, leading to the machine being dormant
 - More robust error handling
 - Removed StateMachine.ReConfigure. Retain the configuration, and reconfigure it any time to modify a live state machine.
 - FluidStateMachine added
