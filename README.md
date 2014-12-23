@@ -9,7 +9,7 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 
 > Install-Package LiquidState -Pre
 
-Note: The latest version is beta (pre-release) due to the dependency on System.Collections.Immutable, which is still under beta.), and is otherwise stable. The latest stable is still v1.2 for which the release notes are below.
+Note: The latest version is beta (pre-release) due to the dependency on System.Collections.Immutable, which is still under beta.), and is otherwise stable. The release notes are at the end.
   
 Supported Platforms:
 > PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
@@ -39,9 +39,18 @@ I personally think switching states dynamically should never be the job of the m
 Comparing with Sync Machine of Stateless for 10 million state changes:
 
 ```
-Synchronous StateMachines - LiquidState => Time taken: 00:00:02.5407924
+Count: 10000000
+Synchronous StateMachines - Stateless => Time taken: 00:00:21.5919263
 
-Synchronous StateMachine - Stateless => Time taken: 00:00:22.9038585
+Count: 10000000
+Synchronous StateMachines - LiquidState => Time taken: 00:00:02.2374253
+
+Count: 10000000
+Synchronous StateMachines - LiquidState (Task/Async Awaitable) => Time taken: 00:00:13.9579566
+
+Count: 10000000
+Asynchronous StateMachines - LiquidState => Time taken: 00:00:19.4116743
+
 ```
 
 Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](https://github.com/prasannavl/Benchmarks)
