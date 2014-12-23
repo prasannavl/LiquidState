@@ -46,10 +46,11 @@ namespace LiquidState.Representations
     internal enum AwaitableStateTransitionFlag : byte
     {
         None = 0x0,
-        Synchronous = 0x01,
-        EntryReturnsTask = 0x02,
-        ExitReturnsTask = 0x04,
-        TriggerActionReturnsTask = 0x08,
-        TriggerPredicateReturnsTask = 0x10
+        OverrideFluidState = 0x01,
+        FluidStateActive = 0x02,
+        EntryReturnsTask = 0x04,
+        ExitReturnsTask = 0x08,
+        TriggerActionReturnsTask = 0x10,
+        TriggerPredicateReturnsTask = 0x20
     }
 }

@@ -12,25 +12,25 @@ using LiquidState.Representations;
 
 namespace LiquidState.Configuration
 {
-    public class StateMachineConfiguration<TState, TTrigger>
+    public class FluidStateMachineConfiguration<TState, TTrigger>
     {
-        internal Dictionary<TState, StateRepresentation<TState, TTrigger>> config;
+        internal Dictionary<TState, FluidStateRepresentation<TState, TTrigger>> config;
 
-        internal StateMachineConfiguration(int statesConfigStoreInitalCapacity = 4)
+        internal FluidStateMachineConfiguration(int statesConfigStoreInitalCapacity = 4)
         {
-            config = new Dictionary<TState, StateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
+            config = new Dictionary<TState, FluidStateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
         }
 
-        internal StateMachineConfiguration(Dictionary<TState, StateRepresentation<TState, TTrigger>> config)
+        internal FluidStateMachineConfiguration(Dictionary<TState, FluidStateRepresentation<TState, TTrigger>> config)
         {
             this.config = config;
         }
 
-        internal StateRepresentation<TState, TTrigger> GetInitialStateRepresentation(TState initialState)
+        internal FluidStateRepresentation<TState, TTrigger> GetInitialStateRepresentation(TState initialState)
         {
             Contract.Requires(initialState != null);
 
-            StateRepresentation<TState, TTrigger> rep;
+            FluidStateRepresentation<TState, TTrigger> rep;
             if (config.TryGetValue(initialState, out rep))
             {
                 return rep;
@@ -38,11 +38,11 @@ namespace LiquidState.Configuration
             return config.Values.FirstOrDefault();
         }
 
-        public StateConfigurationHelper<TState, TTrigger> Configure(TState state)
+        public FluidStateConfigurationHelper<TState, TTrigger> Configure(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
 
-            return new StateConfigurationHelper<TState, TTrigger>(config, state);
+            return new FluidStateConfigurationHelper<TState, TTrigger>(config, state);
         }
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)

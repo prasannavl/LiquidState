@@ -8,6 +8,6 @@ namespace LiquidState.Common
 {
     internal class TaskCache
     {
-        public static Task<bool> FalseTask = Task.FromResult(false);
+        public static Task Completed = Task.FromResult(false);
     }
 }

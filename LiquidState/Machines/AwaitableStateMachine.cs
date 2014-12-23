@@ -15,7 +15,7 @@ namespace LiquidState.Machines
 {
     public class AwaitableStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
-        internal AwaitableStateRepresentation<TState, TTrigger> currentStateRepresentation;
+        internal AwaitableStateRepresentation<TState, TTrigger> CurrentStateRepresentation;
         private volatile bool isRunning;
 
         internal AwaitableStateMachine(TState initialState,
@@ -24,10 +24,10 @@ namespace LiquidState.Machines
             Contract.Requires(configuration != null);
             Contract.Requires(initialState != null);
 
-            currentStateRepresentation = configuration.GetStateRepresentation(initialState);
-            if (currentStateRepresentation == null)
+            CurrentStateRepresentation = configuration.GetInitialStateRepresentation(initialState);
+            if (CurrentStateRepresentation == null)
             {
-                throw new InvalidOperationException("StateMachine has no states");
+                throw new InvalidOperationException("StateMachine has an unreachable state");
             }
 
             IsEnabled = true;
@@ -40,14 +40,14 @@ namespace LiquidState.Machines
 
         public TState CurrentState
         {
-            get { return currentStateRepresentation.State; }
+            get { return CurrentStateRepresentation.State; }
         }
 
         public IEnumerable<TTrigger> CurrentPermittedTriggers
         {
             get
             {
-                foreach (var triggerRepresentation in currentStateRepresentation.Triggers)
+                foreach (var triggerRepresentation in CurrentStateRepresentation.Triggers)
                 {
                     yield return triggerRepresentation.Trigger;
                 }
@@ -58,7 +58,7 @@ namespace LiquidState.Machines
 
         public bool CanHandleTrigger(TTrigger trigger)
         {
-            foreach (var current in currentStateRepresentation.Triggers)
+            foreach (var current in CurrentStateRepresentation.Triggers)
             {
                 if (current.Equals(trigger))
                     return true;
@@ -69,7 +69,7 @@ namespace LiquidState.Machines
 
         public bool CanTransitionTo(TState state)
         {
-            foreach (var current in currentStateRepresentation.Triggers)
+            foreach (var current in CurrentStateRepresentation.Triggers)
             {
                 if (current.NextStateRepresentation.State.Equals(state))
                     return true;
@@ -92,7 +92,7 @@ namespace LiquidState.Machines
         {
             IsEnabled = false;
 
-            var current = currentStateRepresentation;
+            var current = CurrentStateRepresentation;
             if (CheckFlag(current.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
             {
                 var exit = current.OnExitAction as Func<Task>;
@@ -120,130 +120,136 @@ namespace LiquidState.Machines
             {
                 isRunning = true;
 
-                var trigger = parameterizedTrigger.Trigger;
-                var triggerRep = AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
-                    currentStateRepresentation);
-
-                if (triggerRep == null)
+                try
                 {
-                    HandleInvalidTrigger(trigger);
-                    return;
-                }
+                    var trigger = parameterizedTrigger.Trigger;
+                    var triggerRep =
+                        AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+                            CurrentStateRepresentation);
 
-                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
-                {
-                    var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
-                    if (predicate != null)
-                        if (!await predicate())
-                        {
-                            HandleInvalidTrigger(trigger);
-                            return;
-                        }
-                }
-                else
-                {
-                    var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
-                    if (predicate != null)
-                        if (!predicate())
-                        {
-                            HandleInvalidTrigger(trigger);
-                            return;
-                        }
-                }
-
-                // Handle ignored trigger
-
-                if (triggerRep.NextStateRepresentation == null)
-                {
-                    return;
-                }
-
-                // Catch invalid paramters before execution.
-
-                Action<TArgument> triggerAction = null;
-                Func<TArgument, Task> triggerFunc = null;
-                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
-                {
-                    try
+                    if (triggerRep == null)
                     {
-                        triggerFunc = (Func<TArgument, Task>) triggerRep.OnTriggerAction;
-                    }
-                    catch (InvalidCastException)
-                    {
-                        InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                        HandleInvalidTrigger(trigger);
                         return;
                     }
-                }
-                else
-                {
-                    try
+
+                    if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
                     {
-                        triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
+                        var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
+                        if (predicate != null)
+                            if (!await predicate())
+                            {
+                                HandleInvalidTrigger(trigger);
+                                return;
+                            }
                     }
-                    catch (InvalidCastException)
+                    else
                     {
-                        InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                        var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
+                        if (predicate != null)
+                            if (!predicate())
+                            {
+                                HandleInvalidTrigger(trigger);
+                                return;
+                            }
+                    }
+
+                    // Handle ignored trigger
+
+                    if (triggerRep.NextStateRepresentation == null)
+                    {
                         return;
                     }
+
+                    // Catch invalid paramters before execution.
+
+                    Action<TArgument> triggerAction = null;
+                    Func<TArgument, Task> triggerFunc = null;
+                    if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
+                    {
+                        try
+                        {
+                            triggerFunc = (Func<TArgument, Task>) triggerRep.OnTriggerAction;
+                        }
+                        catch (InvalidCastException)
+                        {
+                            InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
+                        }
+                        catch (InvalidCastException)
+                        {
+                            InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                            return;
+                        }
+                    }
+
+                    // Current exit
+
+                    if (CheckFlag(CurrentStateRepresentation.TransitionFlags,
+                        AwaitableStateTransitionFlag.ExitReturnsTask))
+                    {
+                        var exit = (Func<Task>) CurrentStateRepresentation.OnExitAction;
+                        if (exit != null)
+                            await exit();
+                    }
+                    else
+                    {
+                        var exit = (Action) CurrentStateRepresentation.OnExitAction;
+                        if (exit != null)
+                            exit();
+                    }
+
+                    // Trigger entry
+
+                    if (triggerAction != null)
+                    {
+                        triggerAction(argument);
+                    }
+                    else if (triggerFunc != null)
+                    {
+                        await triggerFunc(argument);
+                    }
+
+                    // Next state entry
+
+                    var nextStateRep = triggerRep.NextStateRepresentation;
+
+                    if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
+                    {
+                        var entry = (Func<Task>) nextStateRep.OnEntryAction;
+                        if (entry != null)
+                            await entry();
+                    }
+                    else
+                    {
+                        var entry = (Action) nextStateRep.OnEntryAction;
+                        if (entry != null)
+                            entry();
+                    }
+
+                    // Set states
+
+                    var previousState = CurrentStateRepresentation.State;
+                    CurrentStateRepresentation = nextStateRep;
+
+                    // Raise event
+
+                    var sc = StateChanged;
+                    if (sc != null)
+                        sc(previousState, CurrentStateRepresentation.State);
                 }
-
-                // Current exit
-
-                if (CheckFlag(currentStateRepresentation.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
+                finally
                 {
-                    var exit = (Func<Task>) currentStateRepresentation.OnExitAction;
-                    if (exit != null)
-                        await exit();
-                }
-                else
-                {
-                    var exit = (Action) currentStateRepresentation.OnExitAction;
-                    if (exit != null)
-                        exit();
+                    isRunning = false;
                 }
 
-                // Trigger entry
-
-                if (triggerAction != null)
-                {
-                    triggerAction(argument);
-                }
-                else if (triggerFunc != null)
-                {
-                    await triggerFunc(argument);
-                }
-
-                // Next state entry
-
-                var nextStateRep = triggerRep.NextStateRepresentation;
-
-                if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
-                {
-                    var entry = (Func<Task>) nextStateRep.OnEntryAction;
-                    if (entry != null)
-                        await entry();
-                }
-                else
-                {
-                    var entry = (Action) nextStateRep.OnEntryAction;
-                    if (entry != null)
-                        entry();
-                }
-
-                // Set states
-
-                var previousState = currentStateRepresentation.State;
-                currentStateRepresentation = nextStateRep;
-
-                // Raise event
-
-                var sc = StateChanged;
-                if (sc != null)
-                {
-                    sc(previousState, currentStateRepresentation.State);
-                }
-
-                isRunning = false;
             }
         }
 
@@ -256,137 +262,138 @@ namespace LiquidState.Machines
             {
                 isRunning = true;
 
-                var triggerRep = AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
-                    currentStateRepresentation);
-
-                if (triggerRep == null)
+                try
                 {
-                    HandleInvalidTrigger(trigger);
-                    return;
-                }
+                    var triggerRep =
+                        AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+                            CurrentStateRepresentation);
 
-                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
-                {
-                    var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
-                    if (predicate != null)
-                        if (!await predicate())
-                        {
-                            HandleInvalidTrigger(trigger);
-                            return;
-                        }
-                }
-                else
-                {
-                    var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
-                    if (predicate != null)
-                        if (!predicate())
-                        {
-                            HandleInvalidTrigger(trigger);
-                            return;
-                        }
-                }
-
-                // Handle ignored trigger
-
-                if (triggerRep.NextStateRepresentation == null)
-                {
-                    return;
-                }
-
-                // Catch invalid paramters before execution.
-
-                Action triggerAction = null;
-                Func<Task> triggerFunc = null;
-                if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
-                {
-                    try
+                    if (triggerRep == null)
                     {
-                        triggerFunc = (Func<Task>) triggerRep.OnTriggerAction;
-                    }
-                    catch (InvalidCastException)
-                    {
-                        InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                        HandleInvalidTrigger(trigger);
                         return;
                     }
-                }
-                else
-                {
-                    try
+
+                    if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
                     {
-                        triggerAction = (Action) triggerRep.OnTriggerAction;
+                        var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
+                        if (predicate != null)
+                            if (!await predicate())
+                            {
+                                HandleInvalidTrigger(trigger);
+                                return;
+                            }
                     }
-                    catch (InvalidCastException)
+                    else
                     {
-                        InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                        var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
+                        if (predicate != null)
+                            if (!predicate())
+                            {
+                                HandleInvalidTrigger(trigger);
+                                return;
+                            }
+                    }
+
+                    // Handle ignored trigger
+
+                    if (triggerRep.NextStateRepresentation == null)
+                    {
                         return;
                     }
+
+                    // Catch invalid paramters before execution.
+
+                    Action triggerAction = null;
+                    Func<Task> triggerFunc = null;
+                    if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
+                    {
+                        try
+                        {
+                            triggerFunc = (Func<Task>) triggerRep.OnTriggerAction;
+                        }
+                        catch (InvalidCastException)
+                        {
+                            InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        try
+                        {
+                            triggerAction = (Action) triggerRep.OnTriggerAction;
+                        }
+                        catch (InvalidCastException)
+                        {
+                            InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                            return;
+                        }
+                    }
+
+                    // Current exit
+
+                    if (CheckFlag(CurrentStateRepresentation.TransitionFlags,
+                        AwaitableStateTransitionFlag.ExitReturnsTask))
+                    {
+                        var exit = (Func<Task>) CurrentStateRepresentation.OnExitAction;
+                        if (exit != null)
+                            await exit();
+                    }
+                    else
+                    {
+                        var exit = (Action) CurrentStateRepresentation.OnExitAction;
+                        if (exit != null) exit();
+                    }
+
+                    // Trigger entry
+
+                    if (triggerAction != null)
+                    {
+                        triggerAction();
+                    }
+                    else if (triggerFunc != null)
+                    {
+                        await triggerFunc();
+                    }
+
+                    // Next state entry
+
+                    var nextStateRep = triggerRep.NextStateRepresentation;
+
+                    if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
+                    {
+                        var entry = (Func<Task>) nextStateRep.OnEntryAction;
+                        if (entry != null)
+                            await entry();
+                    }
+                    else
+                    {
+                        var entry = (Action) nextStateRep.OnEntryAction;
+                        if (entry != null) entry();
+                    }
+
+                    // Set states
+
+                    var previousState = CurrentStateRepresentation.State;
+                    CurrentStateRepresentation = nextStateRep;
+
+                    // Raise event
+
+                    var sc = StateChanged;
+                    if (sc != null) sc.Invoke(previousState, CurrentStateRepresentation.State);
                 }
-
-                // Current exit
-
-                if (CheckFlag(currentStateRepresentation.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
+                finally
                 {
-                    var exit = (Func<Task>) currentStateRepresentation.OnExitAction;
-                    if (exit != null)
-                        await exit();
+                    isRunning = false;
                 }
-                else
-                {
-                    var exit = (Action) currentStateRepresentation.OnExitAction;
-                    if (exit != null)
-                        exit();
-                }
-
-                // Trigger entry
-
-                if (triggerAction != null)
-                {
-                    triggerAction();
-                }
-                else if (triggerFunc != null)
-                {
-                    await triggerFunc();
-                }
-
-                // Next state entry
-
-                var nextStateRep = triggerRep.NextStateRepresentation;
-
-                if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
-                {
-                    var entry = (Func<Task>) nextStateRep.OnEntryAction;
-                    if (entry != null)
-                        await entry();
-                }
-                else
-                {
-                    var entry = (Action) nextStateRep.OnEntryAction;
-                    if (entry != null)
-                        entry();
-                }
-
-                // Set states
-
-                var previousState = currentStateRepresentation.State;
-                currentStateRepresentation = nextStateRep;
-
-                // Raise event
-
-                var sc = StateChanged;
-                if (sc != null)
-                {
-                    sc(previousState, currentStateRepresentation.State);
-                }
-
-                isRunning = false;
             }
         }
 
         private void HandleInvalidTrigger(TTrigger trigger)
         {
             var handler = UnhandledTriggerExecuted;
-            if (handler != null)
-                handler(trigger, currentStateRepresentation.State);
+            if (handler != null) handler.Invoke(trigger, CurrentStateRepresentation.State);
         }
 
         private bool CheckFlag(AwaitableStateTransitionFlag source, AwaitableStateTransitionFlag flagToCheck)

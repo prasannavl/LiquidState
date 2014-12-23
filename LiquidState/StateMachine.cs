@@ -24,6 +24,28 @@ namespace LiquidState
             return sm;
         }
 
+        public static FluidStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
+    FluidStateMachineConfiguration<TState, TTrigger> config)
+        {
+            Contract.Requires<ArgumentNullException>(initialState != null);
+            Contract.Requires<ArgumentNullException>(config != null);
+
+            var sm = new FluidStateMachine<TState, TTrigger>(initialState, config);
+            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
+
+            return sm;
+        }
+
+        public static FluidStateMachine<TState, TState> Create<TState>(TState initialState,
+FluidStateMachineConfiguration<TState, TState> config)
+        {
+            Contract.Requires<ArgumentNullException>(initialState != null);
+            Contract.Requires<ArgumentNullException>(config != null);
+
+            return Create<TState, TState>(initialState, config);
+        }
+
+
         public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
             AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine = true)
         {
@@ -39,6 +61,11 @@ namespace LiquidState
         }
 
 
+        public static FluidStateMachineConfiguration<TState, TTrigger> CreateFluidConfiguration<TState, TTrigger>()
+        {
+            return new FluidStateMachineConfiguration<TState, TTrigger>();
+        }
+
         public static StateMachineConfiguration<TState, TTrigger> CreateConfiguration<TState, TTrigger>()
         {
             return new StateMachineConfiguration<TState, TTrigger>();
@@ -47,22 +74,6 @@ namespace LiquidState
         public static AwaitableStateMachineConfiguration<TState, TTrigger> CreateAwaitableConfiguration<TState, TTrigger>()
         {
             return new AwaitableStateMachineConfiguration<TState, TTrigger>();
-        }
-
-        public static StateMachineConfiguration<TState, TTrigger> Reconfigure<TState, TTrigger>(
-            StateMachine<TState, TTrigger> existingMachine)
-        {
-            Contract.Requires<ArgumentNullException>(existingMachine != null);
-
-            return new StateMachineConfiguration<TState, TTrigger>(existingMachine);
-        }
-
-        public static AwaitableStateMachineConfiguration<TState, TTrigger> Reconfigure<TState, TTrigger>(
-            AwaitableStateMachine<TState, TTrigger> existingAwaitableMachine)
-        {
-            Contract.Requires<ArgumentNullException>(existingAwaitableMachine != null);
-
-            return new AwaitableStateMachineConfiguration<TState, TTrigger>(existingAwaitableMachine);
         }
     }
 }

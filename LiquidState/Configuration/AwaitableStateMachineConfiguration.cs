@@ -20,32 +20,19 @@ namespace LiquidState.Configuration
         {
             Contract.Ensures(config != null);
 
-            config = new Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
+            config =
+                new Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
         }
 
-        internal AwaitableStateMachineConfiguration(AwaitableStateMachine<TState, TTrigger> existingMachine)
+        internal AwaitableStateMachineConfiguration(
+            Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> config)
         {
-            Contract.Requires(existingMachine != null);
             Contract.Ensures(config != null);
 
-            config = new Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>>();
-            var currentStateRep = existingMachine.currentStateRepresentation;
-            var currentTriggers = currentStateRep.Triggers.ToArray();
-
-            foreach (var triggerRepresentation in currentTriggers)
-            {
-                var nextStateRep = triggerRepresentation.NextStateRepresentation;
-                if (nextStateRep != currentStateRep)
-                {
-                    if (!config.ContainsKey(nextStateRep.State))
-                    {
-                        config.Add(nextStateRep.State, nextStateRep);
-                    }
-                }
-            }
+            this.config = config;
         }
 
-        internal AwaitableStateRepresentation<TState, TTrigger> GetStateRepresentation(TState initialState)
+        internal AwaitableStateRepresentation<TState, TTrigger> GetInitialStateRepresentation(TState initialState)
         {
             Contract.Requires(initialState != null);
 

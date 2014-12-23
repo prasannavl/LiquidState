@@ -25,7 +25,7 @@ namespace LiquidState.Machines
         internal AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
         {
             Contract.Requires(initialState != null);
-            Contract.Requires(config !=  null);
+            Contract.Requires(config != null);
 
             machine = new AwaitableStateMachine<TState, TTrigger>(initialState, config);
             machine.UnhandledTriggerExecuted += UnhandledTriggerExecuted;
@@ -92,11 +92,17 @@ namespace LiquidState.Machines
                 var tcs = new TaskCompletionSource<bool>();
                 Action action = () => dispatcher.Execute(async () =>
                 {
-                    await machine.FireAsync(parameterizedTrigger, argument);
-                    tcs.SetResult(true);
+                    try
+                    {
+                        await machine.FireAsync(parameterizedTrigger, argument);
+                    }
+                    finally
+                    {
+                        tcs.SetResult(true);
 
-                    if (!isInQueue)
-                        RunFromQueueIfNotEmpty();
+                        if (!isInQueue)
+                            RunFromQueueIfNotEmpty();
+                    }
                 });
 
                 if (isRunning || isPaused)
@@ -113,7 +119,7 @@ namespace LiquidState.Machines
                 action();
                 return tcs.Task;
             }
-            return TaskCache.FalseTask;
+            return TaskCache.Completed;
         }
 
         public Task FireAsync(TTrigger trigger)
@@ -123,11 +129,17 @@ namespace LiquidState.Machines
                 var tcs = new TaskCompletionSource<bool>();
                 Action action = () => dispatcher.Execute(async () =>
                 {
-                    await machine.FireAsync(trigger);
-                    tcs.SetResult(true);
+                    try
+                    {
+                        await machine.FireAsync(trigger);
+                    }
+                    finally
+                    {
+                        tcs.SetResult(true);
 
-                    if (!isInQueue)
-                        RunFromQueueIfNotEmpty();
+                        if (!isInQueue)
+                            RunFromQueueIfNotEmpty();
+                    }
                 });
 
                 if (isRunning || isPaused)
@@ -144,7 +156,7 @@ namespace LiquidState.Machines
                 action();
                 return tcs.Task;
             }
-            return TaskCache.FalseTask;
+            return TaskCache.Completed;
         }
 
         private void RunFromQueueIfNotEmpty()
@@ -152,20 +164,25 @@ namespace LiquidState.Machines
             isRunning = true;
             isInQueue = true;
 
-            while (queueCount > 0)
+            try
             {
-                Action current = null;
-                lock (actionsQueue)
+                while (queueCount > 0)
                 {
-                    current = actionsQueue.Peek();
-                    actionsQueue = actionsQueue.Dequeue();
-                    queueCount--;
+                    Action current = null;
+                    lock (actionsQueue)
+                    {
+                        current = actionsQueue.Peek();
+                        actionsQueue = actionsQueue.Dequeue();
+                        queueCount--;
+                    }
+                    current();
                 }
-                current();
             }
-
-            isInQueue = false;
-            isRunning = false;
+            finally
+            {
+                isInQueue = false;
+                isRunning = false;
+            }
         }
     }
 }
