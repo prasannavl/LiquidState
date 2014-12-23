@@ -20,6 +20,10 @@ Supported Platforms:
 1. **StateMachine** - Fully synchronous.
 2. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited.
 3. **AsyncStateMachine** - Fully asynchronous, and is queued by default.
+
+More:
+
+**FluidStateMachine** - A state machine which introduces a new method "MoveToState(state)" to move about freely into any state, but will use triggers first if provided. FluidFlow must be enabled, or its behaviour is similar to StateMachine.
   
 ######Why LiquidState:
 
