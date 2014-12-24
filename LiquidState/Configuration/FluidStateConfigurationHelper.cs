@@ -260,7 +260,16 @@ namespace LiquidState.Configuration
         internal static FluidTriggerRepresentation<TTrigger, TState> FindTriggerRepresentation(TTrigger trigger,
             FluidStateRepresentation<TState, TTrigger> stateRepresentation)
         {
+            if (stateRepresentation == null || stateRepresentation.Triggers == null)
+                return null;
             return stateRepresentation.Triggers.Find(x => x.Trigger.Equals(trigger));
+        }
+
+        internal static FluidTriggerRepresentation<TTrigger, TState> FindTriggerRepresentationForTargetState(TState targetState, FluidStateRepresentation<TState, TTrigger> stateRepresentation)
+        {
+            if (stateRepresentation == null || stateRepresentation.Triggers == null)
+                return null;
+            return stateRepresentation.Triggers.Find(x => x.NextStateRepresentation.State.Equals(targetState));
         }
     }
 }

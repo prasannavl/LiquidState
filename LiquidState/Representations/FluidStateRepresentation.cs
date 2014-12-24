@@ -18,9 +18,6 @@ namespace LiquidState.Representations
 
         internal FluidStateRepresentation(TState state)
         {
-            Contract.Requires(state != null);
-            Contract.Ensures(State != null);
-
             State = state;
             // Allocate with capacity as 1 to avoid wastage of memory.
             Triggers = new List<FluidTriggerRepresentation<TTrigger, TState>>(1);

@@ -109,7 +109,10 @@ namespace LiquidState.Sample
 
                 machine.EnableFluidFlow();
 
+                Console.WriteLine();
+
                 Console.WriteLine("Fluid flows:");
+                Console.WriteLine();
 
                 machine.MoveToState(State.Talking);
                 machine.MoveToState(State.Ringing);
@@ -118,6 +121,10 @@ namespace LiquidState.Sample
                 machine.MoveToState(State.Off);
                 machine.MoveToState(State.Ringing);
                 machine.MoveToState(State.Connected);
+
+                Console.WriteLine();
+                    Console.WriteLine("End of fluid.");
+                Console.WriteLine();
 
                 machine.Fire(Trigger.Talk);
                 machine.Fire(Trigger.Ring);

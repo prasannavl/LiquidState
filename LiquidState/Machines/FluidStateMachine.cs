@@ -20,13 +20,9 @@ namespace LiquidState.Machines
         internal FluidStateMachine(TState initialState, FluidStateMachineConfiguration<TState, TTrigger> configuration)
         {
             Contract.Requires(configuration != null);
-            Contract.Requires(initialState != null);
 
-            CurrentStateRepresentation = configuration.GetInitialStateRepresentation(initialState);
-            if (CurrentStateRepresentation == null)
-            {
-                throw new InvalidOperationException("StateMachine has an unreachable state");
-            }
+            CurrentStateRepresentation = configuration.GetInitialStateRepresentation(initialState) ??
+                                         new FluidStateRepresentation<TState, TTrigger>(default(TState));
 
             this.configuration = configuration;
 
@@ -56,15 +52,17 @@ namespace LiquidState.Machines
 
         public bool IsEnabled { get; private set; }
         public bool IsFluidFlowActive { get; private set; }
+        public bool AcceptExternalStates { get; private set; }
 
-        public void EnableFluidFlow()
+        public void EnableFluidFlow(bool acceptExternalStates = false)
         {
             IsFluidFlowActive = true;
+            AcceptExternalStates = acceptExternalStates;
         }
 
         public void DisableFluidFlow()
         {
-            IsFluidFlowActive = false;
+            IsFluidFlowActive = AcceptExternalStates = false;
         }
 
         public event Action<TTrigger, TState> UnhandledTriggerExecuted;
@@ -197,13 +195,13 @@ namespace LiquidState.Machines
                     if (useTriggerIfAvailable)
                     {
                         var triggerRep =
-                            CurrentStateRepresentation.Triggers.Find(
-                                x => x.NextStateRepresentation.State.Equals(targetState));
+                            FluidStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentationForTargetState(
+                                targetState, CurrentStateRepresentation);
 
                         // No triggers found. Use Fluid change flow if possible.
                         if (triggerRep == null)
                         {
-                            MoveToStateInternal(targetState, true, GetStateRepresentation(targetState));
+                            MoveToStateInternal(targetState, true, null);
                             return;
                         }
                         else
@@ -216,9 +214,12 @@ namespace LiquidState.Machines
                                 if (triggerAction == null)
                                 {
                                     // Uses parameterized argument. Not possible to switch to state without trigger arguments. Use Fluid change flow.
-                                    MoveToStateInternal(targetState, true, GetStateRepresentation(targetState));
+                                    MoveToStateInternal(targetState, true, null);
                                     return;
                                 }
+
+                                MoveToStateInternal(targetState, false, triggerRep.NextStateRepresentation,
+                                    triggerAction);
                             }
 
                             MoveToStateInternal(targetState, false, triggerRep.NextStateRepresentation, triggerAction);
@@ -226,7 +227,7 @@ namespace LiquidState.Machines
                     }
                     else
                     {
-                        MoveToStateInternal(targetState, true, GetStateRepresentation(targetState));
+                        MoveToStateInternal(targetState, true, null);
                     }
                 }
                 finally
@@ -238,28 +239,35 @@ namespace LiquidState.Machines
 
         private FluidStateRepresentation<TState, TTrigger> GetStateRepresentation(TState targetState)
         {
-            FluidStateRepresentation<TState, TTrigger> result;
+            FluidStateRepresentation<TState, TTrigger> result = null;
             if (configuration.config.TryGetValue(targetState, out result))
             {
                 return result;
             }
-            else
-            {
-                throw new InvalidOperationException("Invalid state transition for fluid flow attempt");
-            }
+            if (AcceptExternalStates)
+                return null;
+
+            throw new InvalidOperationException("Invalid state transition for fluid flow attempt");
         }
 
         private void MoveToStateInternal(TState targetState, bool isFluidFlow,
-            FluidStateRepresentation<TState, TTrigger> targetStateRep,
-            Action triggerAction = null)
+            FluidStateRepresentation<TState, TTrigger> targetStateRep, Action triggerAction = null)
         {
-            // Make sure the Ignore triggers are honoured, acting as a blacklist in PermitAll state.
-            if (targetStateRep == null)
+            if (isFluidFlow)
             {
-                return;
+                HandleFlowFlags();
+                if (targetStateRep == null)
+                {
+                    targetStateRep = GetStateRepresentation(targetState) ??
+                                     new FluidStateRepresentation<TState, TTrigger>(default(TState));
+                }
             }
-
-            HandleFlowFlags(isFluidFlow);
+            else
+            {
+                // Make sure the Ignore triggers are honoured, acting as a blacklist in ForceFluidFlow state.
+                if (targetStateRep == null)
+                    return;
+            }
 
             // Current exit
             var currentExit = CurrentStateRepresentation.OnExitAction;
@@ -281,27 +289,24 @@ namespace LiquidState.Machines
                 stateChangedHandler.Invoke(previousState, CurrentStateRepresentation.State);
         }
 
-        private void HandleFlowFlags(bool isFluidFlow)
+        private void HandleFlowFlags()
         {
-            if (isFluidFlow)
-            {
-                var flags = CurrentStateRepresentation.TransitionFlags;
-                var isFluidOverride = flags.HasFlag(FluidTransitionFlag.OverrideFluidState);
-                var isFluidFlowOverrideActive = flags.HasFlag(FluidTransitionFlag.FluidStateActive);
+            var flags = CurrentStateRepresentation.TransitionFlags;
+            var isFluidOverride = flags.HasFlag(FluidTransitionFlag.OverrideFluidState);
+            var isFluidFlowOverrideActive = flags.HasFlag(FluidTransitionFlag.FluidStateActive);
 
-                if (isFluidOverride)
-                {
-                    if (isFluidFlowOverrideActive)
-                        return;
-                    else
-                        throw new InvalidOperationException(
-                            "Invalid state. Fluid flow is enabled but explicitly overriden to be disabled for current state to switch freely.");
-                }
-                if (!IsFluidFlowActive)
-                {
+            if (isFluidOverride)
+            {
+                if (isFluidFlowOverrideActive)
+                    return;
+                else
                     throw new InvalidOperationException(
-                        "Invalid state. Fluid flow is not enabled for switching to any state.");
-                }
+                        "Invalid state. Fluid flow is enabled but explicitly overriden to be disabled for current state to switch freely.");
+            }
+            if (!IsFluidFlowActive)
+            {
+                throw new InvalidOperationException(
+                    "Invalid state. Fluid flow is not enabled for switching to any state.");
             }
         }
 
