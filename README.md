@@ -23,7 +23,7 @@ Supported Platforms:
 
 More:
 
-**FluidStateMachine** - A state machine which introduces a new method "MoveToState(state)" to move about freely into any state, but will use triggers first if provided. FluidFlow must be enabled, or its behaviour is similar to StateMachine.
+**FluidStateMachine** - A state machine which introduces a new method "MoveToState(state)" to move about freely into any state, but will use triggers first if provided. FluidFlow must be enabled, or its behaviour is similar to StateMachine. External states can also be optionally allowed on a FluidStateMachine
   
 ######Why LiquidState:
 
@@ -164,6 +164,10 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 ```
 
 **Release notes:**
+
+######v.2.1.1-beta
+
+- Improve fluid flow dynamics and allow null states in FluidStateMachine
 
 ######v.2.1-beta
 
