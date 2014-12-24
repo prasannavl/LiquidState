@@ -97,6 +97,11 @@ namespace LiquidState.Machines
             ExecuteAction(currentExit);
         }
 
+        public FluidStateMachineConfiguration<TState, TTrigger> GetLiveConfiguration()
+        {
+            return configuration;
+        }
+
         public void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
         {
             Contract.Requires<ArgumentNullException>(parameterizedTrigger != null);
