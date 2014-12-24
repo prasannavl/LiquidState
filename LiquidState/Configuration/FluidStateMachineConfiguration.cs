@@ -28,7 +28,7 @@ namespace LiquidState.Configuration
 
         internal FluidStateRepresentation<TState, TTrigger> GetInitialStateRepresentation(TState initialState)
         {
-            Contract.Requires(initialState != null);
+            if (initialState == null) return null;
 
             FluidStateRepresentation<TState, TTrigger> rep;
             if (config.TryGetValue(initialState, out rep))

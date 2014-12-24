@@ -239,6 +239,9 @@ namespace LiquidState.Machines
 
         private FluidStateRepresentation<TState, TTrigger> GetStateRepresentation(TState targetState)
         {
+            if (targetState == null)
+                return null;
+
             FluidStateRepresentation<TState, TTrigger> result = null;
             if (configuration.config.TryGetValue(targetState, out result))
             {
@@ -259,7 +262,7 @@ namespace LiquidState.Machines
                 if (targetStateRep == null)
                 {
                     targetStateRep = GetStateRepresentation(targetState) ??
-                                     new FluidStateRepresentation<TState, TTrigger>(default(TState));
+                                     new FluidStateRepresentation<TState, TTrigger>(targetState);
                 }
             }
             else

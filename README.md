@@ -165,9 +165,14 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 **Release notes:**
 
+######v.2.1.2-beta
+
+- Allow null states in FluidStateMachine
+- Allow zero configuration start for FluidStateMachine
+
 ######v.2.1.1-beta
 
-- Improve fluid flow dynamics and allow null states in FluidStateMachine
+- Improve fluid flow dynamics for FluidStateMachine
 
 ######v.2.1-beta
 

@@ -220,10 +220,12 @@ namespace LiquidState.Configuration
         internal static FluidStateRepresentation<TState, TTrigger> FindOrCreateStateRepresentation(TState state,
             Dictionary<TState, FluidStateRepresentation<TState, TTrigger>> config)
         {
-            Contract.Requires(state != null);
             Contract.Requires(config != null);
 
             Contract.Ensures(Contract.Result<FluidStateRepresentation<TState, TTrigger>>() != null);
+
+            if (state == null)
+                return null;
 
             FluidStateRepresentation<TState, TTrigger> rep;
             if (config.TryGetValue(state, out rep))
