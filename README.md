@@ -162,6 +162,9 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 **Release notes:**
 
+######v.2.1.5-beta
+- Fix: Async state machine queues attempts to execute concurrently (throwing an exception preventing it) when it enters a queue, and not awaited
+
 ######v.2.1.4-beta
 - Remove FluidStateMachine in favor of SimpleStateMachine (not available yet)
 

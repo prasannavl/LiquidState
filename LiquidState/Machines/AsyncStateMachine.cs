@@ -14,8 +14,8 @@ namespace LiquidState.Machines
 {
     public class AsyncStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
-        private IImmutableQueue<Action> actionsQueue;
-        private IDispatcher dispatcher;
+        private IImmutableQueue<Func<Task>> actionsQueue;
+        private readonly IDispatcher dispatcher;
         private volatile bool isInQueue;
         private volatile bool isPaused;
         private volatile bool isRunning;
@@ -32,7 +32,7 @@ namespace LiquidState.Machines
             machine.StateChanged += StateChanged;
             dispatcher = new SynchronizationContextDispatcher();
             dispatcher.Initialize();
-            actionsQueue = ImmutableQueue.Create<Action>();
+            actionsQueue = ImmutableQueue.Create<Func<Task>>();
         }
 
         public bool IsInTransition
@@ -90,7 +90,7 @@ namespace LiquidState.Machines
             if (IsEnabled)
             {
                 var tcs = new TaskCompletionSource<bool>();
-                Action action = () => dispatcher.Execute(async () =>
+                Func<Task> action = () => dispatcher.ExecuteAsync(async () =>
                 {
                     try
                     {
@@ -101,7 +101,9 @@ namespace LiquidState.Machines
                         tcs.SetResult(true);
 
                         if (!isInQueue)
-                            RunFromQueueIfNotEmpty();
+                        {
+                            var _ = RunFromQueueIfNotEmpty();
+                        }
                     }
                 });
 
@@ -127,7 +129,7 @@ namespace LiquidState.Machines
             if (IsEnabled)
             {
                 var tcs = new TaskCompletionSource<bool>();
-                Action action = () => dispatcher.Execute(async () =>
+                Func<Task> action = () => dispatcher.ExecuteAsync(async () =>
                 {
                     try
                     {
@@ -138,7 +140,9 @@ namespace LiquidState.Machines
                         tcs.SetResult(true);
 
                         if (!isInQueue)
-                            RunFromQueueIfNotEmpty();
+                        {
+                            var _ = RunFromQueueIfNotEmpty();                            
+                        }
                     }
                 });
 
@@ -159,7 +163,7 @@ namespace LiquidState.Machines
             return TaskCache.Completed;
         }
 
-        private void RunFromQueueIfNotEmpty()
+        private async Task RunFromQueueIfNotEmpty()
         {
             isRunning = true;
             isInQueue = true;
@@ -168,14 +172,18 @@ namespace LiquidState.Machines
             {
                 while (queueCount > 0)
                 {
-                    Action current = null;
+                    Func<Task> current = null;
                     lock (actionsQueue)
                     {
-                        current = actionsQueue.Peek();
-                        actionsQueue = actionsQueue.Dequeue();
-                        queueCount--;
+                        if (queueCount > 0)
+                        {
+                            current = actionsQueue.Peek();
+                            actionsQueue = actionsQueue.Dequeue();
+                            queueCount--;
+                        }
                     }
-                    current();
+                    if (current != null)
+                        await current();
                 }
             }
             finally

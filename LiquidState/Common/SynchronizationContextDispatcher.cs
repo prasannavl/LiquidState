@@ -4,25 +4,31 @@
 using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace LiquidState.Common
 {
     public class SynchronizationContextDispatcher : IDispatcher
     {
         private static SynchronizationContext _uiContext;
-        private static int _managedThreadId;
 
+        public TaskScheduler Scheduler { get; private set; }
 
         public void Initialize()
         {
-            _managedThreadId = Environment.CurrentManagedThreadId;
-            _uiContext = SynchronizationContext.Current ?? new SynchronizationContext();
+            _uiContext = SynchronizationContext.Current;
+            if (_uiContext == null)
+            {
+                _uiContext = new SynchronizationContext();
+                SynchronizationContext.SetSynchronizationContext(_uiContext);
+            }
+            Scheduler = TaskScheduler.FromCurrentSynchronizationContext();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAccess()
         {
-            return _managedThreadId == Environment.CurrentManagedThreadId;
+            return SynchronizationContext.Current == _uiContext;
         }
 
 
@@ -50,6 +56,17 @@ namespace LiquidState.Common
             {
                 _uiContext.Post(s => action((T)s), state);                
             }
+        }
+    }
+
+    public static class DispatcherExtensions
+    {
+        public static Task ExecuteAsync(this IDispatcher dispatcher, Func<Task> task)
+        {
+            return Task.Factory.StartNew(task,
+                CancellationToken.None,
+                TaskCreationOptions.DenyChildAttach,
+                dispatcher.Scheduler);
         }
     }
 }
