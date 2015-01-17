@@ -24,30 +24,6 @@ namespace LiquidState
             return sm;
         }
 
-        public static FluidStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
-    FluidStateMachineConfiguration<TState, TTrigger> config)
-        {
-            Contract.Requires<ArgumentNullException>(initialState != null);
-            Contract.Requires<ArgumentNullException>(config != null);
-
-            var sm = new FluidStateMachine<TState, TTrigger>(initialState, config);
-            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
-
-            return sm;
-        }
-
-        public static FluidStateMachine<TState, TTrigger> Create<TState, TTrigger>(
-FluidStateMachineConfiguration<TState, TTrigger> config)
-        {
-            Contract.Requires<ArgumentNullException>(config != null);
-
-            var sm = new FluidStateMachine<TState, TTrigger>(default(TState), config);
-            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
-
-            return sm;
-        }
-
-
         public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
             AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine = true)
         {
@@ -60,17 +36,6 @@ FluidStateMachineConfiguration<TState, TTrigger> config)
             sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
 
             return sm;
-        }
-
-
-        public static FluidStateMachineConfiguration<TState, TTrigger> CreateFluidConfiguration<TState, TTrigger>()
-        {
-            return new FluidStateMachineConfiguration<TState, TTrigger>();
-        }
-
-        public static FluidStateMachineConfiguration<TState, TState> CreateFluidConfiguration<TState>()
-        {
-            return new FluidStateMachineConfiguration<TState, TState>();
         }
 
         public static StateMachineConfiguration<TState, TTrigger> CreateConfiguration<TState, TTrigger>()

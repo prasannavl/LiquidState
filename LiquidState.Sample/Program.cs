@@ -19,7 +19,6 @@ namespace LiquidState.Sample
             LiquidStateSyncTest();
             LiquidStateAwaitableSyncTest();
             LiquidStateAsyncTest();
-            FluidMachineExample();
             Console.WriteLine("Done");
             Console.ReadLine();
         }
@@ -62,95 +61,6 @@ namespace LiquidState.Sample
             machine.Fire(Trigger.Talk);
             machine.Fire(Trigger.Ring);
             machine.Fire(connectTriggerWithParameter, "John Doe");
-        }
-
-        private static void FluidMachineExample()
-        {
-            Console.WriteLine();
-            Console.WriteLine("Fluid machine: ");
-            var config = StateMachine.CreateFluidConfiguration<State, Trigger>();
-
-            config.Configure(State.Off)
-                .OnEntry(() => Console.WriteLine("OnEntry of Off"))
-                .OnExit(() => Console.WriteLine("OnExit of Off"))
-                .PermitReentry(Trigger.TurnOff)
-                .Permit(Trigger.Ring, State.Ringing, () => { Console.WriteLine("Attempting to ring"); })
-                .Permit(Trigger.Connect, State.Connected, () => { Console.WriteLine("Connecting"); });
-            var connectTriggerWithParameter = config.SetTriggerParameter<string>(Trigger.Connect);
-
-            config.Configure(State.Ringing)
-                .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
-                .OnExit(() => Console.WriteLine("OnExit of Ringing"))
-                .Permit(connectTriggerWithParameter, State.Connected,
-                    name => { Console.WriteLine("Attempting to connect to {0}", name); })
-                .Permit(Trigger.Talk, State.Talking, () => { Console.WriteLine("Attempting to talk"); });
-
-            config.Configure(State.Connected)
-                .OnEntry(() => Console.WriteLine("AOnEntry of Connected"))
-                .OnExit(() => Console.WriteLine("AOnExit of Connected"))
-                .PermitReentry(Trigger.Connect)
-                .Permit(Trigger.Talk, State.Talking, () => { Console.WriteLine("Attempting to talk"); })
-                .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); });
-
-
-            config.Configure(State.Talking)
-                .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
-                .OnExit(() => Console.WriteLine("OnExit of Talking"))
-                .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
-                .Permit(Trigger.Ring, State.Ringing, () => { Console.WriteLine("Attempting to ring"); });
-
-            var machine = StateMachine.Create(State.Ringing, config);
-
-            try
-            {
-                machine.Fire(Trigger.Talk);
-                machine.Fire(Trigger.Ring);
-                machine.Fire(connectTriggerWithParameter, "John Doe");
-
-                machine.EnableFluidFlow();
-
-                Console.WriteLine();
-
-                Console.WriteLine("Fluid flows:");
-                Console.WriteLine();
-
-                machine.MoveToState(State.Talking);
-                machine.MoveToState(State.Ringing);
-                machine.MoveToState(State.Connected);
-                machine.MoveToState(State.Ringing);
-                machine.MoveToState(State.Off);
-                machine.MoveToState(State.Ringing);
-                machine.MoveToState(State.Connected);
-
-                Console.WriteLine();
-                    Console.WriteLine("End of fluid.");
-                Console.WriteLine();
-
-                machine.Fire(Trigger.Talk);
-                machine.Fire(Trigger.Ring);
-                machine.Fire(Trigger.Connect);
-                machine.Fire(Trigger.Ring);
-                machine.Fire(Trigger.Connect);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ERROR: " + ex.Message);
-            }
-
-            try
-            {
-                machine.Fire(Trigger.Talk);
-                machine.Fire(Trigger.Ring);
-                machine.Fire(Trigger.Connect);
-                machine.Fire(Trigger.Ring);
-                machine.Fire(Trigger.Connect);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine("ERROR: " + ex.Message);
-            }
-
-            Console.WriteLine();
         }
 
         private static async Task AsyncMachineExample()
