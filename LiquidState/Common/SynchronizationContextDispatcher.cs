@@ -1,8 +1,9 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 11:24 PM 10-11-2014
+// Created: 3:41 PM 07-12-2014
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,8 +12,6 @@ namespace LiquidState.Common
     public class SynchronizationContextDispatcher : IDispatcher
     {
         private static SynchronizationContext _uiContext;
-
-        public TaskScheduler Scheduler { get; private set; }
 
         public void Initialize()
         {
@@ -25,14 +24,11 @@ namespace LiquidState.Common
             Scheduler = TaskScheduler.FromCurrentSynchronizationContext();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool CheckAccess()
         {
             return SynchronizationContext.Current == _uiContext;
         }
 
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Execute(Action action)
         {
             if (CheckAccess())
@@ -45,7 +41,6 @@ namespace LiquidState.Common
             }
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Execute<T>(Action<T> action, T state)
         {
             if (CheckAccess())
@@ -54,9 +49,11 @@ namespace LiquidState.Common
             }
             else
             {
-                _uiContext.Post(s => action((T)s), state);                
+                _uiContext.Post(s => action((T) s), state);
             }
         }
+
+        public TaskScheduler Scheduler { get; private set; }
     }
 
     public static class DispatcherExtensions
@@ -66,7 +63,7 @@ namespace LiquidState.Common
             return Task.Factory.StartNew(task,
                 CancellationToken.None,
                 TaskCreationOptions.DenyChildAttach,
-                dispatcher.Scheduler);
+                dispatcher.Scheduler).Unwrap();
         }
     }
 }

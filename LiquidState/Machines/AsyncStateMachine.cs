@@ -73,7 +73,7 @@ namespace LiquidState.Machines
         public void Resume()
         {
             isPaused = false;
-            RunFromQueueIfNotEmpty();
+            var _ = RunFromQueueIfNotEmpty();
         }
 
         public Task Stop()
