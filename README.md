@@ -162,6 +162,9 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 **Release notes:**
 
+######v.2.1.6-beta
+- Remove dispatcher on AsyncStateMachine. Dispatching and synchronization be easily handled within the delegates itself, and not by the machine.
+
 ######v.2.1.5-beta
 - Fix: Async state machine queues attempts to execute concurrently (throwing an exception preventing it) when it enters a queue, and not awaited
 
