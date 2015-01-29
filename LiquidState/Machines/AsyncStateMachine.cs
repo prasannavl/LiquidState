@@ -1,11 +1,12 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 1:30 AM 05-12-2014
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Common;
 using LiquidState.Configuration;
@@ -14,12 +15,10 @@ namespace LiquidState.Machines
 {
     public class AsyncStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
+        private readonly AwaitableStateMachine<TState, TTrigger> machine;
         private IImmutableQueue<Func<Task>> actionsQueue;
-        private readonly IDispatcher dispatcher;
-        private volatile bool isInQueue;
         private volatile bool isPaused;
         private volatile bool isRunning;
-        private AwaitableStateMachine<TState, TTrigger> machine;
         private volatile int queueCount;
 
         internal AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
@@ -30,30 +29,11 @@ namespace LiquidState.Machines
             machine = new AwaitableStateMachine<TState, TTrigger>(initialState, config);
             machine.UnhandledTriggerExecuted += UnhandledTriggerExecuted;
             machine.StateChanged += StateChanged;
-            dispatcher = new SynchronizationContextDispatcher();
-            dispatcher.Initialize();
             actionsQueue = ImmutableQueue.Create<Func<Task>>();
         }
 
-        public bool IsInTransition
-        {
-            get { return isRunning; }
-        }
-
-        public TState CurrentState
-        {
-            get { return machine.CurrentState; }
-        }
-
-        public IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get { return machine.CurrentPermittedTriggers; }
-        }
-
-        public bool IsEnabled
-        {
-            get { return !isPaused && machine.IsEnabled; }
-        }
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
+        public event Action<TState, TState> StateChanged;
 
         public bool CanHandleTrigger(TTrigger trigger)
         {
@@ -81,16 +61,14 @@ namespace LiquidState.Machines
             return machine.Stop();
         }
 
-        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        public event Action<TState, TState> StateChanged;
-
         public Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
             if (IsEnabled)
             {
                 var tcs = new TaskCompletionSource<bool>();
-                Func<Task> action = () => dispatcher.ExecuteAsync(async () =>
+
+                Func<Task> action = async () =>
                 {
                     try
                     {
@@ -99,13 +77,8 @@ namespace LiquidState.Machines
                     finally
                     {
                         tcs.SetResult(true);
-
-                        if (!isInQueue)
-                        {
-                            var _ = RunFromQueueIfNotEmpty();
-                        }
                     }
-                });
+                };
 
                 if (isRunning || isPaused)
                 {
@@ -114,11 +87,14 @@ namespace LiquidState.Machines
                         actionsQueue = actionsQueue.Enqueue(action);
                         queueCount++;
                     }
+
+                    var ignore = RunFromQueueIfNotEmpty();
                     return tcs.Task;
                 }
 
                 isRunning = true;
                 action();
+                var ignore2 = RunFromQueueIfNotEmpty();
                 return tcs.Task;
             }
             return TaskCache.Completed;
@@ -129,7 +105,7 @@ namespace LiquidState.Machines
             if (IsEnabled)
             {
                 var tcs = new TaskCompletionSource<bool>();
-                Func<Task> action = () => dispatcher.ExecuteAsync(async () =>
+                Func<Task> action = async () =>
                 {
                     try
                     {
@@ -138,13 +114,8 @@ namespace LiquidState.Machines
                     finally
                     {
                         tcs.SetResult(true);
-
-                        if (!isInQueue)
-                        {
-                            var _ = RunFromQueueIfNotEmpty();                            
-                        }
                     }
-                });
+                };
 
                 if (isRunning || isPaused)
                 {
@@ -153,21 +124,42 @@ namespace LiquidState.Machines
                         actionsQueue = actionsQueue.Enqueue(action);
                         queueCount++;
                     }
+
+                    var ignore = RunFromQueueIfNotEmpty();
                     return tcs.Task;
                 }
 
                 isRunning = true;
                 action();
+                var ignore2 = RunFromQueueIfNotEmpty();
                 return tcs.Task;
             }
             return TaskCache.Completed;
         }
 
+        public bool IsInTransition
+        {
+            get { return isRunning; }
+        }
+
+        public TState CurrentState
+        {
+            get { return machine.CurrentState; }
+        }
+
+        public IEnumerable<TTrigger> CurrentPermittedTriggers
+        {
+            get { return machine.CurrentPermittedTriggers; }
+        }
+
+        public bool IsEnabled
+        {
+            get { return !isPaused && machine.IsEnabled; }
+        }
+
         private async Task RunFromQueueIfNotEmpty()
         {
             isRunning = true;
-            isInQueue = true;
-
             try
             {
                 while (queueCount > 0)
@@ -188,7 +180,6 @@ namespace LiquidState.Machines
             }
             finally
             {
-                isInQueue = false;
                 isRunning = false;
             }
         }

@@ -18,7 +18,7 @@ namespace LiquidState.Sample
             AsyncMachineExample().Wait();
             LiquidStateSyncTest();
             LiquidStateAwaitableSyncTest();
-            LiquidStateAsyncTest();
+            Task.Run(async () => await LiquidStateAsyncTest()).Wait();
             Console.WriteLine("Done");
             Console.ReadLine();
         }
@@ -185,7 +185,7 @@ namespace LiquidState.Sample
             machine.FireAsync(Trigger.Ring).Wait();
         }
 
-        public static void LiquidStateAsyncTest()
+        public static async Task LiquidStateAsyncTest()
         {
             var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 
@@ -223,8 +223,8 @@ namespace LiquidState.Sample
             var machine = StateMachine.Create(State.Ringing, config, asyncMachine: true);
 
 
-            machine.FireAsync(Trigger.Talk).Wait();
-            machine.FireAsync(Trigger.Ring).Wait();
+            await machine.FireAsync(Trigger.Talk);
+            await machine.FireAsync(Trigger.Ring);
         }
 
         private enum Trigger
