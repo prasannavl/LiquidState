@@ -167,6 +167,9 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 **Release notes:**
 
+######v.3.0.1-beta
+- Fix: MoveToState on AsyncStateMachine was broken due to wrong internal method being called.
+ 
 ######v.3.0.0-beta
 - Complete re-write of all the machines, with Interlocked routines. All three machines are lock-free and thread-safe.
 - Add MoveToState(TState, StateTransitionOption) to all three state machines to move freely between states.
