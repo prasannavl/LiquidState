@@ -1,10 +1,10 @@
 ﻿// Author: Prasanna V. Loganathar
 // Created: 2:11 AM 27-11-2014
+// Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
 using System.Diagnostics.Contracts;
-using System.Threading.Tasks;
 using LiquidState.Common;
 using LiquidState.Configuration;
 using LiquidState.Machines;
@@ -50,7 +50,8 @@ namespace LiquidState
             return new StateMachineConfiguration<TState, TTrigger>();
         }
 
-        public static AwaitableStateMachineConfiguration<TState, TTrigger> CreateAwaitableConfiguration<TState, TTrigger>()
+        public static AwaitableStateMachineConfiguration<TState, TTrigger> CreateAwaitableConfiguration
+            <TState, TTrigger>()
         {
             return new AwaitableStateMachineConfiguration<TState, TTrigger>();
         }

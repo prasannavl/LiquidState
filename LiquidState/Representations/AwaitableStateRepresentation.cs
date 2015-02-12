@@ -1,4 +1,9 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 3:31 PM 07-12-2014
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
@@ -6,11 +11,11 @@ namespace LiquidState.Representations
 {
     internal class AwaitableStateRepresentation<TState, TTrigger>
     {
+        public readonly TState State;
+        public readonly List<AwaitableTriggerRepresentation<TTrigger, TState>> Triggers;
         public object OnEntryAction;
         public object OnExitAction;
         public AwaitableStateTransitionFlag TransitionFlags;
-        public readonly TState State;
-        public readonly List<AwaitableTriggerRepresentation<TTrigger, TState>> Triggers;
 
         internal AwaitableStateRepresentation(TState state)
         {
@@ -27,11 +32,11 @@ namespace LiquidState.Representations
 
     internal class AwaitableTriggerRepresentation<TTrigger, TState>
     {
+        public readonly TTrigger Trigger;
         public object ConditionalTriggerPredicate;
         public AwaitableStateRepresentation<TState, TTrigger> NextStateRepresentation;
         public object OnTriggerAction;
         public AwaitableStateTransitionFlag TransitionFlags;
-        public readonly TTrigger Trigger;
 
         internal AwaitableTriggerRepresentation(TTrigger trigger)
         {

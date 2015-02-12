@@ -8,8 +8,12 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 **NuGet:** 
 
 > Install-Package LiquidState -Pre
+ 
 
-Note: The latest version is beta (pre-release) due to the dependency on System.Collections.Immutable, which is still under beta.), and is otherwise stable. The release notes are at the end.
+Notes: 
+
+- **v3.0 is now a full rewrite with lock-free algorithms**, and fully thread-safe.
+- The latest version is beta (pre-release) due to the dependency on System.Collections.Immutable, which is still under beta.), and is otherwise stable. The release notes are at the end.
   
 Supported Platforms:
 > PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
@@ -17,15 +21,16 @@ Supported Platforms:
 
 **Available State Machines:**
 
-1. **StateMachine** - Fully synchronous.
-2. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited.
-3. **AsyncStateMachine** - Fully asynchronous, and is queued by default.
+1. **StateMachine** - Fully synchronous, and thread-safe.
+2. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited. Thread-safe.
+3. **AsyncStateMachine** - Fully asynchronous, thread-safe and is queued by default. 
 
   
 ######Why LiquidState:
 
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
 - Builds a linked object graph internally during configuration making it a much faster and more efficient implementation.
+- MoveToState, to move freely between states, without triggers.
 
 ######Why Stateless:
 
@@ -161,6 +166,10 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 ```
 
 **Release notes:**
+
+######v.3.0.0-beta
+- Complete re-write of all the machines, with Interlocked routines. All three machines are lock-free and thread-safe.
+- Add MoveToState(TState, StateTransitionOption) to all three state machines to move freely between states.
 
 ######v.2.1.6-beta
 - Remove dispatcher on AsyncStateMachine. Dispatching and synchronization be easily handled within the delegates itself, and not by the machine.

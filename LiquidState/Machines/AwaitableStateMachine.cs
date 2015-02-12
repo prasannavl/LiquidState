@@ -1,5 +1,6 @@
 ﻿// Author: Prasanna V. Loganathar
 // Created: 2:12 AM 27-11-2014
+// Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
@@ -15,8 +16,12 @@ namespace LiquidState.Machines
 {
     public class AwaitableStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
+        public event Action<TState, TState> StateChanged;
+        private readonly Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> configDictionary;
         internal AwaitableStateRepresentation<TState, TTrigger> CurrentStateRepresentation;
-        private volatile bool isRunning;
+        internal InterlockedMonitor Monitor = new InterlockedMonitor();
+        internal int isEnabled = 1;
 
         internal AwaitableStateMachine(TState initialState,
             AwaitableStateMachineConfiguration<TState, TTrigger> configuration)
@@ -30,12 +35,12 @@ namespace LiquidState.Machines
                 throw new InvalidOperationException("StateMachine has an unreachable state");
             }
 
-            IsEnabled = true;
+            configDictionary = configuration.Config;
         }
 
         public bool IsInTransition
         {
-            get { return isRunning; }
+            get { return Monitor.IsBusy; }
         }
 
         public TState CurrentState
@@ -54,7 +59,31 @@ namespace LiquidState.Machines
             }
         }
 
-        public bool IsEnabled { get; private set; }
+        public bool IsEnabled
+        {
+            get { return Interlocked.CompareExchange(ref isEnabled, -1, -1) == 1; }
+        }
+
+        public async Task MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
+        {
+            if (Monitor.TryEnter())
+            {
+                try
+                {
+                    if (!IsEnabled) return;
+                    await MoveToStateInternal(state, option);
+                }
+                finally
+                {
+                    Monitor.Exit();
+                }
+            }
+            else
+            {
+                if (IsEnabled)
+                    throw new InvalidOperationException("State cannot be changed while in transition");
+            }
+        }
 
         public bool CanHandleTrigger(TTrigger trigger)
         {
@@ -80,18 +109,120 @@ namespace LiquidState.Machines
 
         public void Pause()
         {
-            IsEnabled = false;
+            Interlocked.Exchange(ref isEnabled, 0);
         }
 
         public void Resume()
         {
-            IsEnabled = true;
+            Interlocked.Exchange(ref isEnabled, 1);
         }
 
         public async Task Stop()
         {
-            IsEnabled = false;
+            if (Interlocked.CompareExchange(ref isEnabled, 0, 1) == 1)
+            {
+                Monitor.EnterWithHybridSpin();
+                try
+                {
+                    await PerformStopTransitionAsync();
+                }
+                finally
+                {
+                    Monitor.Exit();
+                }
+            }
+        }
 
+        public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+            TArgument argument)
+        {
+            if (Monitor.TryEnter())
+            {
+                try
+                {
+                    if (!IsEnabled) return;
+                    await FireInternalAsync(parameterizedTrigger, argument);
+                }
+                finally
+                {
+                    Monitor.Exit();
+                }
+            }
+            else
+            {
+                if (IsEnabled)
+                    throw new InvalidOperationException("State cannot be changed while in transition");
+            }
+        }
+
+        public async Task FireAsync(TTrigger trigger)
+        {
+            if (Monitor.TryEnter())
+            {
+                try
+                {
+                    if (!IsEnabled) return;
+                    await FireInternalAsync(trigger);
+                }
+                finally
+                {
+                    Monitor.Exit();
+                }
+            }
+            else
+            {
+                if (IsEnabled)
+                    throw new InvalidOperationException("State cannot be changed while in transition");
+            }
+        }
+
+        internal async Task MoveToStateInternal(TState state, StateTransitionOption option)
+        {
+            var currentRep = CurrentStateRepresentation;
+            AwaitableStateRepresentation<TState, TTrigger> rep;
+            if (configDictionary.TryGetValue(state, out rep))
+            {
+                if (option.HasFlag(StateTransitionOption.CurrentStateExitTransition))
+                {
+                    if (currentRep.TransitionFlags.HasFlag(AwaitableStateTransitionFlag.ExitReturnsTask))
+                    {
+                        var action = CurrentStateRepresentation.OnExitAction as Func<Task>;
+                        if (action != null)
+                            await action();
+                    }
+                    else
+                    {
+                        var action = CurrentStateRepresentation.OnExitAction as Action;
+                        if (action != null)
+                            action();
+                    }
+                }
+                if (option.HasFlag(StateTransitionOption.NewStateEntryTransition))
+                {
+                    if (rep.TransitionFlags.HasFlag(AwaitableStateTransitionFlag.EntryReturnsTask))
+                    {
+                        var action = rep.OnEntryAction as Func<Task>;
+                        if (action != null)
+                            await action();
+                    }
+                    else
+                    {
+                        var action = rep.OnEntryAction as Action;
+                        if (action != null)
+                            action();
+                    }
+                }
+
+                CurrentStateRepresentation = rep;
+            }
+            else
+            {
+                throw new InvalidOperationException("Invalid state: " + state.ToString());
+            }
+        }
+
+        internal async Task PerformStopTransitionAsync()
+        {
             var current = CurrentStateRepresentation;
             if (CheckFlag(current.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
             {
@@ -107,287 +238,253 @@ namespace LiquidState.Machines
             }
         }
 
-        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        public event Action<TState, TState> StateChanged;
-
-        public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+        internal async Task FireInternalAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
-            if (isRunning)
-                throw new InvalidOperationException("State cannot be changed while in transition");
+            var trigger = parameterizedTrigger.Trigger;
+            var triggerRep =
+                AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+                    CurrentStateRepresentation);
 
-            if (IsEnabled)
+            if (triggerRep == null)
             {
-                isRunning = true;
+                HandleInvalidTrigger(trigger);
+                return;
+            }
 
-                try
-                {
-                    var trigger = parameterizedTrigger.Trigger;
-                    var triggerRep =
-                        AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
-                            CurrentStateRepresentation);
-
-                    if (triggerRep == null)
+            if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
+            {
+                var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
+                if (predicate != null)
+                    if (!await predicate())
                     {
                         HandleInvalidTrigger(trigger);
                         return;
                     }
-
-                    if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
+            }
+            else
+            {
+                var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
+                if (predicate != null)
+                    if (!predicate())
                     {
-                        var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
-                        if (predicate != null)
-                            if (!await predicate())
-                            {
-                                HandleInvalidTrigger(trigger);
-                                return;
-                            }
-                    }
-                    else
-                    {
-                        var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
-                        if (predicate != null)
-                            if (!predicate())
-                            {
-                                HandleInvalidTrigger(trigger);
-                                return;
-                            }
-                    }
-
-                    // Handle ignored trigger
-
-                    if (triggerRep.NextStateRepresentation == null)
-                    {
+                        HandleInvalidTrigger(trigger);
                         return;
                     }
-
-                    // Catch invalid paramters before execution.
-
-                    Action<TArgument> triggerAction = null;
-                    Func<TArgument, Task> triggerFunc = null;
-                    if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
-                    {
-                        try
-                        {
-                            triggerFunc = (Func<TArgument, Task>) triggerRep.OnTriggerAction;
-                        }
-                        catch (InvalidCastException)
-                        {
-                            InvalidTriggerParameterException<TTrigger>.Throw(trigger);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
-                        }
-                        catch (InvalidCastException)
-                        {
-                            InvalidTriggerParameterException<TTrigger>.Throw(trigger);
-                            return;
-                        }
-                    }
-
-                    // Current exit
-
-                    if (CheckFlag(CurrentStateRepresentation.TransitionFlags,
-                        AwaitableStateTransitionFlag.ExitReturnsTask))
-                    {
-                        var exit = (Func<Task>) CurrentStateRepresentation.OnExitAction;
-                        if (exit != null)
-                            await exit();
-                    }
-                    else
-                    {
-                        var exit = (Action) CurrentStateRepresentation.OnExitAction;
-                        if (exit != null)
-                            exit();
-                    }
-
-                    // Trigger entry
-
-                    if (triggerAction != null)
-                    {
-                        triggerAction(argument);
-                    }
-                    else if (triggerFunc != null)
-                    {
-                        await triggerFunc(argument);
-                    }
-
-                    // Next state entry
-
-                    var nextStateRep = triggerRep.NextStateRepresentation;
-
-                    if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
-                    {
-                        var entry = (Func<Task>) nextStateRep.OnEntryAction;
-                        if (entry != null)
-                            await entry();
-                    }
-                    else
-                    {
-                        var entry = (Action) nextStateRep.OnEntryAction;
-                        if (entry != null)
-                            entry();
-                    }
-
-                    // Set states
-
-                    var previousState = CurrentStateRepresentation.State;
-                    CurrentStateRepresentation = nextStateRep;
-
-                    // Raise event
-
-                    var sc = StateChanged;
-                    if (sc != null)
-                        sc(previousState, CurrentStateRepresentation.State);
-                }
-                finally
-                {
-                    isRunning = false;
-                }
-
             }
+
+            // Handle ignored trigger
+
+            if (triggerRep.NextStateRepresentation == null)
+            {
+                return;
+            }
+
+            // Catch invalid paramters before execution.
+
+            Action<TArgument> triggerAction = null;
+            Func<TArgument, Task> triggerFunc = null;
+            if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
+            {
+                try
+                {
+                    triggerFunc = (Func<TArgument, Task>) triggerRep.OnTriggerAction;
+                }
+                catch (InvalidCastException)
+                {
+                    InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                    return;
+                }
+            }
+            else
+            {
+                try
+                {
+                    triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
+                }
+                catch (InvalidCastException)
+                {
+                    InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                    return;
+                }
+            }
+
+            // Current exit
+
+            if (CheckFlag(CurrentStateRepresentation.TransitionFlags,
+                AwaitableStateTransitionFlag.ExitReturnsTask))
+            {
+                var exit = (Func<Task>) CurrentStateRepresentation.OnExitAction;
+                if (exit != null)
+                    await exit();
+            }
+            else
+            {
+                var exit = (Action) CurrentStateRepresentation.OnExitAction;
+                if (exit != null)
+                    exit();
+            }
+
+            // Trigger entry
+
+            if (triggerAction != null)
+            {
+                triggerAction(argument);
+            }
+            else if (triggerFunc != null)
+            {
+                await triggerFunc(argument);
+            }
+
+            // Next state entry
+
+            var nextStateRep = triggerRep.NextStateRepresentation;
+
+            if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
+            {
+                var entry = (Func<Task>) nextStateRep.OnEntryAction;
+                if (entry != null)
+                    await entry();
+            }
+            else
+            {
+                var entry = (Action) nextStateRep.OnEntryAction;
+                if (entry != null)
+                    entry();
+            }
+
+            // Set states
+
+            var previousState = CurrentStateRepresentation.State;
+            CurrentStateRepresentation = nextStateRep;
+
+            // Raise event
+
+            var sc = StateChanged;
+            if (sc != null)
+                sc(previousState, CurrentStateRepresentation.State);
         }
 
-        public async Task FireAsync(TTrigger trigger)
+        internal async Task FireInternalAsync(TTrigger trigger)
         {
-            if (isRunning)
-                throw new InvalidOperationException("State cannot be changed while in transition");
+            var triggerRep =
+                AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+                    CurrentStateRepresentation);
 
-            if (IsEnabled)
+            if (triggerRep == null)
             {
-                isRunning = true;
+                HandleInvalidTrigger(trigger);
+                return;
+            }
 
-                try
-                {
-                    var triggerRep =
-                        AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
-                            CurrentStateRepresentation);
-
-                    if (triggerRep == null)
+            if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
+            {
+                var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
+                if (predicate != null)
+                    if (!await predicate())
                     {
                         HandleInvalidTrigger(trigger);
                         return;
                     }
-
-                    if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask))
+            }
+            else
+            {
+                var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
+                if (predicate != null)
+                    if (!predicate())
                     {
-                        var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
-                        if (predicate != null)
-                            if (!await predicate())
-                            {
-                                HandleInvalidTrigger(trigger);
-                                return;
-                            }
-                    }
-                    else
-                    {
-                        var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
-                        if (predicate != null)
-                            if (!predicate())
-                            {
-                                HandleInvalidTrigger(trigger);
-                                return;
-                            }
-                    }
-
-                    // Handle ignored trigger
-
-                    if (triggerRep.NextStateRepresentation == null)
-                    {
+                        HandleInvalidTrigger(trigger);
                         return;
                     }
+            }
 
-                    // Catch invalid paramters before execution.
+            // Handle ignored trigger
 
-                    Action triggerAction = null;
-                    Func<Task> triggerFunc = null;
-                    if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
-                    {
-                        try
-                        {
-                            triggerFunc = (Func<Task>) triggerRep.OnTriggerAction;
-                        }
-                        catch (InvalidCastException)
-                        {
-                            InvalidTriggerParameterException<TTrigger>.Throw(trigger);
-                            return;
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            triggerAction = (Action) triggerRep.OnTriggerAction;
-                        }
-                        catch (InvalidCastException)
-                        {
-                            InvalidTriggerParameterException<TTrigger>.Throw(trigger);
-                            return;
-                        }
-                    }
+            if (triggerRep.NextStateRepresentation == null)
+            {
+                return;
+            }
 
-                    // Current exit
+            // Catch invalid paramters before execution.
 
-                    if (CheckFlag(CurrentStateRepresentation.TransitionFlags,
-                        AwaitableStateTransitionFlag.ExitReturnsTask))
-                    {
-                        var exit = (Func<Task>) CurrentStateRepresentation.OnExitAction;
-                        if (exit != null)
-                            await exit();
-                    }
-                    else
-                    {
-                        var exit = (Action) CurrentStateRepresentation.OnExitAction;
-                        if (exit != null) exit();
-                    }
-
-                    // Trigger entry
-
-                    if (triggerAction != null)
-                    {
-                        triggerAction();
-                    }
-                    else if (triggerFunc != null)
-                    {
-                        await triggerFunc();
-                    }
-
-                    // Next state entry
-
-                    var nextStateRep = triggerRep.NextStateRepresentation;
-
-                    if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
-                    {
-                        var entry = (Func<Task>) nextStateRep.OnEntryAction;
-                        if (entry != null)
-                            await entry();
-                    }
-                    else
-                    {
-                        var entry = (Action) nextStateRep.OnEntryAction;
-                        if (entry != null) entry();
-                    }
-
-                    // Set states
-
-                    var previousState = CurrentStateRepresentation.State;
-                    CurrentStateRepresentation = nextStateRep;
-
-                    // Raise event
-
-                    var sc = StateChanged;
-                    if (sc != null) sc.Invoke(previousState, CurrentStateRepresentation.State);
-                }
-                finally
+            Action triggerAction = null;
+            Func<Task> triggerFunc = null;
+            if (CheckFlag(triggerRep.TransitionFlags, AwaitableStateTransitionFlag.TriggerActionReturnsTask))
+            {
+                try
                 {
-                    isRunning = false;
+                    triggerFunc = (Func<Task>) triggerRep.OnTriggerAction;
+                }
+                catch (InvalidCastException)
+                {
+                    InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                    return;
                 }
             }
+            else
+            {
+                try
+                {
+                    triggerAction = (Action) triggerRep.OnTriggerAction;
+                }
+                catch (InvalidCastException)
+                {
+                    InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                    return;
+                }
+            }
+
+            // Current exit
+
+            if (CheckFlag(CurrentStateRepresentation.TransitionFlags,
+                AwaitableStateTransitionFlag.ExitReturnsTask))
+            {
+                var exit = (Func<Task>) CurrentStateRepresentation.OnExitAction;
+                if (exit != null)
+                    await exit();
+            }
+            else
+            {
+                var exit = (Action) CurrentStateRepresentation.OnExitAction;
+                if (exit != null) exit();
+            }
+
+            // Trigger entry
+
+            if (triggerAction != null)
+            {
+                triggerAction();
+            }
+            else if (triggerFunc != null)
+            {
+                await triggerFunc();
+            }
+
+            // Next state entry
+
+            var nextStateRep = triggerRep.NextStateRepresentation;
+
+            if (CheckFlag(nextStateRep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
+            {
+                var entry = (Func<Task>) nextStateRep.OnEntryAction;
+                if (entry != null)
+                    await entry();
+            }
+            else
+            {
+                var entry = (Action) nextStateRep.OnEntryAction;
+                if (entry != null) entry();
+            }
+
+            // Set states
+
+            var previousState = CurrentStateRepresentation.State;
+            CurrentStateRepresentation = nextStateRep;
+
+            // Raise event
+
+            var sc = StateChanged;
+            if (sc != null) sc.Invoke(previousState, CurrentStateRepresentation.State);
         }
 
         private void HandleInvalidTrigger(TTrigger trigger)

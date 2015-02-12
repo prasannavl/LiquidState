@@ -1,5 +1,6 @@
 ﻿// Author: Prasanna V. Loganathar
 // Created: 2:12 AM 27-11-2014
+// Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
@@ -10,10 +11,10 @@ namespace LiquidState.Representations
 {
     internal class StateRepresentation<TState, TTrigger>
     {
-        public Action OnEntryAction;
-        public Action OnExitAction;
         public readonly TState State;
         public readonly List<TriggerRepresentation<TTrigger, TState>> Triggers;
+        public Action OnEntryAction;
+        public Action OnExitAction;
 
         internal StateRepresentation(TState state)
         {
@@ -28,10 +29,10 @@ namespace LiquidState.Representations
 
     internal class TriggerRepresentation<TTrigger, TState>
     {
+        public readonly TTrigger Trigger;
         public Func<bool> ConditionalTriggerPredicate;
         public StateRepresentation<TState, TTrigger> NextStateRepresentation;
         public object OnTriggerAction;
-        public readonly TTrigger Trigger;
 
         internal TriggerRepresentation(TTrigger trigger)
         {

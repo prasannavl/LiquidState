@@ -1,3 +1,8 @@
+// Author: Prasanna V. Loganathar
+// Created: 3:32 PM 07-12-2014
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
@@ -12,7 +17,8 @@ namespace LiquidState.Configuration
         private readonly Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> config;
         private readonly AwaitableStateRepresentation<TState, TTrigger> currentStateRepresentation;
 
-        internal AwaitableStateConfigurationHelper(Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> config,
+        internal AwaitableStateConfigurationHelper(
+            Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> config,
             TState currentState)
         {
             Contract.Requires(config != null);
@@ -96,7 +102,8 @@ namespace LiquidState.Configuration
             return PermitInternalTriggerAsync(null, trigger, currentStateRepresentation.State, onEntryAsyncAction);
         }
 
-        public AwaitableStateConfigurationHelper<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger)
+        public AwaitableStateConfigurationHelper<TState, TTrigger> PermitReentryIf(Func<bool> predicate,
+            TTrigger trigger)
         {
             Contract.Requires(trigger != null);
             Contract.Assume(currentStateRepresentation.State != null);
@@ -113,7 +120,8 @@ namespace LiquidState.Configuration
             return PermitInternalPredicateAsync(predicate, trigger, currentStateRepresentation.State, null);
         }
 
-        public AwaitableStateConfigurationHelper<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger,
+        public AwaitableStateConfigurationHelper<TState, TTrigger> PermitReentryIf(Func<bool> predicate,
+            TTrigger trigger,
             Action onEntryAction)
         {
             Contract.Requires(trigger != null);
@@ -141,7 +149,8 @@ namespace LiquidState.Configuration
             return PermitInternalPredicateAsync(predicate, trigger, currentStateRepresentation.State, onEntryAction);
         }
 
-        public AwaitableStateConfigurationHelper<TState, TTrigger> PermitReentryIf<TArgument>(Func<Task<bool>> predicate,
+        public AwaitableStateConfigurationHelper<TState, TTrigger> PermitReentryIf<TArgument>(
+            Func<Task<bool>> predicate,
             ParameterizedTrigger<TTrigger, TArgument> trigger, Action<TArgument> onEntryAction)
         {
             Contract.Requires(trigger != null);
@@ -421,7 +430,8 @@ namespace LiquidState.Configuration
             return this;
         }
 
-        private AwaitableStateConfigurationHelper<TState, TTrigger> PermitInternalPredicateAsync(Func<Task<bool>> predicate,
+        private AwaitableStateConfigurationHelper<TState, TTrigger> PermitInternalPredicateAsync(
+            Func<Task<bool>> predicate,
             TTrigger trigger,
             TState resultingState, Action onEntryAsyncAction)
         {
@@ -458,7 +468,8 @@ namespace LiquidState.Configuration
             return this;
         }
 
-        private AwaitableStateConfigurationHelper<TState, TTrigger> IgnoreInternal(Func<bool> predicate, TTrigger trigger)
+        private AwaitableStateConfigurationHelper<TState, TTrigger> IgnoreInternal(Func<bool> predicate,
+            TTrigger trigger)
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
 
@@ -470,7 +481,8 @@ namespace LiquidState.Configuration
             return this;
         }
 
-        private AwaitableStateConfigurationHelper<TState, TTrigger> IgnoreInternalPredicateAsync(Func<Task<bool>> predicate,
+        private AwaitableStateConfigurationHelper<TState, TTrigger> IgnoreInternalPredicateAsync(
+            Func<Task<bool>> predicate,
             TTrigger trigger)
         {
             Contract.Requires<ArgumentNullException>(trigger != null);

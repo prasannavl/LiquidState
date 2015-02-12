@@ -1,5 +1,6 @@
 ﻿// Author: Prasanna V. Loganathar
 // Created: 2:10 AM 27-11-2014
+// Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System.Reflection;
@@ -30,6 +31,6 @@ using System.Resources;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("2.1.6.0")]
-[assembly: AssemblyFileVersion("2.1.6.0")]
-[assembly: AssemblyInformationalVersion("2.1.6-beta")]
+[assembly: AssemblyVersion("3.0.0.0")]
+[assembly: AssemblyFileVersion("3.0.0.0")]
+[assembly: AssemblyInformationalVersion("3.0.0-beta")]

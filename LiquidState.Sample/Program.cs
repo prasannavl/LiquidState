@@ -1,11 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading;
+﻿// Author: Prasanna V. Loganathar
+// Created: 2:16 AM 27-11-2014
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 
 namespace LiquidState.Sample
@@ -18,7 +17,17 @@ namespace LiquidState.Sample
             AsyncMachineExample().Wait();
             LiquidStateSyncTest();
             LiquidStateAwaitableSyncTest();
-            Task.Run(async () => await LiquidStateAsyncTest()).Wait();
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await LiquidStateAsyncTest();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }).Wait();
             Console.WriteLine("Done");
             Console.ReadLine();
         }
@@ -204,7 +213,8 @@ namespace LiquidState.Sample
                 .OnExit(async () => Console.WriteLine("OnExit of Ringing"))
                 .Permit(connectTriggerWithParameter, State.Connected,
                     async name => { Console.WriteLine("Attempting to connect to " + name); })
-                .Permit(Trigger.Talk, State.Talking, async () => { Console.WriteLine("Attempting to talk"); });
+                .Permit(Trigger.Talk, State.Talking, async () => { Console.WriteLine("Attempting to talk"); })
+                .PermitReentry(Trigger.Ring);
 
             config.Configure(State.Connected)
                 .OnEntry(async () => Console.WriteLine("AOnEntry of Connected"))
@@ -218,21 +228,46 @@ namespace LiquidState.Sample
                 .OnEntry(async () => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(async () => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); })
-                .Permit(Trigger.Ring, State.Ringing, async () => { Console.WriteLine("Attempting to ring"); });
+                .Permit(Trigger.Ring, State.Ringing, async () => { Console.WriteLine("Attempting to ring"); })
+                .PermitReentry(Trigger.Talk);
+
 
             var machine = StateMachine.Create(State.Ringing, config, asyncMachine: true);
 
+            var sw = Stopwatch.StartNew();
 
-            await machine.FireAsync(Trigger.Talk);
-            await machine.FireAsync(Trigger.Ring);
-        }
+            var i = 0;
+            for (i = 0; i < 1; i++)
+            {
+                try
+                {
+                    var t1 = Task.Run(async () =>
+                    {
+                        await machine.FireAsync(Trigger.Talk);
+                        await machine.FireAsync(Trigger.Ring);
+                    });
 
-        private enum Trigger
-        {
-            TurnOff,
-            Ring,
-            Connect,
-            Talk,
+                    var t2 = Task.Run(async () =>
+                    {
+                        var i1 = machine.FireAsync(Trigger.Talk);
+                        var i2 = machine.FireAsync(Trigger.Ring);
+                        await Task.WhenAll(i1, i2);
+                    });
+
+                    var t3 = Task.Run(async () =>
+                    {
+                        var i1 = machine.FireAsync(Trigger.Talk);
+                        var i2 = machine.FireAsync(Trigger.Ring);
+                        await Task.WhenAll(i1, i2);
+                    });
+
+                    await Task.WhenAll(t1, t2, t3);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+            }
         }
 
         private enum State
@@ -241,6 +276,14 @@ namespace LiquidState.Sample
             Ringing,
             Connected,
             Talking,
+        }
+
+        private enum Trigger
+        {
+            TurnOff,
+            Ring,
+            Connect,
+            Talk,
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿// Author: Prasanna V. Loganathar
 // Created: 2:12 AM 27-11-2014
+// Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using LiquidState.Common;
 using LiquidState.Configuration;
 using LiquidState.Representations;
@@ -13,8 +15,12 @@ namespace LiquidState.Machines
 {
     public class StateMachine<TState, TTrigger> : IStateMachine<TState, TTrigger>
     {
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
+        public event Action<TState, TState> StateChanged;
+        private readonly Dictionary<TState, StateRepresentation<TState, TTrigger>> configDictionary;
         internal StateRepresentation<TState, TTrigger> CurrentStateRepresentation;
-        private volatile bool isRunning;
+        private InterlockedMonitor monitor = new InterlockedMonitor();
+        private int isEnabled = 1;
 
         internal StateMachine(TState initialState, StateMachineConfiguration<TState, TTrigger> configuration)
         {
@@ -27,12 +33,12 @@ namespace LiquidState.Machines
                 throw new InvalidOperationException("StateMachine has an unreachable state");
             }
 
-            IsEnabled = true;
+            configDictionary = configuration.Config;
         }
 
         public bool IsInTransition
         {
-            get { return isRunning; }
+            get { return monitor.IsBusy; }
         }
 
         public TState CurrentState
@@ -51,9 +57,48 @@ namespace LiquidState.Machines
             }
         }
 
-        public bool IsEnabled { get; private set; }
-        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        public event Action<TState, TState> StateChanged;
+        public bool IsEnabled
+        {
+            get { return Interlocked.CompareExchange(ref isEnabled, -1, -1) == 1; }
+        }
+
+        public void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
+        {
+            if (monitor.TryEnter())
+            {
+                try
+                {
+                    if (!IsEnabled) return;
+                    StateRepresentation<TState, TTrigger> rep;
+                    if (configDictionary.TryGetValue(state, out rep))
+                    {
+                        if (option.HasFlag(StateTransitionOption.CurrentStateExitTransition))
+                        {
+                            ExecuteAction(CurrentStateRepresentation.OnExitAction);
+                        }
+                        if (option.HasFlag(StateTransitionOption.NewStateEntryTransition))
+                        {
+                            ExecuteAction(rep.OnEntryAction);
+                        }
+
+                        CurrentStateRepresentation = rep;
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException("Invalid state: " + state.ToString());
+                    }
+                }
+                finally
+                {
+                    monitor.Exit();
+                }
+            }
+            else
+            {
+                if (IsEnabled)
+                    throw new InvalidOperationException("State cannot be changed while in transition");
+            }
+        }
 
         public bool CanHandleTrigger(TTrigger trigger)
         {
@@ -79,33 +124,42 @@ namespace LiquidState.Machines
 
         public void Pause()
         {
-            IsEnabled = false;
+            Interlocked.Exchange(ref isEnabled, 0);
         }
 
         public void Resume()
         {
-            IsEnabled = true;
+            Interlocked.Exchange(ref isEnabled, 1);
         }
 
         public void Stop()
         {
-            IsEnabled = false;
-
-            var currentExit = CurrentStateRepresentation.OnExitAction;
-            ExecuteAction(currentExit);
+            monitor.EnterWithHybridSpin();
+            if (Interlocked.CompareExchange(ref isEnabled, 0, 1) == 1)
+            {
+                try
+                {
+                    var currentExit = CurrentStateRepresentation.OnExitAction;
+                    ExecuteAction(currentExit);
+                }
+                finally
+                {
+                    monitor.Exit();
+                }
+            }
+            else
+            {
+                monitor.Exit();
+            }
         }
 
         public void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
         {
-            if (isRunning)
-                throw new InvalidOperationException("State cannot be changed while in transition");
-
-            if (IsEnabled)
+            if (monitor.TryEnter())
             {
-                isRunning = true;
-
                 try
                 {
+                    if (!IsEnabled) return;
                     var trigger = parameterizedTrigger.Trigger;
                     var triggerRep = StateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
                         CurrentStateRepresentation);
@@ -172,22 +226,23 @@ namespace LiquidState.Machines
                 }
                 finally
                 {
-                    isRunning = false;
+                    monitor.Exit();
                 }
+            }
+            else
+            {
+                if (IsEnabled)
+                    throw new InvalidOperationException("State cannot be changed while in transition");
             }
         }
 
         public void Fire(TTrigger trigger)
         {
-            if (isRunning)
-                throw new InvalidOperationException("State cannot be changed while in transition");
-
-            if (IsEnabled)
+            if (monitor.TryEnter())
             {
-                isRunning = true;
-
                 try
                 {
+                    if (!IsEnabled) return;
                     var triggerRep = StateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
                         CurrentStateRepresentation);
 
@@ -252,8 +307,13 @@ namespace LiquidState.Machines
                 }
                 finally
                 {
-                    isRunning = false;
+                    monitor.Exit();
                 }
+            }
+            else
+            {
+                if (IsEnabled)
+                    throw new InvalidOperationException("State cannot be changed while in transition");
             }
         }
 

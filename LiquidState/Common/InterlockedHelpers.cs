@@ -4,27 +4,33 @@
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
+using System.Reflection;
 using System.Threading;
 
 namespace LiquidState.Common
 {
-    public static class InterlockedHelpers
+    internal static class InterlockedHelpers
     {
-        public static bool ExchangeIfGreaterThan(ref int location, int value, int comparand)
+        public static void HybridSleepSpinUntilCompareExchangeSucceeds(ref int location, int value, int comparand)
         {
-            var initialValue = location;
-            if (initialValue <= comparand) return false;
-            if (Interlocked.CompareExchange(ref location, value, initialValue) == initialValue) return true;
+            if (Interlocked.CompareExchange(ref location, value, comparand) == comparand) return;
 
+            double waitTime = 20;
             // Repeated to avoid spinwait allocation until necessary, even though its a struct
             var spinWait = new SpinWait();
             do
             {
-                spinWait.SpinOnce();
-                var currentValue = location;
-                if (currentValue <= comparand) return false;
-                if (Interlocked.CompareExchange(ref location, value, currentValue) == currentValue) return true;
-            } while (true);
+                if (spinWait.NextSpinWillYield)
+                {
+                    new ManualResetEvent(false).WaitOne((int) waitTime);
+                    if (waitTime <= 100)
+                        waitTime = waitTime*1.3;
+                }
+                else
+                {
+                    spinWait.SpinOnce();
+                }
+            } while (Interlocked.CompareExchange(ref location, value, comparand) != comparand);
         }
 
         public static void SpinWaitUntilCompareExchangeSucceeds(ref int location, int value, int comparand)
@@ -39,7 +45,8 @@ namespace LiquidState.Common
             } while (Interlocked.CompareExchange(ref location, value, comparand) != comparand);
         }
 
-        public static void SpinWaitUntilCompareExchangeSucceeds<T>(ref T location, T value, T comparand) where T : class 
+        public static void SpinWaitUntilCompareExchangeSucceeds(ref int location, int value, int comparand,
+            string message)
         {
             if (Interlocked.CompareExchange(ref location, value, comparand) == comparand) return;
 
@@ -47,36 +54,42 @@ namespace LiquidState.Common
             var spinWait = new SpinWait();
             do
             {
+                if (spinWait.NextSpinWillYield)
+                {
+                    var type = Type.GetType("System.Console").GetRuntimeMethod("WriteLine", new[] {typeof (string)});
+                    type.Invoke(null, new[] {message});
+                }
                 spinWait.SpinOnce();
             } while (Interlocked.CompareExchange(ref location, value, comparand) != comparand);
         }
-
-        public static void SpinWaitUntilCompareExchangeSucceeds<T>(ref T location, Func<T> func, T comparand) where T : class
-        {
-            if (Interlocked.CompareExchange(ref location, func(), comparand) == comparand) return;
-
-            // Repeated to avoid spinwait allocation until necessary, even though its a struct
-            var spinWait = new SpinWait();
-            do
-            {
-                spinWait.SpinOnce();
-            } while (Interlocked.CompareExchange(ref location, func(), comparand) != comparand);
-        }
     }
 
-    public struct InterlockedMonitor
+    internal struct InterlockedMonitor
     {
         private int busy;
 
         public bool IsBusy
         {
-            // Non critical to get latest value. So, try without impacting performance much with volatile.
-            get { return Volatile.Read(ref busy) > 0; }
+            get { return Interlocked.CompareExchange(ref busy, -1, -1) > 0; }
         }
 
         public void Enter()
         {
             InterlockedHelpers.SpinWaitUntilCompareExchangeSucceeds(ref busy, 1, 0);
+        }
+
+        public void EnterWithDebugLogging(string message)
+        {
+#if DEBUG
+            InterlockedHelpers.SpinWaitUntilCompareExchangeSucceeds(ref busy, 1, 0, message);
+#else
+            Enter();
+#endif
+        }
+
+        public void EnterWithHybridSpin()
+        {
+            InterlockedHelpers.HybridSleepSpinUntilCompareExchangeSucceeds(ref busy, 1, 0);
         }
 
         public bool TryEnter()

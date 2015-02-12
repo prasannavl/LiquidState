@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Common;
 using LiquidState.Configuration;
@@ -15,11 +16,22 @@ namespace LiquidState.Machines
 {
     public class AsyncStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted
+        {
+            add { machine.UnhandledTriggerExecuted += value; }
+            remove { machine.UnhandledTriggerExecuted -= value; }
+        }
+
+        public event Action<TState, TState> StateChanged
+        {
+            add { machine.StateChanged += value; }
+            remove { machine.StateChanged -= value; }
+        }
+
         private readonly AwaitableStateMachine<TState, TTrigger> machine;
         private IImmutableQueue<Func<Task>> actionsQueue;
-        private volatile bool isPaused;
-        private volatile bool isRunning;
-        private volatile int queueCount;
+        private int queueCount;
+        private InterlockedMonitor queueMonitor = new InterlockedMonitor();
 
         internal AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
         {
@@ -27,119 +39,12 @@ namespace LiquidState.Machines
             Contract.Requires(config != null);
 
             machine = new AwaitableStateMachine<TState, TTrigger>(initialState, config);
-            machine.UnhandledTriggerExecuted += UnhandledTriggerExecuted;
-            machine.StateChanged += StateChanged;
             actionsQueue = ImmutableQueue.Create<Func<Task>>();
-        }
-
-        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        public event Action<TState, TState> StateChanged;
-
-        public bool CanHandleTrigger(TTrigger trigger)
-        {
-            return machine.CanHandleTrigger(trigger);
-        }
-
-        public bool CanTransitionTo(TState state)
-        {
-            return machine.CanTransitionTo(state);
-        }
-
-        public void Pause()
-        {
-            isPaused = true;
-        }
-
-        public void Resume()
-        {
-            isPaused = false;
-            var _ = RunFromQueueIfNotEmpty();
-        }
-
-        public Task Stop()
-        {
-            return machine.Stop();
-        }
-
-        public Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
-            TArgument argument)
-        {
-            if (IsEnabled)
-            {
-                var tcs = new TaskCompletionSource<bool>();
-
-                Func<Task> action = async () =>
-                {
-                    try
-                    {
-                        await machine.FireAsync(parameterizedTrigger, argument);
-                    }
-                    finally
-                    {
-                        tcs.SetResult(true);
-                    }
-                };
-
-                if (isRunning || isPaused)
-                {
-                    lock (actionsQueue)
-                    {
-                        actionsQueue = actionsQueue.Enqueue(action);
-                        queueCount++;
-                    }
-
-                    var ignore = RunFromQueueIfNotEmpty();
-                    return tcs.Task;
-                }
-
-                isRunning = true;
-                action();
-                var ignore2 = RunFromQueueIfNotEmpty();
-                return tcs.Task;
-            }
-            return TaskCache.Completed;
-        }
-
-        public Task FireAsync(TTrigger trigger)
-        {
-            if (IsEnabled)
-            {
-                var tcs = new TaskCompletionSource<bool>();
-                Func<Task> action = async () =>
-                {
-                    try
-                    {
-                        await machine.FireAsync(trigger);
-                    }
-                    finally
-                    {
-                        tcs.SetResult(true);
-                    }
-                };
-
-                if (isRunning || isPaused)
-                {
-                    lock (actionsQueue)
-                    {
-                        actionsQueue = actionsQueue.Enqueue(action);
-                        queueCount++;
-                    }
-
-                    var ignore = RunFromQueueIfNotEmpty();
-                    return tcs.Task;
-                }
-
-                isRunning = true;
-                action();
-                var ignore2 = RunFromQueueIfNotEmpty();
-                return tcs.Task;
-            }
-            return TaskCache.Completed;
         }
 
         public bool IsInTransition
         {
-            get { return isRunning; }
+            get { return machine.IsInTransition; }
         }
 
         public TState CurrentState
@@ -154,33 +59,261 @@ namespace LiquidState.Machines
 
         public bool IsEnabled
         {
-            get { return !isPaused && machine.IsEnabled; }
+            get { return machine.IsEnabled; }
         }
 
-        private async Task RunFromQueueIfNotEmpty()
+        public bool CanHandleTrigger(TTrigger trigger)
         {
-            isRunning = true;
-            try
+            return machine.CanHandleTrigger(trigger);
+        }
+
+        public bool CanTransitionTo(TState state)
+        {
+            return machine.CanTransitionTo(state);
+        }
+
+        public async Task MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
+        {
+            if (!IsEnabled)
+                return;
+
+            var flag = true;
+
+            queueMonitor.Enter();
+            if (machine.Monitor.TryEnter())
             {
-                while (queueCount > 0)
+                if (queueCount == 0)
                 {
-                    Func<Task> current = null;
-                    lock (actionsQueue)
+                    queueMonitor.Exit();
+                    flag = false;
+
+                    try
                     {
+                        await machine.MoveToState(state, option);
+                    }
+                    finally
+                    {
+                        queueMonitor.Enter();
                         if (queueCount > 0)
                         {
-                            current = actionsQueue.Peek();
-                            actionsQueue = actionsQueue.Dequeue();
-                            queueCount--;
+                            queueMonitor.Exit();
+                            var _ = ProcessQueueAsync(true, true);
+                        }
+                        else
+                        {
+                            queueMonitor.Exit();
+                            machine.Monitor.Exit();
                         }
                     }
-                    if (current != null)
-                        await current();
                 }
             }
-            finally
+
+            if (flag)
             {
-                isRunning = false;
+                var tcs = new TaskCompletionSource<bool>();
+                actionsQueue = actionsQueue.Enqueue(async () =>
+                {
+                    try
+                    {
+                        await machine.MoveToState(state, option);
+                        tcs.TrySetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                });
+                queueCount++;
+                queueMonitor.Exit();
+                var _ = ProcessQueueAsync();
+                await tcs.Task;
+            }
+        }
+
+        public void Pause()
+        {
+            machine.Pause();
+        }
+
+        public void Resume()
+        {
+            machine.Resume();
+            var _ = ProcessQueueAsync();
+        }
+
+        public async Task Stop()
+        {
+            if (Interlocked.CompareExchange(ref machine.isEnabled, 0, 1) == 1)
+            {
+                machine.Monitor.EnterWithHybridSpin();
+                SkipPending();
+                try
+                {
+                    await machine.PerformStopTransitionAsync();
+                }
+                finally
+                {
+                    machine.Monitor.Exit();
+                }
+            }
+        }
+
+        public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+            TArgument argument)
+        {
+            if (!IsEnabled)
+                return;
+
+            var flag = true;
+
+            queueMonitor.Enter();
+            if (machine.Monitor.TryEnter())
+            {
+                if (queueCount == 0)
+                {
+                    queueMonitor.Exit();
+                    flag = false;
+
+                    try
+                    {
+                        await machine.FireInternalAsync(parameterizedTrigger, argument);
+                    }
+                    finally
+                    {
+                        queueMonitor.Enter();
+                        if (queueCount > 0)
+                        {
+                            queueMonitor.Exit();
+                            var _ = ProcessQueueAsync(true, true);
+                        }
+                        else
+                        {
+                            queueMonitor.Exit();
+                            machine.Monitor.Exit();
+                        }
+                    }
+                }
+            }
+
+            if (flag)
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                actionsQueue = actionsQueue.Enqueue(async () =>
+                {
+                    try
+                    {
+                        await machine.FireInternalAsync(parameterizedTrigger, argument);
+                        tcs.TrySetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                });
+                queueCount++;
+                queueMonitor.Exit();
+                var _ = ProcessQueueAsync();
+                await tcs.Task;
+            }
+        }
+
+        public async Task FireAsync(TTrigger trigger)
+        {
+            if (!IsEnabled)
+                return;
+
+            var flag = true;
+
+            queueMonitor.Enter();
+            if (machine.Monitor.TryEnter())
+            {
+                if (queueCount == 0)
+                {
+                    queueMonitor.Exit();
+                    flag = false;
+
+                    try
+                    {
+                        await machine.FireInternalAsync(trigger);
+                    }
+                    finally
+                    {
+                        queueMonitor.Enter();
+                        if (queueCount > 0)
+                        {
+                            queueMonitor.Exit();
+                            var _ = ProcessQueueAsync(true, true);
+                        }
+                        else
+                        {
+                            queueMonitor.Exit();
+                            machine.Monitor.Exit();
+                        }
+                    }
+                }
+            }
+
+            if (flag)
+            {
+                var tcs = new TaskCompletionSource<bool>();
+                actionsQueue = actionsQueue.Enqueue(async () =>
+                {
+                    try
+                    {
+                        await machine.FireInternalAsync(trigger);
+                        tcs.TrySetResult(true);
+                    }
+                    catch (Exception ex)
+                    {
+                        tcs.SetException(ex);
+                    }
+                });
+                queueCount++;
+                queueMonitor.Exit();
+                var _ = ProcessQueueAsync();
+                await tcs.Task;
+            }
+        }
+
+        public void SkipPending()
+        {
+            queueMonitor.Enter();
+            actionsQueue = ImmutableQueue<Func<Task>>.Empty;
+            queueCount = 0;
+            queueMonitor.Exit();
+        }
+
+        private async Task ProcessQueueAsync(bool shouldYield = true, bool lockTaken = false)
+        {
+            if (lockTaken || machine.Monitor.TryEnter())
+            {
+                if (shouldYield) await Task.Yield();
+                queueMonitor.Enter();
+                try
+                {
+                    while (queueCount > 0)
+                    {
+                        var current = actionsQueue.Peek();
+                        actionsQueue = actionsQueue.Dequeue();
+                        queueCount--;
+                        queueMonitor.Exit();
+
+                        try
+                        {
+                            if (current != null)
+                                await current();
+                        }
+                        finally
+                        {
+                            queueMonitor.Enter();
+                        }
+                    }
+                }
+                finally
+                {
+                    machine.Monitor.Exit();
+                    queueMonitor.Exit();
+                }
             }
         }
     }
