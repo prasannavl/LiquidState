@@ -89,7 +89,7 @@ namespace LiquidState.Machines
 
                     try
                     {
-                        await machine.MoveToState(state, option);
+                        await machine.MoveToStateInternal(state, option);
                     }
                     finally
                     {
