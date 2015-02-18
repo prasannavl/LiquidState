@@ -125,7 +125,7 @@
     <Compile Include="Common\InterlockedHelpers.cs" />
     <Compile Include="Common\ParameterizedTrigger.cs" />
     <Compile Include="Common\StateTransitionOptions.cs" />
-    <Compile Include="Common\TaskCache.cs" />
+    <Compile Include="Common\TaskHelpers.cs" />
     <Compile Include="Configuration\AwaitableStateConfigurationHelper.cs" />
     <Compile Include="Configuration\StateConfigurationHelper.cs" />
     <Compile Include="Machines\IAwaitableStateMachine.cs" />

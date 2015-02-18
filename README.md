@@ -167,6 +167,9 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 **Release notes:**
 
+######v.3.0.2-beta
+- Minor changes and fixes
+
 ######v.3.0.1-beta
 - Fix: MoveToState on AsyncStateMachine was broken due to wrong internal method being called.
  
