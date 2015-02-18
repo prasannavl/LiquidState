@@ -19,7 +19,7 @@ namespace LiquidState.Common
                     if (t.IsCanceled)
                         tcs.TrySetCanceled();
                     else if (t.IsFaulted)
-                        tcs.SetException(t.Exception);
+                        tcs.TrySetException(t.Exception);
                     else
                         tcs.TrySetResult(true);
                 });
@@ -33,7 +33,7 @@ namespace LiquidState.Common
                     if (t.IsCanceled)
                         tcs.TrySetCanceled();
                     else if (t.IsFaulted)
-                        tcs.SetException(t.Exception);
+                        tcs.TrySetException(t.Exception);
                     else
                         tcs.TrySetResult(t.Result);
                 });
