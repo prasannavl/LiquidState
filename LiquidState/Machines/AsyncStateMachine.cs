@@ -115,7 +115,7 @@ namespace LiquidState.Machines
                 {
                     try
                     {
-                        await machine.MoveToState(state, option);
+                        await machine.MoveToStateInternal(state, option);
                         tcs.TrySetResult(true);
                     }
                     catch (Exception ex)
