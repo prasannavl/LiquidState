@@ -28,7 +28,7 @@ namespace LiquidState.Machines
         Task MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default);
         void Pause();
         void Resume();
-        Task Stop();
+
         event Action<TTrigger, TState> UnhandledTriggerExecuted;
         event Action<TState, TState> StateChanged;
     }
@@ -47,7 +47,6 @@ namespace LiquidState.Machines
         public abstract Task MoveToState(T state, StateTransitionOption option = StateTransitionOption.Default);
         public abstract void Pause();
         public abstract void Resume();
-        public abstract Task Stop();
 
         public Task FireAsync<TArgument>(ParameterizedTrigger<U, TArgument> parameterizedTrigger,
             TArgument argument)

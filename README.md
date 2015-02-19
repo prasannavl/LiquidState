@@ -167,6 +167,10 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 **Release notes:**
 
+######v.3.0.4-beta
+- Internal implementation changes.
+- Remove Stop method from all machine, as the complexity it bring about is simply unnecessary since the functionality can easily be implemented with an additional state.
+
 ######v.3.0.3-beta
 - Cleanup release
 

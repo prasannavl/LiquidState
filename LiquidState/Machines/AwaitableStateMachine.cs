@@ -117,21 +117,6 @@ namespace LiquidState.Machines
             Interlocked.Exchange(ref isEnabled, 1);
         }
 
-        public async Task Stop()
-        {
-            if (Interlocked.CompareExchange(ref isEnabled, 0, 1) == 1)
-            {
-                Monitor.EnterWithHybridSpin();
-                try
-                {
-                    await PerformStopTransitionAsync();
-                }
-                finally
-                {
-                    Monitor.Exit();
-                }
-            }
-        }
 
         public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)

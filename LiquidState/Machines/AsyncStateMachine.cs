@@ -7,7 +7,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics.Contracts;
-using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Common;
 using LiquidState.Configuration;
@@ -31,7 +30,7 @@ namespace LiquidState.Machines
         private readonly AwaitableStateMachine<TState, TTrigger> machine;
         private IImmutableQueue<Func<Task>> actionsQueue;
         private int queueCount;
-        private InterlockedMonitor queueMonitor = new InterlockedMonitor();
+        private InterlockedBlockingMonitor queueMonitor = new InterlockedBlockingMonitor();
 
         internal AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
         {
@@ -98,6 +97,7 @@ namespace LiquidState.Machines
                         {
                             queueMonitor.Exit();
                             var _ = ProcessQueueAsync(true, true);
+                            // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
                         {
@@ -141,23 +141,6 @@ namespace LiquidState.Machines
             var _ = ProcessQueueAsync();
         }
 
-        public async Task Stop()
-        {
-            if (Interlocked.CompareExchange(ref machine.isEnabled, 0, 1) == 1)
-            {
-                machine.Monitor.EnterWithHybridSpin();
-                SkipPending();
-                try
-                {
-                    await machine.PerformStopTransitionAsync();
-                }
-                finally
-                {
-                    machine.Monitor.Exit();
-                }
-            }
-        }
-
         public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
@@ -185,6 +168,7 @@ namespace LiquidState.Machines
                         {
                             queueMonitor.Exit();
                             var _ = ProcessQueueAsync(true, true);
+                            // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
                         {
@@ -207,7 +191,7 @@ namespace LiquidState.Machines
                     }
                     catch (Exception ex)
                     {
-                        tcs.SetException(ex);
+                        tcs.TrySetException(ex);
                     }
                 });
                 queueCount++;
@@ -243,6 +227,7 @@ namespace LiquidState.Machines
                         {
                             queueMonitor.Exit();
                             var _ = ProcessQueueAsync(true, true);
+                            // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
                         {
@@ -265,7 +250,7 @@ namespace LiquidState.Machines
                     }
                     catch (Exception ex)
                     {
-                        tcs.SetException(ex);
+                        tcs.TrySetException(ex);
                     }
                 });
                 queueCount++;
@@ -311,6 +296,7 @@ namespace LiquidState.Machines
                 }
                 finally
                 {
+                    // Exit monitor regardless of this method taking entering the monitor.
                     machine.Monitor.Exit();
                     queueMonitor.Exit();
                 }

@@ -132,27 +132,6 @@ namespace LiquidState.Machines
             Interlocked.Exchange(ref isEnabled, 1);
         }
 
-        public void Stop()
-        {
-            monitor.EnterWithHybridSpin();
-            if (Interlocked.CompareExchange(ref isEnabled, 0, 1) == 1)
-            {
-                try
-                {
-                    var currentExit = CurrentStateRepresentation.OnExitAction;
-                    ExecuteAction(currentExit);
-                }
-                finally
-                {
-                    monitor.Exit();
-                }
-            }
-            else
-            {
-                monitor.Exit();
-            }
-        }
-
         public void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
         {
             if (monitor.TryEnter())
