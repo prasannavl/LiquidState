@@ -25,20 +25,11 @@ Supported Platforms:
 2. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited. Thread-safe.
 3. **AsyncStateMachine** - Fully asynchronous, thread-safe and is queued by default. 
 
-  
 ######Why LiquidState:
 
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
-- Builds a linked object graph internally during configuration making it a much faster and more efficient implementation.
+- Builds a linked object graph internally during configuration making it a much faster and more efficient implementation than regular dictionary based implementations.
 - MoveToState, to move freely between states, without triggers.
-
-######Why Stateless:
-
-- Has hierarchal states.
-- Supports dynamic states.
-  
-**Note:** 
-I personally think switching states dynamically should never be the job of the machine. It should be a part of your domain logic, or better yet write a facade for the statemachine, making the intent very clear. 
 
 **Banchmarks**
 
@@ -167,47 +158,18 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 
 **Release notes:**
 
-######v.3.0.4-beta
-- Internal implementation changes.
-- Remove Stop method from all machine, as the complexity it bring about is simply unnecessary since the functionality can easily be implemented with an additional state.
+######v1.1
 
-######v.3.0.3-beta
-- Cleanup release
+- Added removable invalid trigger event handler by default
+- Added `Ignore` and `IgnoreIf` to configurations
 
-######v.3.0.2-beta
-- Minor changes and fixes
+######v1.2
 
-######v.3.0.1-beta
-- Fix: MoveToState on AsyncStateMachine was broken due to wrong internal method being called.
- 
-######v.3.0.0-beta
-- Complete re-write of all the machines, with Interlocked routines. All three machines are lock-free and thread-safe.
-- Add MoveToState(TState, StateTransitionOption) to all three state machines to move freely between states.
+- Added generic parameterized triggers
 
-######v.2.1.6-beta
-- Remove dispatcher on AsyncStateMachine. Dispatching and synchronization be easily handled within the delegates itself, and not by the machine.
+######v1.3-beta
 
-######v.2.1.5-beta
-- Fix: Async state machine queues attempts to execute concurrently (throwing an exception preventing it) when it enters a queue, and not awaited
-
-######v.2.1.4-beta
-- Remove FluidStateMachine in favor of SimpleStateMachine (not available yet)
-
-######v.2.1.2-beta
-
-- Allow null states in FluidStateMachine
-- Allow zero configuration start for FluidStateMachine
-
-######v.2.1.1-beta
-
-- Improve fluid flow dynamics for FluidStateMachine
-
-######v.2.1-beta
-
-- Critical Fix: All the state machines never reset the IsRunning value on error or unhandled state, leading to the machine being dormant
-- More robust error handling
-- Removed StateMachine.ReConfigure. Retain the configuration, and reconfigure it any time to modify a live state machine.
-- FluidStateMachine added
+- Added QueuedAsyncStateMachine with customizable synchronization context, and queued Fire semantics.
 
 ######v.2.0-beta
 
@@ -218,25 +180,56 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
 - AsyncStateMachines are queued by default.
 - All except AsyncStateMachines will throw InvalidOperationException if attempted to Fire while a transition is in progress.
 
-######v1.3-beta
+######v.2.1-beta
 
-- Added QueuedAsyncStateMachine with customizable synchronization context, and queued Fire semantics.
+- Critical Fix: All the state machines never reset the IsRunning value on error or unhandled state, leading to the machine being dormant
+- More robust error handling
+- Removed StateMachine.ReConfigure. Retain the configuration, and reconfigure it any time to modify a live state machine.
+- FluidStateMachine added
 
-######v1.2
+######v.2.1.1-beta
 
-- Added generic parameterized triggers
+- Improve fluid flow dynamics for FluidStateMachine
 
-*Breaking changes:*
+######v.2.1.2-beta
 
-- Non-parameterized argument (object) has been removed in favour of parameterized triggers
+- Allow null states in FluidStateMachine
+- Allow zero configuration start for FluidStateMachine
 
-######v1.1
+######v.2.1.4-beta
 
-- Added removable invalid trigger event handler by default
-- Added `Ignore` and `IgnoreIf` to configurations
+- Remove FluidStateMachine in favor of SimpleStateMachine (not available yet)
 
-*Breaking changes:*  
+######v.2.1.5-beta
 
-- Invalid trigger handler takes `<TTrigger, TState>`
+- Fix: Async state machine queues attempts to execute concurrently (throwing an exception preventing it) when it enters a queue, and not awaited
+
+######v.2.1.6-beta
+
+- Remove dispatcher on AsyncStateMachine. Dispatching and synchronization be easily handled within the delegates itself, and not by the machine.
+
+######v.3.0.0-beta
+
+- Complete re-write of all the machines, with Interlocked routines. All three machines are lock-free and thread-safe.
+- Add MoveToState(TState, StateTransitionOption) to all three state machines to move freely between states.
+
+######v.3.0.1-beta
+
+- Fix: MoveToState on AsyncStateMachine was broken due to wrong internal method being called.
+
+######v.3.0.2-beta
+
+- Minor changes and fixes
+
+######v.3.0.3-beta
+
+- Cleanup release
+
+######v.3.0.4-beta
+
+- Internal implementation changes.
+- Remove Stop method from all machine, as the complexity it bring about is simply unnecessary since the functionality can easily be implemented with an additional state.
+
+
 
 
