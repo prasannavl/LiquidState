@@ -25,6 +25,8 @@ Supported Platforms:
 2. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited. Thread-safe.
 3. **AsyncStateMachine** - Fully asynchronous, thread-safe and is queued by default. 
 
+**Note:** When AsyncStateMachine or AwaitableStateMachines are used with synchronous (non-task returning) methods, it is almost as fast as the synchronous StateMachine (the penalty is really negligible anyway, unless you're running a 10 millions state changes per second).
+
 ######Why LiquidState:
 
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
@@ -51,6 +53,58 @@ Asynchronous StateMachines - LiquidState => Time taken: 00:00:19.4116743
 ```
 
 Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](https://github.com/prasannavl/Benchmarks)
+
+
+**APIs:**
+
+**IStateMachine:**
+ 
+```
+    public interface IStateMachine<TState, TTrigger>
+    {
+        IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
+        TState CurrentState { get; }
+        bool IsEnabled { get; }
+        bool IsInTransition { get; }
+        bool CanHandleTrigger(TTrigger trigger);
+        bool CanTransitionTo(TState state);
+        void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument);
+        void Fire(TTrigger trigger);
+        void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default);
+        void Pause();
+        void Resume();
+        event Action<TTrigger, TState> UnhandledTriggerExecuted;
+        event Action<TState, TState> StateChanged;
+    }
+
+```
+
+**IAwaitableStateMachine:**
+
+```
+
+ public interface IAwaitableStateMachine<TState, TTrigger>
+    {
+        IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
+        TState CurrentState { get; }
+        bool IsEnabled { get; }
+        bool IsInTransition { get; }
+        bool CanHandleTrigger(TTrigger trigger);
+        bool CanTransitionTo(TState state);
+
+        Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+            TArgument argument);
+
+        Task FireAsync(TTrigger trigger);
+        Task MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default);
+        void Pause();
+        void Resume();
+
+        event Action<TTrigger, TState> UnhandledTriggerExecuted;
+        event Action<TState, TState> StateChanged;
+    }
+
+```
 
 **Example:** 
 
