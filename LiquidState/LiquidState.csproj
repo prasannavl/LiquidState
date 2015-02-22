@@ -122,9 +122,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Common\Exceptions.cs" />
+    <Compile Include="Common\ImmutableCollections.cs" />
     <Compile Include="Common\InterlockedHelpers.cs" />
     <Compile Include="Common\ParameterizedTrigger.cs" />
     <Compile Include="Common\StateTransitionOptions.cs" />
+    <Compile Include="Common\Validation.cs" />
     <Compile Include="Configuration\AwaitableStateConfigurationHelper.cs" />
     <Compile Include="Configuration\StateConfigurationHelper.cs" />
     <Compile Include="Machines\IAwaitableStateMachine.cs" />
@@ -138,11 +140,6 @@
     <Compile Include="Machines\StateMachine.cs" />
     <Compile Include="Configuration\StateMachineConfiguration.cs" />
     <Compile Include="StateMachine.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="System.Collections.Immutable">
-      <HintPath>..\lib\System.Collections.Immutable.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
