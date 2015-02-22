@@ -7,13 +7,11 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 
 **NuGet:** 
 
-> Install-Package LiquidState -Pre
+> Install-Package LiquidState
  
 
-Notes: 
 
-- **v3.0 is now a full rewrite with lock-free algorithms**, and fully thread-safe.
-- The latest version is beta (pre-release) due to the dependency on System.Collections.Immutable, which is still under beta.), and is otherwise stable. The release notes are at the end.
+- **v3 is now a full rewrite with lock-free algorithms**, and fully thread-safe.
   
 Supported Platforms:
 > PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
@@ -332,6 +330,9 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 - Internal implementation changes.
 - Remove Stop method from all machine, as the complexity it bring about is simply unnecessary since the functionality can easily be implemented with an additional state.
 
+######v.3.0.5
+
+- v3.0.5, is now transitioning to its own Immutable Collections, and as a side effect, it is also out of beta, and is  now fully stable.
 
 
 
