@@ -338,4 +338,9 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 
 - Drop dependency on System.Collections.Immutable
 
+######v.3.1.0
+
+- Version dump, with removal of all dependencies.
+- Fix: Code contracts rewrite was missing on Release builds.
+
 

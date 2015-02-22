@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace LiquidState.Common
 {
-    public interface IImmutableStack<T> : IEnumerable<T>, IEnumerable
+    internal interface IImmutableStack<T> : IEnumerable<T>, IEnumerable
     {
         bool IsEmpty { get; }
         IImmutableStack<T> Clear();
@@ -18,7 +18,7 @@ namespace LiquidState.Common
         IImmutableStack<T> Push(T value);
     }
 
-    public interface IImmutableQueue<T> : IEnumerable<T>, IEnumerable
+    internal interface IImmutableQueue<T> : IEnumerable<T>, IEnumerable
     {
         bool IsEmpty { get; }
         IImmutableQueue<T> Clear();
@@ -28,7 +28,7 @@ namespace LiquidState.Common
     }
 
 
-    public static class ImmutableQueue
+    internal static class ImmutableQueue
     {
         public static ImmutableQueue<T> Create<T>()
         {
@@ -67,7 +67,7 @@ namespace LiquidState.Common
     }
 
     [DebuggerDisplay("IsEmpty = {IsEmpty}")]
-    public sealed class ImmutableQueue<T> : IImmutableQueue<T>, IEnumerable<T>, IEnumerable
+    internal sealed class ImmutableQueue<T> : IImmutableQueue<T>, IEnumerable<T>, IEnumerable
     {
         private static readonly ImmutableQueue<T> EmptyField = new ImmutableQueue<T>(ImmutableStack<T>.Empty,
             ImmutableStack<T>.Empty);
@@ -293,7 +293,7 @@ namespace LiquidState.Common
     }
 
     [DebuggerDisplay("IsEmpty = {IsEmpty}; Top = {head}")]
-    public sealed class ImmutableStack<T> : IImmutableStack<T>, IEnumerable<T>, IEnumerable
+    internal sealed class ImmutableStack<T> : IImmutableStack<T>, IEnumerable<T>, IEnumerable
     {
         private static readonly ImmutableStack<T> EmptyField = new ImmutableStack<T>();
         private readonly T head;
