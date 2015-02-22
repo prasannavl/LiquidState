@@ -45,7 +45,8 @@ Count: 10000000
 Synchronous StateMachines - LiquidState => Time taken: 00:00:02.2374253
 
 Count: 10000000
-Synchronous StateMachines - LiquidState (Task/Async Awaitable) => Time taken: 00:00:13.9579566
+Synchronous StateMachines - LiquidState (Task/Async Awaitable) =>
+Time taken: 00:00:13.9579566
 
 Count: 10000000
 Asynchronous StateMachines - LiquidState => Time taken: 00:00:19.4116743
@@ -59,7 +60,7 @@ Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](
 
 **IStateMachine:**
  
-```
+```c#
     public interface IStateMachine<TState, TTrigger>
     {
         IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
@@ -76,13 +77,11 @@ Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](
         event Action<TTrigger, TState> UnhandledTriggerExecuted;
         event Action<TState, TState> StateChanged;
     }
-
 ```
 
 **IAwaitableStateMachine:**
 
-```
-
+```c#
  public interface IAwaitableStateMachine<TState, TTrigger>
     {
         IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
@@ -92,25 +91,26 @@ Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](
         bool CanHandleTrigger(TTrigger trigger);
         bool CanTransitionTo(TState state);
 
-        Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+        Task FireAsync<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument);
 
         Task FireAsync(TTrigger trigger);
-        Task MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default);
+        Task MoveToState(TState state, 
+            StateTransitionOption option = StateTransitionOption.Default);
         void Pause();
         void Resume();
 
         event Action<TTrigger, TState> UnhandledTriggerExecuted;
         event Action<TState, TState> StateChanged;
     }
-
 ```
 
 **Example:** 
 
 A terrible example: 
 
-```
+```c#
     var config = StateMachine.CreateConfiguration<State, Trigger>();
 
     config.Configure(State.Off)
@@ -161,7 +161,7 @@ A terrible example:
 Now, let's take the same terrible example, but now do it **asynchronously**!  
 (Mix and match synchronous code when you don't need asynchrony to avoid the costs.)
 
-```
+```c#
     // Note the "CreateAsyncConfiguration"
     var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 
@@ -207,7 +207,6 @@ Now, let's take the same terrible example, but now do it **asynchronously**!
     await machine.FireAsync(Trigger.Talk);
     await machine.FireAsync(Trigger.Ring);
     await machine.FireAsync(connectTriggerWithParameter, "John Doe");
-
 ```
 
 **Release notes:**
