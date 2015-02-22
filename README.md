@@ -334,5 +334,8 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 
 - v3.0.5, is now transitioning to its own Immutable Collections, and as a side effect, it is also out of beta, and is  now fully stable.
 
+######v.3.0.6
+
+- Drop dependency on System.Collections.Immutable
 
 
