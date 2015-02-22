@@ -69,9 +69,12 @@ Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](
         bool IsInTransition { get; }
         bool CanHandleTrigger(TTrigger trigger);
         bool CanTransitionTo(TState state);
-        void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument);
+        void Fire<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, 
+            TArgument argument);
         void Fire(TTrigger trigger);
-        void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default);
+        void MoveToState(TState state, 
+            StateTransitionOption option = StateTransitionOption.Default);
         void Pause();
         void Resume();
         event Action<TTrigger, TState> UnhandledTriggerExecuted;
@@ -106,9 +109,55 @@ Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](
     }
 ```
 
-**Example:** 
+**How To Use:**
 
-A terrible example: 
+You only ever interact with the `StateMachine` static class. This is the factory for both configurations and the machines. 
+
+**Step 1:** Create a configuration:
+
+```c#
+var config = StateMachine.CreateConfiguration<State, Trigger>();
+```
+
+or for awaitable, or async machine:
+
+```c#
+var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
+```
+
+**Step 2:** Setup the machine configurations using the fluent API.
+
+```
+    config.Configure(State.Off)
+        .OnEntry(() => Console.WriteLine("OnEntry of Off"))
+        .OnExit(() => Console.WriteLine("OnExit of Off"))
+        .PermitReentry(Trigger.TurnOn)
+        .Permit(Trigger.Ring, State.Ringing, 
+                () => { Console.WriteLine("Attempting to ring"); })
+        .Permit(Trigger.Connect, State.Connected, 
+                () => { Console.WriteLine("Connecting"); });
+                
+    var connectTriggerWithParameter = 
+                config.SetTriggerParameter<string>(Trigger.Connect);
+
+    config.Configure(State.Ringing)
+        .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
+        .OnExit(() => Console.WriteLine("OnExit of Ringing"))
+        .Permit(connectTriggerWithParameter, State.Connected,
+                name => { Console.WriteLine("Attempting to connect to {0}", name); })
+        .Permit(Trigger.Talk, State.Talking, 
+                () => { Console.WriteLine("Attempting to talk"); });
+```
+
+**Step 3:** Create the machine with the configuration:
+
+```c#
+var machine = StateMachine.Create(State.Ringing, config);
+```
+
+**Full examples:** 
+
+A synchronous machine example:
 
 ```c#
     var config = StateMachine.CreateConfiguration<State, Trigger>();
@@ -158,7 +207,7 @@ A terrible example:
     machine.Fire(connectTriggerWithParameter, "John Doe");
 ```
 
-Now, let's take the same terrible example, but now do it **asynchronously**!  
+Now, let's take the same dumb, and terrible example, but now do it **asynchronously**!  
 (Mix and match synchronous code when you don't need asynchrony to avoid the costs.)
 
 ```c#
