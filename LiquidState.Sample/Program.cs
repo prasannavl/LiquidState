@@ -36,7 +36,7 @@ namespace LiquidState.Sample
         {
             var config = StateMachine.CreateConfiguration<State, Trigger>();
 
-            config.Configure(State.Off)
+            config.ForState(State.Off)
                 .OnEntry(() => Console.WriteLine("OnEntry of Off"))
                 .OnExit(() => Console.WriteLine("OnExit of Off"))
                 .PermitReentry(Trigger.TurnOff)
@@ -44,14 +44,14 @@ namespace LiquidState.Sample
                 .Permit(Trigger.Connect, State.Connected, () => { Console.WriteLine("Connecting"); });
             var connectTriggerWithParameter = config.SetTriggerParameter<string>(Trigger.Connect);
 
-            config.Configure(State.Ringing)
+            config.ForState(State.Ringing)
                 .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
                 .OnExit(() => Console.WriteLine("OnExit of Ringing"))
                 .Permit(connectTriggerWithParameter, State.Connected,
                     name => { Console.WriteLine("Attempting to connect to {0}", name); })
                 .Permit(Trigger.Talk, State.Talking, () => { Console.WriteLine("Attempting to talk"); });
 
-            config.Configure(State.Connected)
+            config.ForState(State.Connected)
                 .OnEntry(() => Console.WriteLine("AOnEntry of Connected"))
                 .OnExit(() => Console.WriteLine("AOnExit of Connected"))
                 .PermitReentry(Trigger.Connect)
@@ -59,7 +59,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); });
 
 
-            config.Configure(State.Talking)
+            config.ForState(State.Talking)
                 .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(() => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
@@ -77,7 +77,7 @@ namespace LiquidState.Sample
             // Note the "CreateAsyncConfiguration"
             var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 
-            config.Configure(State.Off)
+            config.ForState(State.Off)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
                 .OnExit(async () => Console.WriteLine("OnExit of Off"))
                 .PermitReentry(Trigger.TurnOff)
@@ -86,21 +86,21 @@ namespace LiquidState.Sample
 
             var connectTriggerWithParameter = config.SetTriggerParameter<string>(Trigger.Connect);
 
-            config.Configure(State.Ringing)
+            config.ForState(State.Ringing)
                 .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
                 .OnExit(() => Console.WriteLine("OnExit of Ringing"))
                 .Permit(connectTriggerWithParameter, State.Connected,
                     name => { Console.WriteLine("Attempting to connect to {0}", name); })
                 .Permit(Trigger.Talk, State.Talking, () => { Console.WriteLine("Attempting to talk"); });
 
-            config.Configure(State.Connected)
+            config.ForState(State.Connected)
                 .OnEntry(async () => Console.WriteLine("AOnEntry of Connected"))
                 .OnExit(async () => Console.WriteLine("AOnExit of Connected"))
                 .PermitReentry(Trigger.Connect)
                 .Permit(Trigger.Talk, State.Talking, async () => { Console.WriteLine("Attempting to talk"); })
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); });
 
-            config.Configure(State.Talking)
+            config.ForState(State.Talking)
                 .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(() => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
@@ -117,7 +117,7 @@ namespace LiquidState.Sample
         {
             var config = StateMachine.CreateConfiguration<State, Trigger>();
 
-            config.Configure(State.Off)
+            config.ForState(State.Off)
                 .OnEntry(() => Console.WriteLine("OnEntry of Off"))
                 .OnExit(() => Console.WriteLine("OnExit of Off"))
                 .PermitReentry(Trigger.TurnOff)
@@ -126,14 +126,14 @@ namespace LiquidState.Sample
 
             var connectTriggerWithParameter = config.SetTriggerParameter<string>(Trigger.Connect);
 
-            config.Configure(State.Ringing)
+            config.ForState(State.Ringing)
                 .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
                 .OnExit(() => Console.WriteLine("OnExit of Ringing"))
                 .Permit(connectTriggerWithParameter, State.Connected,
                     name => { Console.WriteLine("Attempting to connect to " + name); })
                 .Permit(Trigger.Talk, State.Talking, () => { Console.WriteLine("Attempting to talk"); });
 
-            config.Configure(State.Connected)
+            config.ForState(State.Connected)
                 .OnEntry(() => Console.WriteLine("AOnEntry of Connected"))
                 .OnExit(() => Console.WriteLine("AOnExit of Connected"))
                 .PermitReentry(Trigger.Connect)
@@ -141,7 +141,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); });
 
 
-            config.Configure(State.Talking)
+            config.ForState(State.Talking)
                 .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(() => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
@@ -158,7 +158,7 @@ namespace LiquidState.Sample
         {
             var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 
-            config.Configure(State.Off)
+            config.ForState(State.Off)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
                 .OnExit(async () => Console.WriteLine("OnExit of Off"))
                 .PermitReentry(Trigger.TurnOff)
@@ -167,14 +167,14 @@ namespace LiquidState.Sample
 
             var connectTriggerWithParameter = config.SetTriggerParameter<string>(Trigger.Connect);
 
-            config.Configure(State.Ringing)
+            config.ForState(State.Ringing)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Ringing"))
                 .OnExit(async () => Console.WriteLine("OnExit of Ringing"))
                 .Permit(connectTriggerWithParameter, State.Connected,
                     async name => { Console.WriteLine("Attempting to connect to " + name); })
                 .Permit(Trigger.Talk, State.Talking, async () => { Console.WriteLine("Attempting to talk"); });
 
-            config.Configure(State.Connected)
+            config.ForState(State.Connected)
                 .OnEntry(async () => Console.WriteLine("AOnEntry of Connected"))
                 .OnExit(async () => Console.WriteLine("AOnExit of Connected"))
                 .PermitReentry(Trigger.Connect)
@@ -182,7 +182,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); });
 
 
-            config.Configure(State.Talking)
+            config.ForState(State.Talking)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(async () => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); })
@@ -199,7 +199,7 @@ namespace LiquidState.Sample
             var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 
 
-            config.Configure(State.Off)
+            config.ForState(State.Off)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
                 .OnExit(async () => Console.WriteLine("OnExit of Off"))
                 .PermitReentry(Trigger.TurnOff)
@@ -208,7 +208,7 @@ namespace LiquidState.Sample
 
             var connectTriggerWithParameter = config.SetTriggerParameter<string>(Trigger.Connect);
 
-            config.Configure(State.Ringing)
+            config.ForState(State.Ringing)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Ringing"))
                 .OnExit(async () => Console.WriteLine("OnExit of Ringing"))
                 .Permit(connectTriggerWithParameter, State.Connected,
@@ -216,7 +216,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.Talk, State.Talking, async () => { Console.WriteLine("Attempting to talk"); })
                 .PermitReentry(Trigger.Ring);
 
-            config.Configure(State.Connected)
+            config.ForState(State.Connected)
                 .OnEntry(async () => Console.WriteLine("AOnEntry of Connected"))
                 .OnExit(async () => Console.WriteLine("AOnExit of Connected"))
                 .PermitReentry(Trigger.Connect)
@@ -224,7 +224,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); });
 
 
-            config.Configure(State.Talking)
+            config.ForState(State.Talking)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(async () => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); })

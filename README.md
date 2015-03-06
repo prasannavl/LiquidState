@@ -126,7 +126,7 @@ var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 **Step 2:** Setup the machine configurations using the fluent API.
 
 ```
-    config.Configure(State.Off)
+    config.ForState(State.Off)
         .OnEntry(() => Console.WriteLine("OnEntry of Off"))
         .OnExit(() => Console.WriteLine("OnExit of Off"))
         .PermitReentry(Trigger.TurnOn)
@@ -138,7 +138,7 @@ var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
     var connectTriggerWithParameter = 
                 config.SetTriggerParameter<string>(Trigger.Connect);
 
-    config.Configure(State.Ringing)
+    config.ForState(State.Ringing)
         .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
         .OnExit(() => Console.WriteLine("OnExit of Ringing"))
         .Permit(connectTriggerWithParameter, State.Connected,
@@ -160,7 +160,7 @@ A synchronous machine example:
 ```c#
     var config = StateMachine.CreateConfiguration<State, Trigger>();
 
-    config.Configure(State.Off)
+    config.ForState(State.Off)
         .OnEntry(() => Console.WriteLine("OnEntry of Off"))
         .OnExit(() => Console.WriteLine("OnExit of Off"))
         .PermitReentry(Trigger.TurnOn)
@@ -172,7 +172,7 @@ A synchronous machine example:
     var connectTriggerWithParameter = 
                 config.SetTriggerParameter<string>(Trigger.Connect);
 
-    config.Configure(State.Ringing)
+    config.ForState(State.Ringing)
         .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
         .OnExit(() => Console.WriteLine("OnExit of Ringing"))
         .Permit(connectTriggerWithParameter, State.Connected,
@@ -180,7 +180,7 @@ A synchronous machine example:
         .Permit(Trigger.Talk, State.Talking, 
                 () => { Console.WriteLine("Attempting to talk"); });
 
-    config.Configure(State.Connected)
+    config.ForState(State.Connected)
         .OnEntry(() => Console.WriteLine("AOnEntry of Connected"))
         .OnExit(() => Console.WriteLine("AOnExit of Connected"))
         .PermitReentry(Trigger.Connect)
@@ -190,7 +190,7 @@ A synchronous machine example:
               () => { Console.WriteLine("Turning off"); });
 
 
-    config.Configure(State.Talking)
+    config.ForState(State.Talking)
         .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
         .OnExit(() => Console.WriteLine("OnExit of Talking"))
         .Permit(Trigger.TurnOn, State.Off, 
@@ -212,7 +212,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
     // Note the "CreateAsyncConfiguration"
     var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 
-    config.Configure(State.Off)
+    config.ForState(State.Off)
         .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
         .OnExit(async () => Console.WriteLine("OnExit of Off"))
         .PermitReentry(Trigger.TurnOn)
@@ -224,7 +224,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
     var connectTriggerWithParameter = 
                 config.SetTriggerParameter<string>(Trigger.Connect);
 
-    config.Configure(State.Ringing)
+    config.ForState(State.Ringing)
         .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
         .OnExit(() => Console.WriteLine("OnExit of Ringing"))
         .Permit(connectTriggerWithParameter, State.Connected,
@@ -232,7 +232,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
         .Permit(Trigger.Talk, State.Talking, 
                 () => { Console.WriteLine("Attempting to talk"); });
 
-    config.Configure(State.Connected)
+    config.ForState(State.Connected)
         .OnEntry(async () => Console.WriteLine("AOnEntry of Connected"))
         .OnExit(async () => Console.WriteLine("AOnExit of Connected"))
         .PermitReentry(Trigger.Connect)
@@ -241,7 +241,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
         .Permit(Trigger.TurnOn, State.Off, 
               async () => { Console.WriteLine("Turning off"); });
 
-    config.Configure(State.Talking)
+    config.ForState(State.Talking)
         .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
         .OnExit(() => Console.WriteLine("OnExit of Talking"))
         .Permit(Trigger.TurnOn, State.Off, 
@@ -343,4 +343,9 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 - Version dump, with removal of all dependencies.
 - Fix: Code contracts rewrite was missing on Release builds.
 
+######v.3.2.0
+
+- Breaking change: The configuration API has been renamed from
+  **x.Configure(TState)** to **x.ForState(TState)**
+  (Since, its only small literal change more in line with the semantics involved, the major version number has been retained)
 

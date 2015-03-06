@@ -26,7 +26,7 @@ namespace LiquidState.Configuration
             Config = config;
         }
 
-        public StateConfigurationHelper<TState, TTrigger> Configure(TState state)
+        public StateConfigurationHelper<TState, TTrigger> ForState(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
 

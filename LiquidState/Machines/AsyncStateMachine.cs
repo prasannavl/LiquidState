@@ -295,7 +295,7 @@ namespace LiquidState.Machines
                 }
                 finally
                 {
-                    // Exit monitor regardless of this method taking entering the monitor.
+                    // Exit monitor regardless of this method entering the monitor.
                     machine.Monitor.Exit();
                     queueMonitor.Exit();
                 }

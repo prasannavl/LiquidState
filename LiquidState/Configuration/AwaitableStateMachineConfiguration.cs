@@ -32,7 +32,7 @@ namespace LiquidState.Configuration
             Config = config;
         }
 
-        public AwaitableStateConfigurationHelper<TState, TTrigger> Configure(TState state)
+        public AwaitableStateConfigurationHelper<TState, TTrigger> ForState(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
 
