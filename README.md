@@ -340,7 +340,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 
 ######v.3.1.0
 
-- Version dump, with removal of all dependencies.
+- Version bump, with removal of all dependencies.
 - Fix: Code contracts rewrite was missing on Release builds.
 
 ######v.3.2.0
