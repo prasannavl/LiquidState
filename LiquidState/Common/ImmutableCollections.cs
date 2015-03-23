@@ -1,11 +1,13 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 5:07 PM 22-02-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LiquidState.Common
 {
@@ -42,7 +44,8 @@ namespace LiquidState.Common
 
         public static ImmutableQueue<T> CreateRange<T>(IEnumerable<T> items)
         {
-            Requires.NotNull<IEnumerable<T>>(items, "items");
+            Requires.NotNull(items, "items");
+
             var immutableQueue = ImmutableQueue<T>.Empty;
             foreach (var obj in items)
                 immutableQueue = immutableQueue.Enqueue(obj);
@@ -51,7 +54,7 @@ namespace LiquidState.Common
 
         public static ImmutableQueue<T> Create<T>(params T[] items)
         {
-            Requires.NotNull<T[]>(items, "items");
+            Requires.NotNull(items, "items");
             var immutableQueue = ImmutableQueue<T>.Empty;
             foreach (var obj in items)
                 immutableQueue = immutableQueue.Enqueue(obj);
@@ -60,14 +63,14 @@ namespace LiquidState.Common
 
         public static IImmutableQueue<T> Dequeue<T>(this IImmutableQueue<T> queue, out T value)
         {
-            Requires.NotNull<IImmutableQueue<T>>(queue, "queue");
+            Requires.NotNull(queue, "queue");
             value = queue.Peek();
             return queue.Dequeue();
         }
     }
 
     [DebuggerDisplay("IsEmpty = {IsEmpty}")]
-    internal sealed class ImmutableQueue<T> : IImmutableQueue<T>, IEnumerable<T>, IEnumerable
+    internal sealed class ImmutableQueue<T> : IImmutableQueue<T>
     {
         private static readonly ImmutableQueue<T> EmptyField = new ImmutableQueue<T>(ImmutableStack<T>.Empty,
             ImmutableStack<T>.Empty);
@@ -78,11 +81,12 @@ namespace LiquidState.Common
 
         private ImmutableQueue(ImmutableStack<T> forward, ImmutableStack<T> backward)
         {
-            Requires.NotNull<ImmutableStack<T>>(forward, "forward");
-            Requires.NotNull<ImmutableStack<T>>(backward, "backward");
+            Requires.NotNull(forward, "forward");
+            Requires.NotNull(backward, "backward");
+
             forwards = forward;
             backwards = backward;
-            backwardsReversed = (ImmutableStack<T>) null;
+            backwardsReversed = null;
         }
 
         public static ImmutableQueue<T> Empty
@@ -102,12 +106,12 @@ namespace LiquidState.Common
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return (IEnumerator) new EnumeratorObject(this);
+            return new EnumeratorObject(this);
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return (IEnumerator<T>) new EnumeratorObject(this);
+            return new EnumeratorObject(this);
         }
 
         public T Peek()
@@ -119,17 +123,17 @@ namespace LiquidState.Common
 
         IImmutableQueue<T> IImmutableQueue<T>.Clear()
         {
-            return (IImmutableQueue<T>) Clear();
+            return Clear();
         }
 
         IImmutableQueue<T> IImmutableQueue<T>.Enqueue(T value)
         {
-            return (IImmutableQueue<T>) Enqueue(value);
+            return Enqueue(value);
         }
 
         IImmutableQueue<T> IImmutableQueue<T>.Dequeue()
         {
-            return (IImmutableQueue<T>) Dequeue();
+            return Dequeue();
         }
 
         public bool IsEmpty
@@ -214,13 +218,13 @@ namespace LiquidState.Common
             public void Reset()
             {
                 ThrowIfDisposed();
-                remainingBackwardsStack = (ImmutableStack<T>) null;
-                remainingForwardsStack = (ImmutableStack<T>) null;
+                remainingBackwardsStack = null;
+                remainingForwardsStack = null;
             }
 
             object IEnumerator.Current
             {
-                get { return (object) Current; }
+                get { return Current; }
             }
 
             public T Current
@@ -242,7 +246,7 @@ namespace LiquidState.Common
             {
                 if (!disposed)
                     return;
-                Requires.FailObjectDisposed<EnumeratorObject>(this);
+                Requires.FailObjectDisposed(this);
             }
         }
 
@@ -256,8 +260,8 @@ namespace LiquidState.Common
             internal Enumerator(ImmutableQueue<T> queue)
             {
                 originalQueue = queue;
-                remainingForwardsStack = (ImmutableStack<T>) null;
-                remainingBackwardsStack = (ImmutableStack<T>) null;
+                remainingForwardsStack = null;
+                remainingBackwardsStack = null;
             }
 
             public T Current
@@ -293,7 +297,7 @@ namespace LiquidState.Common
     }
 
     [DebuggerDisplay("IsEmpty = {IsEmpty}; Top = {head}")]
-    internal sealed class ImmutableStack<T> : IImmutableStack<T>, IEnumerable<T>, IEnumerable
+    internal sealed class ImmutableStack<T> : IImmutableStack<T>
     {
         private static readonly ImmutableStack<T> EmptyField = new ImmutableStack<T>();
         private readonly T head;
@@ -302,7 +306,7 @@ namespace LiquidState.Common
 
         private ImmutableStack(T head, ImmutableStack<T> tail)
         {
-            Requires.NotNull<ImmutableStack<T>>(tail, "tail");
+            Requires.NotNull(tail, "tail");
             this.head = head;
             this.tail = tail;
         }
@@ -314,12 +318,12 @@ namespace LiquidState.Common
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return (IEnumerator) new EnumeratorObject(this);
+            return new EnumeratorObject(this);
         }
 
         IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
-            return (IEnumerator<T>) new EnumeratorObject(this);
+            return new EnumeratorObject(this);
         }
 
         public T Peek()
@@ -331,17 +335,17 @@ namespace LiquidState.Common
 
         IImmutableStack<T> IImmutableStack<T>.Clear()
         {
-            return (IImmutableStack<T>) Clear();
+            return Clear();
         }
 
         IImmutableStack<T> IImmutableStack<T>.Push(T value)
         {
-            return (IImmutableStack<T>) Push(value);
+            return Push(value);
         }
 
         IImmutableStack<T> IImmutableStack<T>.Pop()
         {
-            return (IImmutableStack<T>) Pop();
+            return Pop();
         }
 
         public bool IsEmpty
@@ -385,7 +389,7 @@ namespace LiquidState.Common
             return immutableStack1;
         }
 
-        private class EnumeratorObject : IEnumerator<T>, IEnumerator, IDisposable
+        private class EnumeratorObject : IEnumerator<T>
         {
             private readonly ImmutableStack<T> originalStack;
             private ImmutableStack<T> remainingStack;
@@ -393,7 +397,7 @@ namespace LiquidState.Common
 
             internal EnumeratorObject(ImmutableStack<T> stack)
             {
-                Requires.NotNull<ImmutableStack<T>>(stack, "stack");
+                Requires.NotNull(stack, "stack");
                 originalStack = stack;
             }
 
@@ -415,12 +419,12 @@ namespace LiquidState.Common
             public void Reset()
             {
                 ThrowIfDisposed();
-                remainingStack = (ImmutableStack<T>) null;
+                remainingStack = null;
             }
 
             object IEnumerator.Current
             {
-                get { return (object) Current; }
+                get { return Current; }
             }
 
             public T Current
@@ -438,7 +442,7 @@ namespace LiquidState.Common
             {
                 if (!disposed)
                     return;
-                Requires.FailObjectDisposed<EnumeratorObject>(this);
+                Requires.FailObjectDisposed(this);
             }
         }
 
@@ -450,9 +454,9 @@ namespace LiquidState.Common
 
             internal Enumerator(ImmutableStack<T> stack)
             {
-                Requires.NotNull<ImmutableStack<T>>(stack, "stack");
+                Requires.NotNull(stack, "stack");
                 originalStack = stack;
-                remainingStack = (ImmutableStack<T>) null;
+                remainingStack = null;
             }
 
             public T Current

@@ -320,6 +320,48 @@ namespace LiquidState.Configuration
             return IgnoreInternalPredicateAsync(predicate, trigger);
         }
 
+        internal static AwaitableStateRepresentation<TState, TTrigger> FindOrCreateStateRepresentation(TState state,
+            Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> config)
+        {
+            Contract.Requires(state != null);
+            Contract.Requires(config != null);
+
+            Contract.Ensures(Contract.Result<AwaitableStateRepresentation<TState, TTrigger>>() != null);
+
+            AwaitableStateRepresentation<TState, TTrigger> rep;
+            if (config.TryGetValue(state, out rep))
+            {
+                if (rep != null) return rep;
+            }
+            rep = new AwaitableStateRepresentation<TState, TTrigger>(state);
+
+            config[state] = rep;
+
+            return rep;
+        }
+
+        internal static AwaitableTriggerRepresentation<TTrigger, TState> FindOrCreateTriggerConfig(TTrigger trigger,
+            AwaitableStateRepresentation<TState, TTrigger> stateRepresentation)
+        {
+            Contract.Requires(stateRepresentation != null);
+            Contract.Requires(trigger != null);
+
+            Contract.Ensures(Contract.Result<AwaitableTriggerRepresentation<TTrigger, TState>>() != null);
+
+            var rep = FindTriggerRepresentation(trigger, stateRepresentation);
+            if (rep != null) return rep;
+
+            rep = new AwaitableTriggerRepresentation<TTrigger, TState>(trigger);
+            stateRepresentation.Triggers.Add(rep);
+            return rep;
+        }
+
+        internal static AwaitableTriggerRepresentation<TTrigger, TState> FindTriggerRepresentation(TTrigger trigger,
+            AwaitableStateRepresentation<TState, TTrigger> stateRepresentation)
+        {
+            return stateRepresentation.Triggers.Find(x => x.Trigger.Equals(trigger));
+        }
+
         private AwaitableStateConfigurationHelper<TState, TTrigger> PermitInternalSync(Func<bool> predicate,
             TTrigger trigger,
             TState resultingState, Action onEntryAction)
@@ -494,48 +536,6 @@ namespace LiquidState.Configuration
             rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerPredicateReturnsTask;
 
             return this;
-        }
-
-        internal static AwaitableStateRepresentation<TState, TTrigger> FindOrCreateStateRepresentation(TState state,
-            Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> config)
-        {
-            Contract.Requires(state != null);
-            Contract.Requires(config != null);
-
-            Contract.Ensures(Contract.Result<AwaitableStateRepresentation<TState, TTrigger>>() != null);
-
-            AwaitableStateRepresentation<TState, TTrigger> rep;
-            if (config.TryGetValue(state, out rep))
-            {
-                if (rep != null) return rep;
-            }
-            rep = new AwaitableStateRepresentation<TState, TTrigger>(state);
-
-            config[state] = rep;
-
-            return rep;
-        }
-
-        internal static AwaitableTriggerRepresentation<TTrigger, TState> FindOrCreateTriggerConfig(TTrigger trigger,
-            AwaitableStateRepresentation<TState, TTrigger> stateRepresentation)
-        {
-            Contract.Requires(stateRepresentation != null);
-            Contract.Requires(trigger != null);
-
-            Contract.Ensures(Contract.Result<AwaitableTriggerRepresentation<TTrigger, TState>>() != null);
-
-            var rep = FindTriggerRepresentation(trigger, stateRepresentation);
-            if (rep != null) return rep;
-
-            rep = new AwaitableTriggerRepresentation<TTrigger, TState>(trigger);
-            stateRepresentation.Triggers.Add(rep);
-            return rep;
-        }
-
-        internal static AwaitableTriggerRepresentation<TTrigger, TState> FindTriggerRepresentation(TTrigger trigger,
-            AwaitableStateRepresentation<TState, TTrigger> stateRepresentation)
-        {
-            return stateRepresentation.Triggers.Find(x => x.Trigger.Equals(trigger));
         }
     }
 }

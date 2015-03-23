@@ -163,51 +163,6 @@ namespace LiquidState.Configuration
             return PermitInternal(predicate, trigger, resultingState, onEntryAction);
         }
 
-        private StateConfigurationHelper<TState, TTrigger> PermitInternal(Func<bool> predicate, TTrigger trigger,
-            TState resultingState, Action onEntryAction)
-        {
-            Contract.Requires<ArgumentNullException>(trigger != null);
-            Contract.Requires<ArgumentNullException>(resultingState != null);
-
-            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
-
-            rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
-            rep.OnTriggerAction = onEntryAction;
-            rep.ConditionalTriggerPredicate = predicate;
-
-            return this;
-        }
-
-        private StateConfigurationHelper<TState, TTrigger> PermitInternal<TArgument>(Func<bool> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            TState resultingState, Action<TArgument> onEntryAction)
-        {
-            Contract.Requires<ArgumentNullException>(trigger != null);
-            Contract.Requires<ArgumentNullException>(resultingState != null);
-
-            Contract.Assume(trigger.Trigger != null);
-
-            var rep = FindOrCreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
-
-            rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
-            rep.OnTriggerAction = onEntryAction;
-            rep.ConditionalTriggerPredicate = predicate;
-
-            return this;
-        }
-
-        private StateConfigurationHelper<TState, TTrigger> IgnoreInternal(Func<bool> predicate, TTrigger trigger)
-        {
-            Contract.Requires<ArgumentNullException>(trigger != null);
-
-            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
-
-            rep.NextStateRepresentation = null;
-            rep.ConditionalTriggerPredicate = predicate;
-
-            return this;
-        }
-
         internal static StateRepresentation<TState, TTrigger> FindOrCreateStateRepresentation(TState state,
             Dictionary<TState, StateRepresentation<TState, TTrigger>> config)
         {
@@ -252,6 +207,51 @@ namespace LiquidState.Configuration
             StateRepresentation<TState, TTrigger> stateRepresentation)
         {
             return stateRepresentation.Triggers.Find(x => x.Trigger.Equals(trigger));
+        }
+
+        private StateConfigurationHelper<TState, TTrigger> PermitInternal(Func<bool> predicate, TTrigger trigger,
+            TState resultingState, Action onEntryAction)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(resultingState != null);
+
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
+
+            rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
+            rep.OnTriggerAction = onEntryAction;
+            rep.ConditionalTriggerPredicate = predicate;
+
+            return this;
+        }
+
+        private StateConfigurationHelper<TState, TTrigger> PermitInternal<TArgument>(Func<bool> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            TState resultingState, Action<TArgument> onEntryAction)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(resultingState != null);
+
+            Contract.Assume(trigger.Trigger != null);
+
+            var rep = FindOrCreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
+
+            rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
+            rep.OnTriggerAction = onEntryAction;
+            rep.ConditionalTriggerPredicate = predicate;
+
+            return this;
+        }
+
+        private StateConfigurationHelper<TState, TTrigger> IgnoreInternal(Func<bool> predicate, TTrigger trigger)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
+
+            rep.NextStateRepresentation = null;
+            rep.ConditionalTriggerPredicate = predicate;
+
+            return this;
         }
     }
 }

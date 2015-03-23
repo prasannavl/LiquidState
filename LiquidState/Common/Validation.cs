@@ -1,45 +1,39 @@
-﻿using System;
-using System.Collections.Generic;
+﻿// Author: Prasanna V. Loganathar
+// Created: 5:11 PM 22-02-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LiquidState.Common
 {
     [AttributeUsage(AttributeTargets.Parameter, AllowMultiple = false, Inherited = false)]
-    internal sealed class ValidatedNotNullAttribute : Attribute
-    {
-    }
+    internal sealed class ValidatedNotNullAttribute : Attribute { }
+
     internal static class Requires
     {
         [DebuggerStepThrough]
         public static void NotNull<T>([ValidatedNotNull] T value, string parameterName) where T : class
         {
-            if ((object)value != null)
+            if (value != null)
                 return;
-            Requires.FailArgumentNullException(parameterName);
+            FailArgumentNullException(parameterName);
         }
 
         [DebuggerStepThrough]
         public static T NotNullPassthrough<T>([ValidatedNotNull] T value, string parameterName) where T : class
         {
-            Requires.NotNull<T>(value, parameterName);
+            NotNull(value, parameterName);
             return value;
         }
 
         [DebuggerStepThrough]
         public static void NotNullAllowStructs<T>([ValidatedNotNull] T value, string parameterName)
         {
-            if ((object)value != null)
+            if (value != null)
                 return;
-            Requires.FailArgumentNullException(parameterName);
-        }
-
-        [DebuggerStepThrough]
-        private static void FailArgumentNullException(string parameterName)
-        {
-            throw new ArgumentNullException(parameterName);
+            FailArgumentNullException(parameterName);
         }
 
         [DebuggerStepThrough]
@@ -47,7 +41,7 @@ namespace LiquidState.Common
         {
             if (condition)
                 return;
-            Requires.FailRange(parameterName, message);
+            FailRange(parameterName, message);
         }
 
         [DebuggerStepThrough]
@@ -76,6 +70,12 @@ namespace LiquidState.Common
         public static void FailObjectDisposed<TDisposed>(TDisposed disposed)
         {
             throw new ObjectDisposedException(disposed.GetType().FullName);
+        }
+
+        [DebuggerStepThrough]
+        private static void FailArgumentNullException(string parameterName)
+        {
+            throw new ArgumentNullException(parameterName);
         }
     }
 }

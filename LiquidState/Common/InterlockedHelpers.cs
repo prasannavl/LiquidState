@@ -11,9 +11,9 @@ namespace LiquidState.Common
     {
         public static void SpinWaitUntilCompareExchangeSucceeds(ref int location, int value, int comparand)
         {
+            // Take fast path if possible.
             if (Interlocked.CompareExchange(ref location, value, comparand) == comparand) return;
 
-            // Repeated to avoid spinwait allocation until necessary, even though its a struct
             var spinWait = new SpinWait();
             do
             {
@@ -22,6 +22,11 @@ namespace LiquidState.Common
         }
     }
 
+    /// <summary>
+    ///     A struct is used for lesser over-head. But be very cautious about where its used.
+    ///     And it should never be marked readonly, since the compiler will start reacting by creating copies
+    ///     of mutation.
+    /// </summary>
     internal struct InterlockedBlockingMonitor
     {
         private int busy;
@@ -48,6 +53,11 @@ namespace LiquidState.Common
         }
     }
 
+    /// <summary>
+    ///     A struct is used for lesser over-head. But be very cautious about where its used.
+    ///     And it should never be marked readonly, since the compiler will start reacting by creating copies
+    ///     of mutation.
+    /// </summary>
     internal struct InterlockedMonitor
     {
         private int busy;

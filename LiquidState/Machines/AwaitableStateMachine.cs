@@ -16,12 +16,10 @@ namespace LiquidState.Machines
 {
     public class AwaitableStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
-        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        public event Action<TState, TState> StateChanged;
-        private readonly Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> configDictionary;
         internal AwaitableStateRepresentation<TState, TTrigger> CurrentStateRepresentation;
         internal InterlockedMonitor Monitor = new InterlockedMonitor();
         internal int isEnabled = 1;
+        private readonly Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> configDictionary;
 
         internal AwaitableStateMachine(TState initialState,
             AwaitableStateMachineConfiguration<TState, TTrigger> configuration)
@@ -38,31 +36,8 @@ namespace LiquidState.Machines
             configDictionary = configuration.Config;
         }
 
-        public bool IsInTransition
-        {
-            get { return Monitor.IsBusy; }
-        }
-
-        public TState CurrentState
-        {
-            get { return CurrentStateRepresentation.State; }
-        }
-
-        public IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get
-            {
-                foreach (var triggerRepresentation in CurrentStateRepresentation.Triggers)
-                {
-                    yield return triggerRepresentation.Trigger;
-                }
-            }
-        }
-
-        public bool IsEnabled
-        {
-            get { return Interlocked.CompareExchange(ref isEnabled, -1, -1) == 1; }
-        }
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
+        public event Action<TState, TState> StateChanged;
 
         public async Task MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
         {
@@ -117,7 +92,6 @@ namespace LiquidState.Machines
             Interlocked.Exchange(ref isEnabled, 1);
         }
 
-
         public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
@@ -159,6 +133,32 @@ namespace LiquidState.Machines
                 if (IsEnabled)
                     throw new InvalidOperationException("State cannot be changed while in transition");
             }
+        }
+
+        public bool IsInTransition
+        {
+            get { return Monitor.IsBusy; }
+        }
+
+        public TState CurrentState
+        {
+            get { return CurrentStateRepresentation.State; }
+        }
+
+        public IEnumerable<TTrigger> CurrentPermittedTriggers
+        {
+            get
+            {
+                foreach (var triggerRepresentation in CurrentStateRepresentation.Triggers)
+                {
+                    yield return triggerRepresentation.Trigger;
+                }
+            }
+        }
+
+        public bool IsEnabled
+        {
+            get { return Interlocked.CompareExchange(ref isEnabled, -1, -1) == 1; }
         }
 
         internal async Task MoveToStateInternal(TState state, StateTransitionOption option)

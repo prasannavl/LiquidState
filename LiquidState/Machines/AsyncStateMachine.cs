@@ -14,18 +14,6 @@ namespace LiquidState.Machines
 {
     public class AsyncStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
-        public event Action<TTrigger, TState> UnhandledTriggerExecuted
-        {
-            add { machine.UnhandledTriggerExecuted += value; }
-            remove { machine.UnhandledTriggerExecuted -= value; }
-        }
-
-        public event Action<TState, TState> StateChanged
-        {
-            add { machine.StateChanged += value; }
-            remove { machine.StateChanged -= value; }
-        }
-
         private readonly AwaitableStateMachine<TState, TTrigger> machine;
         private IImmutableQueue<Func<Task>> actionsQueue;
         private int queueCount;
@@ -40,24 +28,16 @@ namespace LiquidState.Machines
             actionsQueue = ImmutableQueue.Create<Func<Task>>();
         }
 
-        public bool IsInTransition
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted
         {
-            get { return machine.IsInTransition; }
+            add { machine.UnhandledTriggerExecuted += value; }
+            remove { machine.UnhandledTriggerExecuted -= value; }
         }
 
-        public TState CurrentState
+        public event Action<TState, TState> StateChanged
         {
-            get { return machine.CurrentState; }
-        }
-
-        public IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get { return machine.CurrentPermittedTriggers; }
-        }
-
-        public bool IsEnabled
-        {
-            get { return machine.IsEnabled; }
+            add { machine.StateChanged += value; }
+            remove { machine.StateChanged -= value; }
         }
 
         public bool CanHandleTrigger(TTrigger trigger)
@@ -257,6 +237,26 @@ namespace LiquidState.Machines
                 var _ = ProcessQueueAsync();
                 await tcs.Task;
             }
+        }
+
+        public bool IsInTransition
+        {
+            get { return machine.IsInTransition; }
+        }
+
+        public TState CurrentState
+        {
+            get { return machine.CurrentState; }
+        }
+
+        public IEnumerable<TTrigger> CurrentPermittedTriggers
+        {
+            get { return machine.CurrentPermittedTriggers; }
+        }
+
+        public bool IsEnabled
+        {
+            get { return machine.IsEnabled; }
         }
 
         public void SkipPending()

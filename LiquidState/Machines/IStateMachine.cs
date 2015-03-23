@@ -17,6 +17,8 @@ namespace LiquidState.Machines
         TState CurrentState { get; }
         bool IsEnabled { get; }
         bool IsInTransition { get; }
+        event Action<TState, TState> StateChanged;
+        event Action<TTrigger, TState> UnhandledTriggerExecuted;
         bool CanHandleTrigger(TTrigger trigger);
         bool CanTransitionTo(TState state);
         void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument);
@@ -24,8 +26,6 @@ namespace LiquidState.Machines
         void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default);
         void Pause();
         void Resume();
-        event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        event Action<TState, TState> StateChanged;
     }
 
     [ContractClassFor(typeof (IStateMachine<,>))]
@@ -33,10 +33,6 @@ namespace LiquidState.Machines
     {
         public abstract event Action<U, T> UnhandledTriggerExecuted;
         public abstract event Action<T, T> StateChanged;
-        public abstract T CurrentState { get; }
-        public abstract IEnumerable<U> CurrentPermittedTriggers { get; }
-        public abstract bool IsEnabled { get; }
-        public abstract bool IsInTransition { get; }
         public abstract bool CanHandleTrigger(U trigger);
         public abstract bool CanTransitionTo(T state);
         public abstract void MoveToState(T state, StateTransitionOption option = StateTransitionOption.Default);
@@ -49,5 +45,9 @@ namespace LiquidState.Machines
         }
 
         public abstract void Fire(U trigger);
+        public abstract T CurrentState { get; }
+        public abstract IEnumerable<U> CurrentPermittedTriggers { get; }
+        public abstract bool IsEnabled { get; }
+        public abstract bool IsInTransition { get; }
     }
 }

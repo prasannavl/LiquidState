@@ -15,10 +15,8 @@ namespace LiquidState.Machines
 {
     public class StateMachine<TState, TTrigger> : IStateMachine<TState, TTrigger>
     {
-        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        public event Action<TState, TState> StateChanged;
-        private readonly Dictionary<TState, StateRepresentation<TState, TTrigger>> configDictionary;
         internal StateRepresentation<TState, TTrigger> CurrentStateRepresentation;
+        private readonly Dictionary<TState, StateRepresentation<TState, TTrigger>> configDictionary;
         private InterlockedMonitor monitor = new InterlockedMonitor();
         private int isEnabled = 1;
 
@@ -36,31 +34,8 @@ namespace LiquidState.Machines
             configDictionary = configuration.Config;
         }
 
-        public bool IsInTransition
-        {
-            get { return monitor.IsBusy; }
-        }
-
-        public TState CurrentState
-        {
-            get { return CurrentStateRepresentation.State; }
-        }
-
-        public IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get
-            {
-                foreach (var triggerRepresentation in CurrentStateRepresentation.Triggers)
-                {
-                    yield return triggerRepresentation.Trigger;
-                }
-            }
-        }
-
-        public bool IsEnabled
-        {
-            get { return Interlocked.CompareExchange(ref isEnabled, -1, -1) == 1; }
-        }
+        public event Action<TTrigger, TState> UnhandledTriggerExecuted;
+        public event Action<TState, TState> StateChanged;
 
         public void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
         {
@@ -294,6 +269,32 @@ namespace LiquidState.Machines
                 if (IsEnabled)
                     throw new InvalidOperationException("State cannot be changed while in transition");
             }
+        }
+
+        public bool IsInTransition
+        {
+            get { return monitor.IsBusy; }
+        }
+
+        public TState CurrentState
+        {
+            get { return CurrentStateRepresentation.State; }
+        }
+
+        public IEnumerable<TTrigger> CurrentPermittedTriggers
+        {
+            get
+            {
+                foreach (var triggerRepresentation in CurrentStateRepresentation.Triggers)
+                {
+                    yield return triggerRepresentation.Trigger;
+                }
+            }
+        }
+
+        public bool IsEnabled
+        {
+            get { return Interlocked.CompareExchange(ref isEnabled, -1, -1) == 1; }
         }
 
         private void ExecuteAction(Action action)
