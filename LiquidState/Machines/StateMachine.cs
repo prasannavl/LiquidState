@@ -47,11 +47,13 @@ namespace LiquidState.Machines
                     StateRepresentation<TState, TTrigger> rep;
                     if (configDictionary.TryGetValue(state, out rep))
                     {
-                        if (option.HasFlag(StateTransitionOption.CurrentStateExitTransition))
+                        if ((option & StateTransitionOption.CurrentStateExitTransition) ==
+                            StateTransitionOption.CurrentStateExitTransition)
                         {
                             ExecuteAction(CurrentStateRepresentation.OnExitAction);
                         }
-                        if (option.HasFlag(StateTransitionOption.NewStateEntryTransition))
+                        if ((option & StateTransitionOption.NewStateEntryTransition) ==
+                            StateTransitionOption.NewStateEntryTransition)
                         {
                             ExecuteAction(rep.OnEntryAction);
                         }

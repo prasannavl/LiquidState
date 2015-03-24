@@ -167,9 +167,9 @@ namespace LiquidState.Machines
             AwaitableStateRepresentation<TState, TTrigger> rep;
             if (configDictionary.TryGetValue(state, out rep))
             {
-                if (option.HasFlag(StateTransitionOption.CurrentStateExitTransition))
+                if ((option & StateTransitionOption.CurrentStateExitTransition) == StateTransitionOption.CurrentStateExitTransition)
                 {
-                    if (currentRep.TransitionFlags.HasFlag(AwaitableStateTransitionFlag.ExitReturnsTask))
+                    if (CheckFlag(currentRep.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
                     {
                         var action = CurrentStateRepresentation.OnExitAction as Func<Task>;
                         if (action != null)
@@ -182,9 +182,9 @@ namespace LiquidState.Machines
                             action();
                     }
                 }
-                if (option.HasFlag(StateTransitionOption.NewStateEntryTransition))
+                if ((option & StateTransitionOption.NewStateEntryTransition) == StateTransitionOption.NewStateEntryTransition)
                 {
-                    if (rep.TransitionFlags.HasFlag(AwaitableStateTransitionFlag.EntryReturnsTask))
+                    if (CheckFlag(rep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
                     {
                         var action = rep.OnEntryAction as Func<Task>;
                         if (action != null)
