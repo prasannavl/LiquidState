@@ -258,20 +258,20 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 
 **Release notes:**
 
-######v1.1
+######v1.1.0
 
 - Added removable invalid trigger event handler by default
 - Added `Ignore` and `IgnoreIf` to configurations
 
-######v1.2
+######v1.2.0
 
 - Added generic parameterized triggers
 
-######v1.3-beta
+######v1.3.0-beta
 
 - Added QueuedAsyncStateMachine with customizable synchronization context, and queued Fire semantics.
 
-######v.2.0-beta
+######v.2.0.0-beta
 
 - Changed AsyncStateMachine to AwaitableStateMachine
 - Changed QueuedAsyncStateMachine to AsyncStateMachine
@@ -280,7 +280,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 - AsyncStateMachines are queued by default.
 - All except AsyncStateMachines will throw InvalidOperationException if attempted to Fire while a transition is in progress.
 
-######v.2.1-beta
+######v.2.1.0-beta
 
 - Critical Fix: All the state machines never reset the IsRunning value on error or unhandled state, leading to the machine being dormant
 - More robust error handling
@@ -349,3 +349,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
   **x.Configure(TState)** to **x.ForState(TState)**
   (Since, its only small literal change more in line with the semantics involved, the major version number has been retained)
 
+######v.3.2.1
+
+- Minor perf improvements
+- Enforce strict semantic versioning
