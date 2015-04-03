@@ -56,7 +56,8 @@ namespace LiquidState.Machines
             else
             {
                 if (IsEnabled)
-                    throw new InvalidOperationException("State cannot be changed while in transition");
+                    throw new InvalidOperationException(
+                        "State cannot be changed while in transition. Use the AsyncStateMachine instead, if these semantics are required.");
             }
         }
 
@@ -110,7 +111,8 @@ namespace LiquidState.Machines
             else
             {
                 if (IsEnabled)
-                    throw new InvalidOperationException("State cannot be changed while in transition");
+                    throw new InvalidOperationException(
+                        "State cannot be changed while in transition. Use the AsyncStateMachine instead, if these semantics are required.");
             }
         }
 
@@ -131,7 +133,8 @@ namespace LiquidState.Machines
             else
             {
                 if (IsEnabled)
-                    throw new InvalidOperationException("State cannot be changed while in transition");
+                    throw new InvalidOperationException(
+                        "State cannot be changed while in transition. Use the AsyncStateMachine instead, if these semantics are required.");
             }
         }
 
@@ -167,7 +170,8 @@ namespace LiquidState.Machines
             AwaitableStateRepresentation<TState, TTrigger> rep;
             if (configDictionary.TryGetValue(state, out rep))
             {
-                if ((option & StateTransitionOption.CurrentStateExitTransition) == StateTransitionOption.CurrentStateExitTransition)
+                if ((option & StateTransitionOption.CurrentStateExitTransition) ==
+                    StateTransitionOption.CurrentStateExitTransition)
                 {
                     if (CheckFlag(currentRep.TransitionFlags, AwaitableStateTransitionFlag.ExitReturnsTask))
                     {
@@ -182,7 +186,8 @@ namespace LiquidState.Machines
                             action();
                     }
                 }
-                if ((option & StateTransitionOption.NewStateEntryTransition) == StateTransitionOption.NewStateEntryTransition)
+                if ((option & StateTransitionOption.NewStateEntryTransition) ==
+                    StateTransitionOption.NewStateEntryTransition)
                 {
                     if (CheckFlag(rep.TransitionFlags, AwaitableStateTransitionFlag.EntryReturnsTask))
                     {

@@ -73,7 +73,7 @@ namespace LiquidState.Machines
             else
             {
                 if (IsEnabled)
-                    throw new InvalidOperationException("State cannot be changed while in transition");
+                    throw new InvalidOperationException("State cannot be changed while in transition. Use AsyncStateMachine or a BlockingStateMachine for these semantics.");
             }
         }
 
@@ -188,7 +188,7 @@ namespace LiquidState.Machines
             else
             {
                 if (IsEnabled)
-                    throw new InvalidOperationException("State cannot be changed while in transition");
+                    throw new InvalidOperationException("State cannot be changed while in transition. Use AsyncStateMachine or a BlockingStateMachine for these semantics.");
             }
         }
 
@@ -269,7 +269,7 @@ namespace LiquidState.Machines
             else
             {
                 if (IsEnabled)
-                    throw new InvalidOperationException("State cannot be changed while in transition");
+                    throw new InvalidOperationException("State cannot be changed while in transition. Use AsyncStateMachine or a BlockingStateMachine for these semantics.");
             }
         }
 
