@@ -10,8 +10,7 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 > Install-Package LiquidState
  
 
-
-- **v3 is now a full rewrite with lock-free algorithms**, and fully thread-safe.
+- **v3 was a full rewrite with lock-free algorithms, and v4 now includes both thread-safe, and non-threadsafe variants with a both locking, and lock-free machines**
   
 Supported Platforms:
 > PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
@@ -19,9 +18,10 @@ Supported Platforms:
 
 **Available State Machines:**
 
-1. **StateMachine** - Fully synchronous, and thread-safe.
-2. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited. Thread-safe.
-3. **AsyncStateMachine** - Fully asynchronous, thread-safe and is queued by default. 
+1. **StateMachine** - Fully synchronous. Not thread-safe.
+1. **BlockingStateMachine** - Fully synchornous. Blocking, but thread-safe.
+1. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited. Not thread-safe.
+1. **AsyncStateMachine** - Fully asynchronous, thread-safe and is queued by default. 
 
 **Note:** When AsyncStateMachine or AwaitableStateMachines are used with synchronous (non-task returning) methods, it is almost as fast as the synchronous StateMachine (the penalty is really negligible anyway, unless you're running a 10 millions state changes per second).
 
@@ -354,10 +354,11 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 - Minor perf improvements
 - Enforce strict semantic versioning
 
-**Ongoing Changes:**
-
 ######v.4.0
 
 - Rename StateMachine to StateMachineFactory to be more approriate.
 - Add a new BlockingStateMachine for a synchronous machine that processes sequentially by blocking, enabled with a blocking parameter on creation.
+
+**Ongoing Changes:**
+
 - (*) Create a new StateMachine which accepts a TaskScheduler, or a SynchronizationContext to perform state changes on.
