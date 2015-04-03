@@ -40,7 +40,7 @@ namespace LiquidState.Properties
 {
     public static class AssemblyConstants
     {
-        public const string Version = "4.0.0";
-        public const string InformationalVersion = "4.0.0";
+        public const string Version = "4.1";
+        public const string InformationalVersion = "4.1";
     }
 }

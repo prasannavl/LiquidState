@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
 using LiquidState.Common;
 using LiquidState.Configuration;
 using LiquidState.Machines;
@@ -33,24 +34,25 @@ namespace LiquidState
             return sm;
         }
 
-        public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
+        public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(
+            TState initialState,
             AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine = true)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
 
-            IAwaitableStateMachine<TState, TTrigger> sm;
-            if (asyncMachine)
-            {
-                sm = new AsyncStateMachine<TState, TTrigger>(initialState, config);
-            }
-            else
-            {
-                sm = new AwaitableStateMachine<TState, TTrigger>(initialState, config);
-            }
+            return Create(initialState, config, asyncMachine, null);
+        }
 
-            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
-            return sm;
+        public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(
+            TState initialState,
+            AwaitableStateMachineConfiguration<TState, TTrigger> config, TaskScheduler customScheduler)
+        {
+            Contract.Requires<ArgumentNullException>(initialState != null);
+            Contract.Requires<ArgumentNullException>(config != null);
+            Contract.Requires<ArgumentNullException>(customScheduler != null);
+
+            return Create(initialState, config, false, null);
         }
 
         public static StateMachineConfiguration<TState, TTrigger> CreateConfiguration<TState, TTrigger>()
@@ -62,6 +64,26 @@ namespace LiquidState
             <TState, TTrigger>()
         {
             return new AwaitableStateMachineConfiguration<TState, TTrigger>();
+        }
+
+        private static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
+            AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine, TaskScheduler scheduler)
+        {
+            IAwaitableStateMachine<TState, TTrigger> sm;
+            if (asyncMachine)
+            {
+                sm = new AsyncStateMachine<TState, TTrigger>(initialState, config);
+            }
+            else
+            {
+                sm = scheduler == null
+                    ? (IAwaitableStateMachine<TState, TTrigger>)
+                        new AwaitableStateMachine<TState, TTrigger>(initialState, config)
+                    : new AwaitableStateMachineWithScheduler<TState, TTrigger>(initialState, config, scheduler);
+            }
+
+            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
+            return sm;
         }
     }
 }

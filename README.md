@@ -21,6 +21,7 @@ Supported Platforms:
 1. **StateMachine** - Fully synchronous. Not thread-safe.
 1. **BlockingStateMachine** - Fully synchornous. Blocking, but thread-safe.
 1. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited. Not thread-safe.
+1. **AwaitableStateMachineWithScheduler** - Same as the AwaitableStateMachine, but takes a custom task scheduler which runs the state changes. Thread safety, and execution order is the reposibility of the scheduler. Its simply passes the actual raw change actions into the scheduler without any synchronization overheads.
 1. **AsyncStateMachine** - Fully asynchronous, thread-safe and is queued by default. 
 
 **Note:** When AsyncStateMachine or AwaitableStateMachines are used with synchronous (non-task returning) methods, it is almost as fast as the synchronous StateMachine (the penalty is really negligible anyway, unless you're running a 10 millions state changes per second).
@@ -109,7 +110,7 @@ Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](
 
 **How To Use:**
 
-You only ever create machines with the `StateMachineFactory` static class. This is the factory for both configurations and the machines. 
+You only ever create machines with the `StateMachineFactory` static class. This is the factory for both configurations and the machines. The different types of machines given above are automatically chosen based on the parameters specified from the factory.
 
 **Step 1:** Create a configuration:
 
@@ -358,7 +359,8 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 
 - Rename StateMachine to StateMachineFactory to be more approriate.
 - Add a new BlockingStateMachine for a synchronous machine that processes sequentially by blocking, enabled with a blocking parameter on creation.
+- StateMachineFactory now returns IStateMachine instead of the concrete class for synchronous state machines also.
 
-**Ongoing Changes:**
+######v.4.1
 
-- (*) Create a new StateMachine which accepts a TaskScheduler, or a SynchronizationContext to perform state changes on.
+- Added new AwaitableStateMachineWithScheduler which is just a simple AwaitableStateMachine that accepts a TaskScheduler to directly execute them without the queuing, or thread-safety overheads.

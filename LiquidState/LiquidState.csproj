@@ -129,6 +129,7 @@
     <Compile Include="Common\Validation.cs" />
     <Compile Include="Configuration\AwaitableStateConfigurationHelper.cs" />
     <Compile Include="Configuration\StateConfigurationHelper.cs" />
+    <Compile Include="Machines\AwaitableStateMachineWithScheduler.cs" />
     <Compile Include="Machines\IAwaitableStateMachine.cs" />
     <Compile Include="Machines\IStateMachine.cs" />
     <Compile Include="Machines\AsyncStateMachine.cs" />
