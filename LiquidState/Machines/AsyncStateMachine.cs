@@ -272,7 +272,7 @@ namespace LiquidState.Machines
         {
             if (lockTaken || machine.Monitor.TryEnter())
             {
-                return Task.Run((Func<Task>) ProcessQueueInternal);
+                return ProcessQueueInternal();
             }
 
             return Task.FromResult(true);
@@ -280,6 +280,9 @@ namespace LiquidState.Machines
 
         private async Task ProcessQueueInternal()
         {
+            // Always yield if the task was queued.
+            await Task.Yield();
+
             queueMonitor.Enter();
             try
             {

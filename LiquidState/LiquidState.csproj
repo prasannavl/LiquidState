@@ -134,12 +134,13 @@
     <Compile Include="Machines\AsyncStateMachine.cs" />
     <Compile Include="Machines\AwaitableStateMachine.cs" />
     <Compile Include="Configuration\AwaitableStateMachineConfiguration.cs" />
+    <Compile Include="Machines\BlockingStateMachine.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Representations\AwaitableStateRepresentation.cs" />
     <Compile Include="Representations\Representation.cs" />
     <Compile Include="Machines\StateMachine.cs" />
     <Compile Include="Configuration\StateMachineConfiguration.cs" />
-    <Compile Include="StateMachine.cs" />
+    <Compile Include="StateMachineFactory.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
