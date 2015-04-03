@@ -109,18 +109,18 @@ Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](
 
 **How To Use:**
 
-You only ever interact with the `StateMachine` static class. This is the factory for both configurations and the machines. 
+You only ever create machines with the `StateMachineFactory` static class. This is the factory for both configurations and the machines. 
 
 **Step 1:** Create a configuration:
 
 ```c#
-var config = StateMachine.CreateConfiguration<State, Trigger>();
+var config = StateMachineFactory.CreateConfiguration<State, Trigger>();
 ```
 
 or for awaitable, or async machine:
 
 ```c#
-var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
+var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 ```
 
 **Step 2:** Setup the machine configurations using the fluent API.
@@ -150,7 +150,7 @@ var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
 **Step 3:** Create the machine with the configuration:
 
 ```c#
-var machine = StateMachine.Create(State.Ringing, config);
+var machine = StateMachineFactory.Create(State.Ringing, config);
 ```
 
 **Full examples:** 
@@ -158,7 +158,7 @@ var machine = StateMachine.Create(State.Ringing, config);
 A synchronous machine example:
 
 ```c#
-    var config = StateMachine.CreateConfiguration<State, Trigger>();
+    var config = StateMachineFactory.CreateConfiguration<State, Trigger>();
 
     config.ForState(State.Off)
         .OnEntry(() => Console.WriteLine("OnEntry of Off"))
@@ -198,7 +198,7 @@ A synchronous machine example:
         .Permit(Trigger.Ring, State.Ringing, 
               () => { Console.WriteLine("Attempting to ring"); });
 
-    var machine = StateMachine.Create(State.Ringing, config);
+    var machine = StateMachineFactory.Create(State.Ringing, config);
 
     machine.Fire(Trigger.Talk);
     machine.Fire(Trigger.Ring);
@@ -210,7 +210,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 
 ```c#
     // Note the "CreateAsyncConfiguration"
-    var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
+    var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 
     config.ForState(State.Off)
         .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
@@ -249,7 +249,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
         .Permit(Trigger.Ring, State.Ringing, 
               () => { Console.WriteLine("Attempting to ring"); });
 
-    var machine = StateMachine.Create(State.Ringing, config);
+    var machine = StateMachineFactory.Create(State.Ringing, config);
 
     await machine.FireAsync(Trigger.Talk);
     await machine.FireAsync(Trigger.Ring);
