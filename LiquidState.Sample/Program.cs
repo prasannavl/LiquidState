@@ -13,7 +13,7 @@ namespace LiquidState.Sample
     {
         public static void LiquidStateSyncTest()
         {
-            var config = StateMachine.CreateConfiguration<State, Trigger>();
+            var config = StateMachineFactory.CreateConfiguration<State, Trigger>();
 
             config.ForState(State.Off)
                 .OnEntry(() => Console.WriteLine("OnEntry of Off"))
@@ -45,7 +45,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
                 .Permit(Trigger.Ring, State.Ringing, () => { Console.WriteLine("Attempting to ring"); });
 
-            var machine = StateMachine.Create(State.Ringing, config);
+            var machine = StateMachineFactory.Create(State.Ringing, config);
 
 
             machine.Fire(Trigger.Talk);
@@ -54,7 +54,7 @@ namespace LiquidState.Sample
 
         public static void LiquidStateAwaitableSyncTest()
         {
-            var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
+            var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 
             config.ForState(State.Off)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
@@ -86,7 +86,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); })
                 .Permit(Trigger.Ring, State.Ringing, async () => { Console.WriteLine("Attempting to ring"); });
 
-            var machine = StateMachine.Create(State.Ringing, config, asyncMachine: false);
+            var machine = StateMachineFactory.Create(State.Ringing, config, asyncMachine: false);
 
             machine.FireAsync(Trigger.Talk).Wait();
             machine.FireAsync(Trigger.Ring).Wait();
@@ -94,7 +94,7 @@ namespace LiquidState.Sample
 
         public static async Task LiquidStateAsyncTest()
         {
-            var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
+            var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 
 
             config.ForState(State.Off)
@@ -130,7 +130,7 @@ namespace LiquidState.Sample
                 .PermitReentry(Trigger.Talk);
 
 
-            var machine = StateMachine.Create(State.Ringing, config, asyncMachine: true);
+            var machine = StateMachineFactory.Create(State.Ringing, config, asyncMachine: true);
 
             var sw = Stopwatch.StartNew();
 
@@ -191,7 +191,7 @@ namespace LiquidState.Sample
 
         private static void SyncMachineExample()
         {
-            var config = StateMachine.CreateConfiguration<State, Trigger>();
+            var config = StateMachineFactory.CreateConfiguration<State, Trigger>();
 
             config.ForState(State.Off)
                 .OnEntry(() => Console.WriteLine("OnEntry of Off"))
@@ -222,7 +222,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
                 .Permit(Trigger.Ring, State.Ringing, () => { Console.WriteLine("Attempting to ring"); });
 
-            var machine = StateMachine.Create(State.Ringing, config);
+            var machine = StateMachineFactory.Create(State.Ringing, config);
 
             machine.Fire(Trigger.Talk);
             machine.Fire(Trigger.Ring);
@@ -232,7 +232,7 @@ namespace LiquidState.Sample
         private static async Task AsyncMachineExample()
         {
             // Note the "CreateAsyncConfiguration"
-            var config = StateMachine.CreateAwaitableConfiguration<State, Trigger>();
+            var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 
             config.ForState(State.Off)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
@@ -263,7 +263,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
                 .Permit(Trigger.Ring, State.Ringing, () => { Console.WriteLine("Attempting to ring"); });
 
-            var machine = StateMachine.Create(State.Ringing, config);
+            var machine = StateMachineFactory.Create(State.Ringing, config);
 
             await machine.FireAsync(Trigger.Talk);
             await machine.FireAsync(Trigger.Ring);

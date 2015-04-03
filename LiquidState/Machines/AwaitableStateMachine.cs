@@ -46,7 +46,7 @@ namespace LiquidState.Machines
                 try
                 {
                     if (!IsEnabled) return;
-                    await MoveToStateInternal(state, option);
+                    await MoveToStateInternal(state, option).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -100,7 +100,7 @@ namespace LiquidState.Machines
                 try
                 {
                     if (!IsEnabled) return;
-                    await FireInternalAsync(parameterizedTrigger, argument);
+                    await FireInternalAsync(parameterizedTrigger, argument).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -121,7 +121,7 @@ namespace LiquidState.Machines
                 try
                 {
                     if (!IsEnabled) return;
-                    await FireInternalAsync(trigger);
+                    await FireInternalAsync(trigger).ConfigureAwait(false);
                 }
                 finally
                 {

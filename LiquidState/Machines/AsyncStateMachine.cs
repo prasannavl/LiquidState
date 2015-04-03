@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Common;
 using LiquidState.Configuration;
@@ -75,7 +76,7 @@ namespace LiquidState.Machines
                         if (queueCount > 0)
                         {
                             queueMonitor.Exit();
-                            var _ = ProcessQueueAsync(true, true);
+                            var _ = StartQueueIfNecessaryAsync(true);
                             // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
@@ -104,7 +105,7 @@ namespace LiquidState.Machines
                 });
                 queueCount++;
                 queueMonitor.Exit();
-                var _ = ProcessQueueAsync();
+                var _ = StartQueueIfNecessaryAsync();
                 await tcs.Task;
             }
         }
@@ -117,7 +118,7 @@ namespace LiquidState.Machines
         public void Resume()
         {
             machine.Resume();
-            var _ = ProcessQueueAsync();
+            var _ = StartQueueIfNecessaryAsync();
         }
 
         public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
@@ -146,7 +147,7 @@ namespace LiquidState.Machines
                         if (queueCount > 0)
                         {
                             queueMonitor.Exit();
-                            var _ = ProcessQueueAsync(true, true);
+                            var _ = StartQueueIfNecessaryAsync(true);
                             // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
@@ -175,7 +176,7 @@ namespace LiquidState.Machines
                 });
                 queueCount++;
                 queueMonitor.Exit();
-                var _ = ProcessQueueAsync();
+                var _ = StartQueueIfNecessaryAsync();
                 await tcs.Task;
             }
         }
@@ -205,7 +206,7 @@ namespace LiquidState.Machines
                         if (queueCount > 0)
                         {
                             queueMonitor.Exit();
-                            var _ = ProcessQueueAsync(true, true);
+                            var _ = StartQueueIfNecessaryAsync(true);
                             // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
@@ -234,7 +235,7 @@ namespace LiquidState.Machines
                 });
                 queueCount++;
                 queueMonitor.Exit();
-                var _ = ProcessQueueAsync();
+                var _ = StartQueueIfNecessaryAsync();
                 await tcs.Task;
             }
         }
@@ -267,38 +268,44 @@ namespace LiquidState.Machines
             queueMonitor.Exit();
         }
 
-        private async Task ProcessQueueAsync(bool shouldYield = true, bool lockTaken = false)
+        private Task StartQueueIfNecessaryAsync(bool lockTaken = false)
         {
             if (lockTaken || machine.Monitor.TryEnter())
             {
-                if (shouldYield) await Task.Yield();
-                queueMonitor.Enter();
-                try
-                {
-                    while (queueCount > 0)
-                    {
-                        var current = actionsQueue.Peek();
-                        actionsQueue = actionsQueue.Dequeue();
-                        queueCount--;
-                        queueMonitor.Exit();
+                return Task.Run((Func<Task>) ProcessQueueInternal);
+            }
 
-                        try
-                        {
-                            if (current != null)
-                                await current();
-                        }
-                        finally
-                        {
-                            queueMonitor.Enter();
-                        }
+            return Task.FromResult(true);
+        }
+
+        private async Task ProcessQueueInternal()
+        {
+            queueMonitor.Enter();
+            try
+            {
+                while (queueCount > 0)
+                {
+                    var current = actionsQueue.Peek();
+                    actionsQueue = actionsQueue.Dequeue();
+                    queueCount--;
+                    queueMonitor.Exit();
+
+                    try
+                    {
+                        if (current != null)
+                            await current();
+                    }
+                    finally
+                    {
+                        queueMonitor.Enter();
                     }
                 }
-                finally
-                {
-                    // Exit monitor regardless of this method entering the monitor.
-                    machine.Monitor.Exit();
-                    queueMonitor.Exit();
-                }
+            }
+            finally
+            {
+                // Exit monitor regardless of this method entering the monitor.
+                machine.Monitor.Exit();
+                queueMonitor.Exit();
             }
         }
     }
