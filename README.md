@@ -353,3 +353,11 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 
 - Minor perf improvements
 - Enforce strict semantic versioning
+
+**Ongoing Changes:**
+
+######v.4.0
+
+- Rename StateMachine to StateMachineFactory to be more approriate.
+- Add a new BlockingStateMachine for a synchronous machine that processes sequentially by blocking, enabled with a blocking parameter on creation.
+- (*) Create a new StateMachine which accepts a TaskScheduler, or a SynchronizationContext to perform state changes on.
