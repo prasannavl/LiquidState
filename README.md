@@ -5,6 +5,8 @@ Efficient state machines for .NET with both synchronous and asynchronous support
 Heavily inspired by the excellent state machine library [**Stateless**](https://github.com/nblumhardt/stateless) by 
 **Nicholas Blumhardt.**
 
+[![liquidstate MyGet Build Status](https://www.myget.org/BuildSource/Badge/liquidstate?identifier=469d18cd-1b63-48b7-9748-92735883fa50)](https://www.myget.org/)
+
 **NuGet:** 
 
 > Install-Package LiquidState
