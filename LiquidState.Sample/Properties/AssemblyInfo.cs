@@ -5,6 +5,7 @@
 
 using System.Reflection;
 using System.Runtime.InteropServices;
+using LiquidState.Properties;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -40,5 +41,6 @@ using System.Runtime.InteropServices;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("4.1.0.*")]
+[assembly: AssemblyFileVersion("4.1.0.*")]
+[assembly: AssemblyInformationalVersion("4.1.0.*")]

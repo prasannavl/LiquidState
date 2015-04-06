@@ -5,7 +5,6 @@
 
 using System.Reflection;
 using System.Resources;
-using LiquidState.Properties;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
@@ -32,15 +31,6 @@ using LiquidState.Properties;
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 
-[assembly: AssemblyVersion(AssemblyConstants.Version)]
-[assembly: AssemblyFileVersion(AssemblyConstants.Version)]
-[assembly: AssemblyInformationalVersion(AssemblyConstants.InformationalVersion)]
-
-namespace LiquidState.Properties
-{
-    public static class AssemblyConstants
-    {
-        public const string Version = "4.1";
-        public const string InformationalVersion = "4.1";
-    }
-}
+[assembly: AssemblyVersion("4.1.0.*")]
+[assembly: AssemblyFileVersion("4.1.0.*")]
+[assembly: AssemblyInformationalVersion("4.1.0.*")]

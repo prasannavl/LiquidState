@@ -5,6 +5,7 @@
 
 using System;
 using System.Diagnostics.Contracts;
+using System.Runtime.InteropServices;
 using System.Threading.Tasks;
 using LiquidState.Common;
 using LiquidState.Configuration;

@@ -1,0 +1,7 @@
+version: 4.1.0-pre-{build}
+assembly_info:
+  patch: true
+  file: AssemblyInfo.cs
+  assembly_version: '{version}'
+  assembly_file_version: '{version}'
+  assembly_informational_version: '{version}'

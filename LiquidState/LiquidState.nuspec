@@ -12,8 +12,7 @@
         <iconUrl>https://raw.githubusercontent.com/prasannavl/LiquidState/master/Misc/Logo.png</iconUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>$description$</description>
-        <releaseNotes>Initial release</releaseNotes>
-        <copyright>Copyright 2014</copyright>
+        <copyright>Copyright Prasanna V. Loganathar</copyright>
         <tags>State machine async</tags>
     </metadata>
 </package>
