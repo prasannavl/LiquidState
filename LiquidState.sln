@@ -9,8 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiquidState.Sample", "Liqui
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F654A99E-F9FF-418E-8A2D-6CAD0406788E}"
 	ProjectSection(SolutionItems) = preProject
+		BuildTools\appveyor.yml = BuildTools\appveyor.yml
 		LiquidState\LiquidState.nuspec = LiquidState\LiquidState.nuspec
 		README.md = README.md
+		BuildTools\VersionInfo.cs = BuildTools\VersionInfo.cs
 	EndProjectSection
 EndProject
 Global

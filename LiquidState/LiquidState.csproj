@@ -121,6 +121,9 @@
     <CodeContractsAnalysisWarningLevel>0</CodeContractsAnalysisWarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\BuildTools\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="Common\Exceptions.cs" />
     <Compile Include="Common\ImmutableCollections.cs" />
     <Compile Include="Common\InterlockedHelpers.cs" />
