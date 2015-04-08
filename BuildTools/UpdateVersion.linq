@@ -4,6 +4,13 @@
   <Namespace>System.Threading.Tasks</Namespace>
 </Query>
 
+        //TODO: Make Version compatible with 3 segments.
+        
+        private const string versionFileName = "../VersionInfo.cs";
+        private const string ciConfigFileName = "../appveyor.yml";
+        private const string versionString = @"((\d+)\.(\d+)\.(\d+)\.(.*))";
+        private const string buildToolsName = "LiquidState.BuildTools";
+        
 public void Main(string[] args)
         {
 #if !CMD
@@ -91,11 +98,6 @@ public void Main(string[] args)
                 throw;
             }
         }
-        
-        private const string versionFileName = "VersionInfo.cs";
-        private const string ciConfigFileName = "appveyor.yml";
-        private const string versionString = @"((\d+)\.(\d+)\.(\d+)\.(.*))";
-        private const string buildToolsName = "LiquidState.BuildTools";
         
         private const string internalVersionUndoInfoPrefix = "Version-Info";
         private const string internalVersionUndoCIPrefix = "Version-CI";
