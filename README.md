@@ -35,7 +35,7 @@ Supported Platforms:
 - Builds a linked object graph internally during configuration making it a much faster and more efficient implementation than regular dictionary based implementations.
 - MoveToState, to move freely between states, without triggers.
 
-**Banchmarks**
+**Benchmarks**
 
 Comparing with Sync Machine of Stateless for 10 million state changes:
 
