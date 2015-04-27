@@ -370,4 +370,4 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 
 ######v.4.1.1
 
-- Fix https://github.com/prasannavl/LiquidState/issues/4 => Current CanHandleTrigger()
+- Fix CanHandleTrigger()
