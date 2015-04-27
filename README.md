@@ -367,3 +367,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 ######v.4.1
 
 - Added new AwaitableStateMachineWithScheduler which is just a simple AwaitableStateMachine that accepts a TaskScheduler to directly execute them without the queuing, or thread-safety overheads.
+
+######v.4.1.1
+
+- Fix https://github.com/prasannavl/LiquidState/issues/4 => Current CanHandleTrigger()

@@ -69,8 +69,7 @@ namespace LiquidState.Machines
         {
             foreach (var current in CurrentStateRepresentation.Triggers)
             {
-                if (current.Equals(trigger))
-                    return true;
+                if (current.Trigger.Equals(trigger)) return true;
             }
 
             return false;
