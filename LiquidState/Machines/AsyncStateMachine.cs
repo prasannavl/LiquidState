@@ -41,9 +41,9 @@ namespace LiquidState.Machines
             remove { machine.StateChanged -= value; }
         }
 
-        public bool CanHandleTrigger(TTrigger trigger)
+        public Task<bool> CanHandleTriggerAsync(TTrigger trigger)
         {
-            return machine.CanHandleTrigger(trigger);
+            return machine.CanHandleTriggerAsync(trigger);
         }
 
         public bool CanTransitionTo(TState state)

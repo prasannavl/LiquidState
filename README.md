@@ -93,7 +93,7 @@ Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](
         TState CurrentState { get; }
         bool IsEnabled { get; }
         bool IsInTransition { get; }
-        bool CanHandleTrigger(TTrigger trigger);
+        Task<bool> CanHandleTriggerAsync(TTrigger trigger);
         bool CanTransitionTo(TState state);
 
         Task FireAsync<TArgument>(
@@ -371,3 +371,12 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 ######v.4.1.1
 
 - Fix CanHandleTrigger()
+
+######v.5.0.0
+
+- Add `Task<bool> CanHandleTriggerAsync(TTrigger trigger);` to IAwaitableStateMachine
+- Make CanHandleTrigger check for predicates, if present. 
+
+Breaking changes:
+
+- Removed `bool CanHandleTrigger(TTrigger trigger)` from it IAwaitableStateMachine. Has been replaced by the async version.

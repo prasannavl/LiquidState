@@ -61,14 +61,24 @@ namespace LiquidState.Machines
             }
         }
 
-        public bool CanHandleTrigger(TTrigger trigger)
+        public async Task<bool> CanHandleTriggerAsync(TTrigger trigger)
         {
             foreach (var current in CurrentStateRepresentation.Triggers)
             {
                 if (current.Trigger.Equals(trigger))
-                    return true;
+                {
+                    if ((CheckFlag(current.TransitionFlags, AwaitableStateTransitionFlag.TriggerPredicateReturnsTask)))
+                    {
+                        var predicate = current.ConditionalTriggerPredicate as Func<Task<bool>>;
+                        return predicate == null || await predicate();
+                    }
+                    else
+                    {
+                        var predicate = current.ConditionalTriggerPredicate as Func<bool>;
+                        return predicate == null || predicate();
+                    }
+                }
             }
-
             return false;
         }
 

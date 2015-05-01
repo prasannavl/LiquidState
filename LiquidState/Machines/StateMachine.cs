@@ -81,9 +81,12 @@ namespace LiquidState.Machines
         {
             foreach (var current in CurrentStateRepresentation.Triggers)
             {
-                if (current.Trigger.Equals(trigger)) return true;
+                if (current.Trigger.Equals(trigger))
+                {
+                    var predicate = current.ConditionalTriggerPredicate;
+                    return predicate == null || predicate();
+                }
             }
-
             return false;
         }
 

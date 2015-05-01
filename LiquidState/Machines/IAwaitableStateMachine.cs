@@ -20,7 +20,7 @@ namespace LiquidState.Machines
         bool IsInTransition { get; }
         event Action<TState, TState> StateChanged;
         event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        bool CanHandleTrigger(TTrigger trigger);
+        Task<bool> CanHandleTriggerAsync(TTrigger trigger);
         bool CanTransitionTo(TState state);
 
         Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
@@ -37,7 +37,7 @@ namespace LiquidState.Machines
     {
         public abstract event Action<U, T> UnhandledTriggerExecuted;
         public abstract event Action<T, T> StateChanged;
-        public abstract bool CanHandleTrigger(U trigger);
+        public abstract Task<bool> CanHandleTriggerAsync(U trigger);
         public abstract bool CanTransitionTo(T state);
         public abstract Task MoveToState(T state, StateTransitionOption option = StateTransitionOption.Default);
         public abstract void Pause();
