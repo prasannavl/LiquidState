@@ -10,49 +10,30 @@ using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;
 using LiquidState.Common;
 using LiquidState.Core;
-using LiquidState.Scaffold;
 
 namespace LiquidState.Awaitable
 {
-    public class AsyncStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
+    // TODO: Rewrite. This is currently a direct port from the previous machine semantics. Things can be simplified
+    // and a lot faster.
+
+    public abstract class QueuedStateMachineBase<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
     {
-        private readonly AwaitableStateMachine<TState, TTrigger> machine;
         private IImmutableQueue<Func<Task>> actionsQueue;
         private int queueCount;
         private InterlockedBlockingMonitor queueMonitor = new InterlockedBlockingMonitor();
+        private InterlockedMonitor monitor = new InterlockedMonitor();
 
-        internal AsyncStateMachine(TState initialState, AwaitableStateMachineConfiguration<TState, TTrigger> config)
+        protected QueuedStateMachineBase(TState initialState, Configuration<TState, TTrigger> config)
+            : base(initialState, config)
         {
             Contract.Requires(initialState != null);
             Contract.Requires(config != null);
 
-            machine = new AwaitableStateMachine<TState, TTrigger>(initialState, config);
             actionsQueue = ImmutableQueue.Create<Func<Task>>();
         }
 
-        public event Action<TTrigger, TState> UnhandledTriggerExecuted
-        {
-            add { machine.UnhandledTriggerExecuted += value; }
-            remove { machine.UnhandledTriggerExecuted -= value; }
-        }
-
-        public event Action<TState, TState> StateChanged
-        {
-            add { machine.StateChanged += value; }
-            remove { machine.StateChanged -= value; }
-        }
-
-        public Task<bool> CanHandleTriggerAsync(TTrigger trigger)
-        {
-            return machine.CanHandleTriggerAsync(trigger);
-        }
-
-        public bool CanTransitionTo(TState state)
-        {
-            return machine.CanTransitionTo(state);
-        }
-
-        public async Task MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
+        public override async Task MoveToStateAsync(TState state,
+            StateTransitionOption option = StateTransitionOption.Default)
         {
             if (!IsEnabled)
                 return;
@@ -60,7 +41,7 @@ namespace LiquidState.Awaitable
             var flag = true;
 
             queueMonitor.Enter();
-            if (machine.Monitor.TryEnter())
+            if (monitor.TryEnter())
             {
                 if (queueCount == 0)
                 {
@@ -69,7 +50,7 @@ namespace LiquidState.Awaitable
 
                     try
                     {
-                        await machine.MoveToStateInternal(state, option);
+                        await base.MoveToStateAsync(state, option);
                     }
                     finally
                     {
@@ -83,7 +64,7 @@ namespace LiquidState.Awaitable
                         else
                         {
                             queueMonitor.Exit();
-                            machine.Monitor.Exit();
+                            monitor.Exit();
                         }
                     }
                 }
@@ -96,7 +77,7 @@ namespace LiquidState.Awaitable
                 {
                     try
                     {
-                        await machine.MoveToStateInternal(state, option);
+                        await base.MoveToStateAsync(state, option);
                         tcs.TrySetResult(true);
                     }
                     catch (Exception ex)
@@ -111,18 +92,13 @@ namespace LiquidState.Awaitable
             }
         }
 
-        public void Pause()
+        public override void Resume()
         {
-            machine.Pause();
-        }
-
-        public void Resume()
-        {
-            machine.Resume();
+            base.Resume();
             var _ = StartQueueIfNecessaryAsync();
         }
 
-        public async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+        public override async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
             if (!IsEnabled)
@@ -131,7 +107,7 @@ namespace LiquidState.Awaitable
             var flag = true;
 
             queueMonitor.Enter();
-            if (machine.Monitor.TryEnter())
+            if (monitor.TryEnter())
             {
                 // Try to execute inline if the process queue is empty.
                 if (queueCount == 0)
@@ -141,7 +117,7 @@ namespace LiquidState.Awaitable
 
                     try
                     {
-                        await machine.FireInternalAsync(parameterizedTrigger, argument);
+                        await base.FireAsync(parameterizedTrigger, argument);
                     }
                     finally
                     {
@@ -155,7 +131,7 @@ namespace LiquidState.Awaitable
                         else
                         {
                             queueMonitor.Exit();
-                            machine.Monitor.Exit();
+                            monitor.Exit();
                         }
                     }
                 }
@@ -170,7 +146,7 @@ namespace LiquidState.Awaitable
                 {
                     try
                     {
-                        await machine.FireInternalAsync(parameterizedTrigger, argument);
+                        await base.FireAsync(parameterizedTrigger, argument);
                         tcs.TrySetResult(true);
                     }
                     catch (Exception ex)
@@ -185,7 +161,7 @@ namespace LiquidState.Awaitable
             }
         }
 
-        public async Task FireAsync(TTrigger trigger)
+        public override async Task FireAsync(TTrigger trigger)
         {
             if (!IsEnabled)
                 return;
@@ -193,7 +169,7 @@ namespace LiquidState.Awaitable
             var flag = true;
 
             queueMonitor.Enter();
-            if (machine.Monitor.TryEnter())
+            if (monitor.TryEnter())
             {
                 // Try to execute inline if the process queue is empty.
                 if (queueCount == 0)
@@ -203,7 +179,7 @@ namespace LiquidState.Awaitable
 
                     try
                     {
-                        await machine.FireInternalAsync(trigger);
+                        await base.FireAsync(trigger);
                     }
                     finally
                     {
@@ -217,13 +193,13 @@ namespace LiquidState.Awaitable
                         else
                         {
                             queueMonitor.Exit();
-                            machine.Monitor.Exit();
+                            monitor.Exit();
                         }
                     }
                 }
             }
 
-            
+
             if (flag)
             {
                 // Fast path was not taken. Queue up the delgates.
@@ -233,7 +209,7 @@ namespace LiquidState.Awaitable
                 {
                     try
                     {
-                        await machine.FireInternalAsync(trigger);
+                        await base.FireAsync(trigger);
                         tcs.TrySetResult(true);
                     }
                     catch (Exception ex)
@@ -246,26 +222,6 @@ namespace LiquidState.Awaitable
                 var _ = StartQueueIfNecessaryAsync();
                 await tcs.Task;
             }
-        }
-
-        public bool IsInTransition
-        {
-            get { return machine.IsInTransition; }
-        }
-
-        public TState CurrentState
-        {
-            get { return machine.CurrentState; }
-        }
-
-        public IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get { return machine.CurrentPermittedTriggers; }
-        }
-
-        public bool IsEnabled
-        {
-            get { return machine.IsEnabled; }
         }
 
         public void SkipPending()
@@ -278,7 +234,7 @@ namespace LiquidState.Awaitable
 
         private Task StartQueueIfNecessaryAsync(bool lockTaken = false)
         {
-            if (lockTaken || machine.Monitor.TryEnter())
+            if (lockTaken || monitor.TryEnter())
             {
                 return ProcessQueueInternal();
             }
@@ -315,9 +271,19 @@ namespace LiquidState.Awaitable
             finally
             {
                 // Exit monitor regardless of this method entering the monitor.
-                machine.Monitor.Exit();
+                monitor.Exit();
                 queueMonitor.Exit();
             }
+        }
+    }
+
+    public sealed class QueuedStateMachine<TState, TTrigger> : QueuedStateMachineBase<TState, TTrigger>
+    {
+        public QueuedStateMachine(TState initialState, Configuration<TState, TTrigger> configuration)
+            : base(initialState, configuration)
+        {
+            Contract.Requires(configuration != null);
+            Contract.Requires(initialState != null);
         }
     }
 }

@@ -4,11 +4,12 @@
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System.Diagnostics.Contracts;
+using System.Threading.Tasks;
+using LiquidState.Awaitable.Core;
 using LiquidState.Common;
 using LiquidState.Core;
-using LiquidState.Synchronous.Core;
 
-namespace LiquidState.Synchronous
+namespace LiquidState.Awaitable
 {
     public abstract class GuardedStateMachineBase<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
     {
@@ -21,13 +22,14 @@ namespace LiquidState.Synchronous
             Contract.Requires(initialState != null);
         }
 
-        public override void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
+        public override async Task MoveToStateAsync(TState state,
+            StateTransitionOption option = StateTransitionOption.Default)
         {
             if (monitor.TryEnter())
             {
                 try
                 {
-                    base.MoveToState(state, option);
+                    await base.MoveToStateAsync(state, option).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -41,14 +43,14 @@ namespace LiquidState.Synchronous
             }
         }
 
-        public override void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+        public override async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
             if (monitor.TryEnter())
             {
                 try
                 {
-                    base.Fire(parameterizedTrigger, argument);
+                    await base.FireAsync(parameterizedTrigger, argument).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -62,13 +64,13 @@ namespace LiquidState.Synchronous
             }
         }
 
-        public override void Fire(TTrigger trigger)
+        public override async Task FireAsync(TTrigger trigger)
         {
             if (monitor.TryEnter())
             {
                 try
                 {
-                    base.Fire(trigger);
+                    await base.FireAsync(trigger).ConfigureAwait(false);
                 }
                 finally
                 {

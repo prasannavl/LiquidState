@@ -7,17 +7,17 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace LiquidState.Representations
+namespace LiquidState.Awaitable.Core
 {
-    internal class AwaitableStateRepresentation<TState, TTrigger>
+    internal class StateRepresentation<TState, TTrigger>
     {
         public readonly TState State;
-        public readonly List<AwaitableTriggerRepresentation<TTrigger, TState>> Triggers;
+        public readonly List<TriggerRepresentation<TTrigger, TState>> Triggers;
         public object OnEntryAction;
         public object OnExitAction;
         public AwaitableStateTransitionFlag TransitionFlags;
 
-        internal AwaitableStateRepresentation(TState state)
+        internal StateRepresentation(TState state)
         {
             Contract.Requires(state != null);
 
@@ -26,19 +26,19 @@ namespace LiquidState.Representations
 
             State = state;
             // Allocate with capacity as 1 to avoid wastage of memory.
-            Triggers = new List<AwaitableTriggerRepresentation<TTrigger, TState>>(1);
+            Triggers = new List<TriggerRepresentation<TTrigger, TState>>(1);
         }
     }
 
-    internal class AwaitableTriggerRepresentation<TTrigger, TState>
+    internal class TriggerRepresentation<TTrigger, TState>
     {
         public readonly TTrigger Trigger;
         public object ConditionalTriggerPredicate;
-        public AwaitableStateRepresentation<TState, TTrigger> NextStateRepresentation;
+        public Func<StateRepresentation<TState, TTrigger>> NextStateRepresentation;
         public object OnTriggerAction;
         public AwaitableStateTransitionFlag TransitionFlags;
 
-        internal AwaitableTriggerRepresentation(TTrigger trigger)
+        internal TriggerRepresentation(TTrigger trigger)
         {
             Contract.Requires(trigger != null);
             Contract.Ensures(Trigger != null);

@@ -1,13 +1,32 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using LiquidState.Common;
-using LiquidState.Configuration;
 using LiquidState.Core;
 using LiquidState.Synchronous.Core;
 
 namespace LiquidState.Synchronous
 {
-    public abstract class RawStateMachineBase<TState, TTrigger> : AbstractStateMachine<TState, TTrigger>
+    public abstract class RawStateMachineBase<TState, TTrigger> : AbstractStateMachineCore<TState, TTrigger>, IStateMachine<TState, TTrigger>
     {
+        internal StateRepresentation<TState, TTrigger> CurrentStateRepresentation;
+        internal Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
+
+        public override TState CurrentState
+        {
+            get { return CurrentStateRepresentation.State; }
+        }
+
+        public override IEnumerable<TTrigger> CurrentPermittedTriggers
+        {
+            get
+            {
+                foreach (var triggerRepresentation in CurrentStateRepresentation.Triggers)
+                {
+                    yield return triggerRepresentation.Trigger;
+                }
+            }
+        }
+
         protected RawStateMachineBase(TState initialState, Configuration<TState, TTrigger> configuration)
         {
             Contract.Requires(configuration != null);
@@ -22,20 +41,20 @@ namespace LiquidState.Synchronous
             Representations = configuration.Representations;
         }
 
-        public override void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
+        public virtual void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
         {
             if (!IsEnabled) return;
             ExecutionHelper.MoveToStateCore(state, option, this);
         }
 
-        public override void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+        public virtual void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
             if (!IsEnabled) return;
             ExecutionHelper.FireCore(parameterizedTrigger, argument, this);
         }
 
-        public override void Fire(TTrigger trigger)
+        public virtual void Fire(TTrigger trigger)
         {
             if (!IsEnabled) return;
             ExecutionHelper.FireCore(trigger, this);

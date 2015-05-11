@@ -217,7 +217,7 @@ namespace LiquidState.Synchronous.Core
 
             var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
 
-            rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
+            rep.NextStateRepresentation = GetNextStateRepresentation(resultingState);
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = predicate;
 
@@ -235,11 +235,17 @@ namespace LiquidState.Synchronous.Core
 
             var rep = FindOrCreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
 
-            rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
+            rep.NextStateRepresentation = GetNextStateRepresentation(resultingState);
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = predicate;
 
             return this;
+        }
+
+        private Func<StateRepresentation<TState, TTrigger>> GetNextStateRepresentation(TState resultingState)
+        {
+            var stateRep = FindOrCreateStateRepresentation(resultingState, config);
+            return () => stateRep; 
         }
 
         private StateConfigurationHelper<TState, TTrigger> IgnoreInternal(Func<bool> predicate, TTrigger trigger)

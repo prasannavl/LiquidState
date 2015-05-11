@@ -12,12 +12,12 @@ namespace LiquidState.Core
         public event Action<TransitionEventArgs<TState, TTrigger>> TransitionStarted;
         public event Action<TransitionExecutedEventArgs<TState, TTrigger>> TransitionExecuted;
 
-        public void Pause()
+        public virtual void Pause()
         {
             Interlocked.Exchange(ref isEnabled, 0);
         }
 
-        public void Resume()
+        public virtual void Resume()
         {
             Interlocked.Exchange(ref isEnabled, 1);
         }

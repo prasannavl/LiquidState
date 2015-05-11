@@ -9,11 +9,11 @@ using LiquidState.Synchronous.Core;
 
 namespace LiquidState.Synchronous
 {
-    public class BlockingStateMachineBase<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
+    public abstract class BlockingStateMachineBase<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
     {
         private readonly object syncRoot = new object();
 
-        internal BlockingStateMachineBase(TState initialState, Configuration<TState, TTrigger> configuration)
+        protected BlockingStateMachineBase(TState initialState, Configuration<TState, TTrigger> configuration)
             : base(initialState, configuration)
         {
             Contract.Requires(configuration != null);

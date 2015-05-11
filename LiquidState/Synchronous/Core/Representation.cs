@@ -9,7 +9,7 @@ using System.Diagnostics.Contracts;
 
 namespace LiquidState.Synchronous.Core
 {
-    public class StateRepresentation<TState, TTrigger>
+    internal class StateRepresentation<TState, TTrigger>
     {
         public readonly TState State;
         public readonly List<TriggerRepresentation<TTrigger, TState>> Triggers;
@@ -27,11 +27,11 @@ namespace LiquidState.Synchronous.Core
         }
     }
 
-    public class TriggerRepresentation<TTrigger, TState>
+    internal class TriggerRepresentation<TTrigger, TState>
     {
         public readonly TTrigger Trigger;
         public Func<bool> ConditionalTriggerPredicate;
-        public StateRepresentation<TState, TTrigger> NextStateRepresentation;
+        public Func<StateRepresentation<TState, TTrigger>> NextStateRepresentation;
         public object OnTriggerAction;
 
         internal TriggerRepresentation(TTrigger trigger)

@@ -17,7 +17,7 @@ namespace LiquidState.Synchronous.Core
             if (action != null) action.Invoke();
         }
 
-        internal static void MoveToStateCore<TState, TTrigger>(TState state, StateTransitionOption option, AbstractStateMachine<TState, TTrigger> machine)
+        internal static void MoveToStateCore<TState, TTrigger>(TState state, StateTransitionOption option, RawStateMachineBase<TState, TTrigger> machine)
         {
 
             Contract.Requires(machine != null);
@@ -50,7 +50,7 @@ namespace LiquidState.Synchronous.Core
             }
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> FindAndEvaluateTriggerRepresentation<TState, TTrigger>(TTrigger trigger, AbstractStateMachine<TState, TTrigger> machine)
+        internal static TriggerRepresentation<TTrigger, TState> FindAndEvaluateTriggerRepresentation<TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine)
         {
             Contract.Requires(machine != null);
 
@@ -84,7 +84,7 @@ namespace LiquidState.Synchronous.Core
             return triggerRep;
         }
 
-        internal static void FireCore<TState, TTrigger>(TTrigger trigger, AbstractStateMachine<TState, TTrigger> machine)
+        internal static void FireCore<TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine)
         {
             Contract.Requires(machine != null);
 
@@ -106,7 +106,7 @@ namespace LiquidState.Synchronous.Core
                 return;
             }
 
-            var nextStateRep = triggerRep.NextStateRepresentation;
+            var nextStateRep = triggerRep.NextStateRepresentation();
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit
@@ -126,7 +126,7 @@ namespace LiquidState.Synchronous.Core
         }
 
         internal static void FireCore<TState, TTrigger, TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument, AbstractStateMachine<TState, TTrigger> machine)
+            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument, RawStateMachineBase<TState, TTrigger> machine)
         {
             Contract.Requires(machine != null);
 
@@ -150,7 +150,7 @@ namespace LiquidState.Synchronous.Core
                 return;
             }
 
-            var nextStateRep = triggerRep.NextStateRepresentation;
+            var nextStateRep = triggerRep.NextStateRepresentation();
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit

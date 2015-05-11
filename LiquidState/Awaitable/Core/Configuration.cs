@@ -9,19 +9,25 @@ using System.Diagnostics.Contracts;
 using System.Linq;
 using LiquidState.Core;
 
-namespace LiquidState.Synchronous.Core
+namespace LiquidState.Awaitable.Core
 {
     public class Configuration<TState, TTrigger>
     {
-        internal Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
+        internal readonly Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
 
         internal Configuration(int statesConfigStoreInitalCapacity = 4)
         {
-            Representations = new Dictionary<TState, StateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
+            Contract.Ensures(Representations != null);
+
+            Representations =
+                new Dictionary<TState, StateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
         }
 
-        internal Configuration(Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
+        internal Configuration(
+            Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
+            Contract.Ensures(representations != null);
+
             Representations = representations;
         }
 
