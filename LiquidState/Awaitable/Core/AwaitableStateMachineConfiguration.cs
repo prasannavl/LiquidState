@@ -7,10 +7,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
-using LiquidState.Common;
+using LiquidState.Configuration;
+using LiquidState.Core;
 using LiquidState.Representations;
 
-namespace LiquidState.Configuration
+namespace LiquidState.Awaitable.Core
 {
     public class AwaitableStateMachineConfiguration<TState, TTrigger>
     {

@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LiquidState.Common;
-using LiquidState.Representations;
+using LiquidState.Core;
 
-namespace LiquidState.Configuration
+namespace LiquidState.Synchronous.Core
 {
     public class StateConfigurationHelper<TState, TTrigger>
     {

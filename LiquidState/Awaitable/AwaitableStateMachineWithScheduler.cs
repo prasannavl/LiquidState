@@ -8,10 +8,10 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading;
 using System.Threading.Tasks;
-using LiquidState.Common;
-using LiquidState.Configuration;
+using LiquidState.Awaitable.Core;
+using LiquidState.Core;
 
-namespace LiquidState.Machines
+namespace LiquidState.Awaitable
 {
     public class AwaitableStateMachineWithScheduler<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {

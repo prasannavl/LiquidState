@@ -5,8 +5,30 @@
 
 using System;
 
-namespace LiquidState.Common
+namespace LiquidState.Core
 {
+    public class InvalidStateException<TState> : Exception
+    {
+        public InvalidStateException(TState state)
+            : base("Invalid state: " + state.ToString())
+        {
+            InvalidState = state;
+        }
+
+        public InvalidStateException(TState state, string message)
+            : base(message)
+        {
+            InvalidState = state;
+        }
+
+        public TState InvalidState { get; private set; }
+
+        public static void Throw<TExceptionState>(TExceptionState state)
+        {
+            throw new InvalidStateException<TExceptionState>(state);
+        }
+    }
+
     public class InvalidTriggerException<TTrigger, TState> : Exception
     {
         public InvalidTriggerException(TTrigger trigger, TState state)
@@ -26,7 +48,13 @@ namespace LiquidState.Common
         public TState CurrentState { get; private set; }
 
         public static void Throw<TExceptionTrigger, TExceptionState>(
-            TExceptionTrigger trigger, TExceptionState state)
+            TriggerStateEventArgs<TExceptionState, TExceptionTrigger> eventArgs)
+        {
+            throw new InvalidTriggerException<TExceptionTrigger, TExceptionState>(eventArgs.Trigger,
+                eventArgs.CurrentState);
+        }
+
+        public static void Throw<TExceptionTrigger, TExceptionState>(TExceptionTrigger trigger, TExceptionState state)
         {
             throw new InvalidTriggerException<TExceptionTrigger, TExceptionState>(trigger, state);
         }

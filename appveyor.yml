@@ -1,24 +1,46 @@
-version: '5.0.0.{build}'
+version: '6.0.0.{build}'
+
+## -- Git --
+
 branches:
   only:
   - master
+clone_depth: 1
+skip_commits:
+  message: '(?i)Update README(\.md)?$'
+
+## -- Environment --
+
 configuration: Release
 platform: Any CPU
-clone_depth: 1
+matrix:
+  fast_finish: true
+cache:
+  - packages -> **\packages.config
+
+
+## -- Tool options -- 
+
 assembly_info:
   patch: true
   file: '**\VersionInfo.*'
   assembly_version: '{version}'
   assembly_file_version: '{version}'
   assembly_informational_version: '{version}-pre'
+
 nuget:
   account_feed: true
   project_feed: true
+  disable_publish_on_pr: false
+
 build:
   project: LiquidState\LiquidState.csproj
   publish_nuget: true
   include_nuget_references: true
   verbosity: minimal
+
+## -- Deployment --
+
 deploy:
 - provider: NuGet
   api_key:

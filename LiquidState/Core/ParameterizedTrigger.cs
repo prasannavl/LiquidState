@@ -5,7 +5,7 @@
 
 using System.Diagnostics.Contracts;
 
-namespace LiquidState.Common
+namespace LiquidState.Core
 {
     public class ParameterizedTrigger<TTrigger, TArgument>
     {

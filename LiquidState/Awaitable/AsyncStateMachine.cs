@@ -6,12 +6,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Threading;
 using System.Threading.Tasks;
+using LiquidState.Awaitable.Core;
 using LiquidState.Common;
-using LiquidState.Configuration;
+using LiquidState.Core;
+using LiquidState.Scaffold;
 
-namespace LiquidState.Machines
+namespace LiquidState.Awaitable
 {
     public class AsyncStateMachine<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
@@ -132,6 +133,7 @@ namespace LiquidState.Machines
             queueMonitor.Enter();
             if (machine.Monitor.TryEnter())
             {
+                // Try to execute inline if the process queue is empty.
                 if (queueCount == 0)
                 {
                     queueMonitor.Exit();
@@ -161,6 +163,8 @@ namespace LiquidState.Machines
 
             if (flag)
             {
+                // Fast path was not taken. Queue up the delgates.
+
                 var tcs = new TaskCompletionSource<bool>();
                 actionsQueue = actionsQueue.Enqueue(async () =>
                 {
@@ -191,6 +195,7 @@ namespace LiquidState.Machines
             queueMonitor.Enter();
             if (machine.Monitor.TryEnter())
             {
+                // Try to execute inline if the process queue is empty.
                 if (queueCount == 0)
                 {
                     queueMonitor.Exit();
@@ -218,8 +223,11 @@ namespace LiquidState.Machines
                 }
             }
 
+            
             if (flag)
             {
+                // Fast path was not taken. Queue up the delgates.
+
                 var tcs = new TaskCompletionSource<bool>();
                 actionsQueue = actionsQueue.Enqueue(async () =>
                 {

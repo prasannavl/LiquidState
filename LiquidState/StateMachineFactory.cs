@@ -7,16 +7,18 @@ using System;
 using System.Diagnostics.Contracts;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using LiquidState.Common;
-using LiquidState.Configuration;
-using LiquidState.Machines;
+using LiquidState.Awaitable;
+using LiquidState.Awaitable.Core;
+using LiquidState.Core;
+using LiquidState.Synchronous;
+using LiquidState.Synchronous.Core;
 
 namespace LiquidState
 {
     public static class StateMachineFactory
     {
         public static IStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
-            StateMachineConfiguration<TState, TTrigger> config, bool blocking = false)
+            Configuration<TState, TTrigger> config, bool blocking = false, bool throwOnInvalidTriggers = true)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
@@ -28,37 +30,38 @@ namespace LiquidState
             }
             else
             {
-                sm = new StateMachine<TState, TTrigger>(initialState, config);
+                sm = new GuardedStateMachine<TState, TTrigger>(initialState, config);
             }
 
-            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
+            if (throwOnInvalidTriggers)
+                sm.UnhandledTrigger += InvalidTriggerException<TTrigger, TState>.Throw;
             return sm;
         }
 
         public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(
             TState initialState,
-            AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine = true)
+            AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine = true, bool throwOnInvalidTriggers = true)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
 
-            return Create(initialState, config, asyncMachine, null);
+            return Create(initialState, config, asyncMachine, null, throwOnInvalidTriggers);
         }
 
         public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(
             TState initialState,
-            AwaitableStateMachineConfiguration<TState, TTrigger> config, TaskScheduler customScheduler)
+            AwaitableStateMachineConfiguration<TState, TTrigger> config, TaskScheduler customScheduler, bool throwOnInvalidTriggers = true)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
             Contract.Requires<ArgumentNullException>(customScheduler != null);
 
-            return Create(initialState, config, false, null);
+            return Create(initialState, config, false, null, throwOnInvalidTriggers);
         }
 
-        public static StateMachineConfiguration<TState, TTrigger> CreateConfiguration<TState, TTrigger>()
+        public static Configuration<TState, TTrigger> CreateConfiguration<TState, TTrigger>()
         {
-            return new StateMachineConfiguration<TState, TTrigger>();
+            return new Configuration<TState, TTrigger>();
         }
 
         public static AwaitableStateMachineConfiguration<TState, TTrigger> CreateAwaitableConfiguration
@@ -68,7 +71,7 @@ namespace LiquidState
         }
 
         private static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
-            AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine, TaskScheduler scheduler)
+            AwaitableStateMachineConfiguration<TState, TTrigger> config, bool asyncMachine, TaskScheduler scheduler, bool throwOnInvalidTriggers)
         {
             IAwaitableStateMachine<TState, TTrigger> sm;
             if (asyncMachine)
@@ -83,7 +86,8 @@ namespace LiquidState
                     : new AwaitableStateMachineWithScheduler<TState, TTrigger>(initialState, config, scheduler);
             }
 
-            sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
+            if (throwOnInvalidTriggers)
+                sm.UnhandledTriggerExecuted += InvalidTriggerException<TTrigger, TState>.Throw;
             return sm;
         }
     }

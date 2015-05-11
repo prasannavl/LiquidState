@@ -8,8 +8,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using LiquidState.Common;
 
-namespace LiquidState.Common
+namespace LiquidState.Scaffold
 {
     internal interface IImmutableStack<T> : IEnumerable<T>, IEnumerable
     {

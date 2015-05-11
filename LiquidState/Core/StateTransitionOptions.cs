@@ -3,7 +3,7 @@
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
-namespace LiquidState.Common
+namespace LiquidState.Core
 {
     public enum StateTransitionOption : byte
     {

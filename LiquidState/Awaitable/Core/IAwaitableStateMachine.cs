@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
-using LiquidState.Common;
+using LiquidState.Core;
 
-namespace LiquidState.Machines
+namespace LiquidState.Awaitable.Core
 {
     [ContractClass(typeof (AwaitableStateMachineContract<,>))]
     public interface IAwaitableStateMachine<TState, TTrigger>

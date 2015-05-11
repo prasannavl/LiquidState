@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LiquidState.Common;
+using LiquidState.Core;
 using LiquidState.Representations;
 
 namespace LiquidState.Configuration
@@ -340,7 +341,7 @@ namespace LiquidState.Configuration
             return rep;
         }
 
-        internal static AwaitableTriggerRepresentation<TTrigger, TState> FindOrCreateTriggerConfig(TTrigger trigger,
+        internal static AwaitableTriggerRepresentation<TTrigger, TState> FindOrCreateTriggerRepresentation(TTrigger trigger,
             AwaitableStateRepresentation<TState, TTrigger> stateRepresentation)
         {
             Contract.Requires(stateRepresentation != null);
@@ -369,7 +370,7 @@ namespace LiquidState.Configuration
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAction;
@@ -387,7 +388,7 @@ namespace LiquidState.Configuration
 
             Contract.Assume(trigger.Trigger != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger.Trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAction;
@@ -403,7 +404,7 @@ namespace LiquidState.Configuration
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
@@ -424,7 +425,7 @@ namespace LiquidState.Configuration
 
             Contract.Assume(trigger.Trigger != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger.Trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
@@ -442,7 +443,7 @@ namespace LiquidState.Configuration
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
@@ -462,7 +463,7 @@ namespace LiquidState.Configuration
 
             Contract.Assume(trigger.Trigger != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger.Trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
@@ -480,7 +481,7 @@ namespace LiquidState.Configuration
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
@@ -500,7 +501,7 @@ namespace LiquidState.Configuration
 
             Contract.Assume(trigger.Trigger != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger.Trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
@@ -515,7 +516,7 @@ namespace LiquidState.Configuration
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = null;
             rep.ConditionalTriggerPredicate = predicate;
@@ -529,7 +530,7 @@ namespace LiquidState.Configuration
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
 
-            var rep = FindOrCreateTriggerConfig(trigger, currentStateRepresentation);
+            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
 
             rep.NextStateRepresentation = null;
             rep.ConditionalTriggerPredicate = predicate;

@@ -7,9 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace LiquidState.Representations
+namespace LiquidState.Synchronous.Core
 {
-    internal class StateRepresentation<TState, TTrigger>
+    public class StateRepresentation<TState, TTrigger>
     {
         public readonly TState State;
         public readonly List<TriggerRepresentation<TTrigger, TState>> Triggers;
@@ -27,7 +27,7 @@ namespace LiquidState.Representations
         }
     }
 
-    internal class TriggerRepresentation<TTrigger, TState>
+    public class TriggerRepresentation<TTrigger, TState>
     {
         public readonly TTrigger Trigger;
         public Func<bool> ConditionalTriggerPredicate;

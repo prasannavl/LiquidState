@@ -8,29 +8,29 @@ using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using LiquidState.Common;
-using LiquidState.Representations;
+using LiquidState.Core;
 
-namespace LiquidState.Configuration
+namespace LiquidState.Synchronous.Core
 {
-    public class StateMachineConfiguration<TState, TTrigger>
+    public class Configuration<TState, TTrigger>
     {
-        internal Dictionary<TState, StateRepresentation<TState, TTrigger>> Config;
+        internal Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
 
-        internal StateMachineConfiguration(int statesConfigStoreInitalCapacity = 4)
+        internal Configuration(int statesConfigStoreInitalCapacity = 4)
         {
-            Config = new Dictionary<TState, StateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
+            Representations = new Dictionary<TState, StateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
         }
 
-        internal StateMachineConfiguration(Dictionary<TState, StateRepresentation<TState, TTrigger>> config)
+        internal Configuration(Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
-            Config = config;
+            Representations = representations;
         }
 
         public StateConfigurationHelper<TState, TTrigger> ForState(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
 
-            return new StateConfigurationHelper<TState, TTrigger>(Config, state);
+            return new StateConfigurationHelper<TState, TTrigger>(Representations, state);
         }
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)
@@ -44,11 +44,11 @@ namespace LiquidState.Configuration
             Contract.Requires(initialState != null);
 
             StateRepresentation<TState, TTrigger> rep;
-            if (Config.TryGetValue(initialState, out rep))
+            if (Representations.TryGetValue(initialState, out rep))
             {
                 return rep;
             }
-            return Config.Values.FirstOrDefault();
+            return Representations.Values.FirstOrDefault();
         }
     }
 }
