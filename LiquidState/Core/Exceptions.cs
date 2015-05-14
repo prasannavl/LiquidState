@@ -7,6 +7,15 @@ using System;
 
 namespace LiquidState.Core
 {
+    public static class ExceptionHelper
+    {
+        internal static void ThrowExclusiveOperation()
+        {
+            throw new InvalidOperationException(
+                "Permit* and Ignore* methods are exclusive to each other for a given resulting state.");
+        }
+    }
+
     public class InvalidStateException<TState> : Exception
     {
         public InvalidStateException(TState state)

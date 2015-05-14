@@ -192,13 +192,12 @@ namespace LiquidState.Synchronous.Core
             Contract.Ensures(Contract.Result<TriggerRepresentation<TTrigger, TState>>() != null);
 
             var rep = FindTriggerRepresentation(trigger, stateRepresentation);
-            if (rep != null)
-            {
-                Contract.Assume(rep.Trigger != null);
-                return rep;
-            }
-
-            rep = new TriggerRepresentation<TTrigger, TState>(trigger);
+            return rep ?? CreateTriggerRepresentation(trigger, stateRepresentation);
+        }
+        internal static TriggerRepresentation<TTrigger, TState> CreateTriggerRepresentation(TTrigger trigger,
+    StateRepresentation<TState, TTrigger> stateRepresentation)
+        {
+            var rep = new TriggerRepresentation<TTrigger, TState>(trigger);
             stateRepresentation.Triggers.Add(rep);
             return rep;
         }
@@ -215,8 +214,10 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
 
-            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
+            if (FindTriggerRepresentation(trigger, currentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
 
+            var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
             rep.NextStateRepresentation = GetNextStateRepresentation(resultingState);
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = predicate;
@@ -233,8 +234,10 @@ namespace LiquidState.Synchronous.Core
 
             Contract.Assume(trigger.Trigger != null);
 
-            var rep = FindOrCreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
+            if (FindTriggerRepresentation(trigger.Trigger, currentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
 
+            var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
             rep.NextStateRepresentation = GetNextStateRepresentation(resultingState);
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = predicate;
@@ -252,8 +255,10 @@ namespace LiquidState.Synchronous.Core
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
 
-            var rep = FindOrCreateTriggerRepresentation(trigger, currentStateRepresentation);
+            if (FindTriggerRepresentation(trigger, currentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
 
+            var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
             rep.NextStateRepresentation = null;
             rep.ConditionalTriggerPredicate = predicate;
 
