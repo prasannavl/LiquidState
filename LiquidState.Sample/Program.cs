@@ -97,7 +97,6 @@ namespace LiquidState.Sample
         {
             var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 
-
             config.ForState(State.Off)
                 .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
                 .OnExit(async () => Console.WriteLine("OnExit of Off"))

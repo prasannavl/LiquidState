@@ -16,10 +16,11 @@ namespace LiquidState.Awaitable
     public abstract class ScheduledStateMachineBase<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
     {
         protected ScheduledStateMachineBase(TState initialState,
-            Configuration<TState, TTrigger> config, TaskScheduler scheduler) : base(initialState, config)
+            Configuration<TState, TTrigger> configuration, TaskScheduler scheduler)
+            : base(initialState, configuration)
         {
             Contract.Requires(initialState != null);
-            Contract.Requires(config != null);
+            Contract.Requires(configuration != null);
             Contract.Requires(scheduler != null);
 
             Scheduler = scheduler;

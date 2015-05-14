@@ -6,6 +6,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
+using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;
 using LiquidState.Common;
@@ -13,9 +16,6 @@ using LiquidState.Core;
 
 namespace LiquidState.Awaitable
 {
-    // TODO: Rewrite. This is currently a direct port from the previous machine semantics. Things can be simplified
-    // and a lot faster.
-
     public abstract class QueuedStateMachineBase<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
     {
         private IImmutableQueue<Func<Task>> actionsQueue;
@@ -35,9 +35,6 @@ namespace LiquidState.Awaitable
         public override async Task MoveToStateAsync(TState state,
             StateTransitionOption option = StateTransitionOption.Default)
         {
-            if (!IsEnabled)
-                return;
-
             var flag = true;
 
             queueMonitor.Enter();
@@ -73,6 +70,7 @@ namespace LiquidState.Awaitable
             if (flag)
             {
                 var tcs = new TaskCompletionSource<bool>();
+
                 actionsQueue = actionsQueue.Enqueue(async () =>
                 {
                     try
@@ -85,6 +83,7 @@ namespace LiquidState.Awaitable
                         tcs.SetException(ex);
                     }
                 });
+
                 queueCount++;
                 queueMonitor.Exit();
                 var _ = StartQueueIfNecessaryAsync();
@@ -239,7 +238,7 @@ namespace LiquidState.Awaitable
                 return ProcessQueueInternal();
             }
 
-            return Task.FromResult(true);
+            return TaskHelpers.CompletedTask;
         }
 
         private async Task ProcessQueueInternal()
