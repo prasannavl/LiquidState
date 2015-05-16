@@ -61,6 +61,3 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
-
-appveyor.yml merge=ours
-VersionInfo.cs merge=ours
