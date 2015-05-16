@@ -1,46 +1,47 @@
-version: '6.0.0.{build}'
+-
+    version: '6.0.0.{build}'
 
-## -- Git --
+    ## -- Git --
 
-branches:
-  only:
-  - dev
-clone_depth: 1
-skip_commits:
-  message: '(?i)Update README(\.md)?$'
+    branches:
+      only:
+      - master
+    clone_depth: 1
+    skip_commits:
+      message: '(?i)Update README(\.md)?$'
 
-## -- Environment --
+    ## -- Environment --
 
-configuration: Release
-platform: Any CPU
-matrix:
-  fast_finish: true
+    configuration: Release
+    platform: Any CPU
+    matrix:
+      fast_finish: true
 
 
-## -- Tool options -- 
+    ## -- Tool options -- 
 
-assembly_info:
-  patch: true
-  file: '**\VersionInfo.*'
-  assembly_version: '{version}'
-  assembly_file_version: '{version}'
-  assembly_informational_version: '{version}-pre'
+    assembly_info:
+      patch: true
+      file: '**\VersionInfo.*'
+      assembly_version: '{version}'
+      assembly_file_version: '{version}'
+      assembly_informational_version: '{version}-pre'
 
-nuget:
-  account_feed: true
-  project_feed: true
-  disable_publish_on_pr: true
+    nuget:
+      account_feed: true
+      project_feed: true
+      disable_publish_on_pr: true
 
-build:
-  project: LiquidState\LiquidState.csproj
-  publish_nuget: true
-  include_nuget_references: true
-  verbosity: minimal
+    build:
+      project: LiquidState\LiquidState.csproj
+      publish_nuget: true
+      include_nuget_references: true
+      verbosity: minimal
 
-## -- Deployment --
+    ## -- Deployment --
 
-deploy:
-- provider: NuGet
-  api_key:
-    secure: SRVDkFc46GEnfXBrnFu7kFml7ozzCAH8thZ5s4gvneVLKo+5QfINtxAB+xSCCQQi
-  skip_symbols: true
+    deploy:
+    - provider: NuGet
+      api_key:
+        secure: SRVDkFc46GEnfXBrnFu7kFml7ozzCAH8thZ5s4gvneVLKo+5QfINtxAB+xSCCQQi
+      skip_symbols: true
