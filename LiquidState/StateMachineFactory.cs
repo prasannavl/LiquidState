@@ -16,7 +16,7 @@ namespace LiquidState
     {
         public static Synchronous.Core.IStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
             Synchronous.Core.Configuration<TState, TTrigger> config, bool blocking = false,
-            bool throwOnInvalidTriggers = true)
+            bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
@@ -33,28 +33,32 @@ namespace LiquidState
 
             if (throwOnInvalidTriggers)
                 sm.UnhandledTrigger += InvalidTriggerException<TTrigger, TState>.Throw;
+
+            if (throwOnInvalidState)
+                sm.InvalidState += InvalidStateException<TState>.Throw;
+
             return sm;
         }
 
         public static Awaitable.Core.IStateMachine<TState, TTrigger> Create<TState, TTrigger>(
-            TState initialState, Awaitable.Core.Configuration<TState, TTrigger> config, bool asyncMachine = true,
-            bool throwOnInvalidTriggers = true)
+            TState initialState, Awaitable.Core.Configuration<TState, TTrigger> config, bool queued = true,
+            bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
 
-            return Create(initialState, config, asyncMachine, null, throwOnInvalidTriggers);
+            return Create(initialState, config, queued, null, throwOnInvalidTriggers, throwOnInvalidState);
         }
 
         public static Awaitable.Core.IStateMachine<TState, TTrigger> Create<TState, TTrigger>(
             TState initialState, Awaitable.Core.Configuration<TState, TTrigger> config, TaskScheduler customScheduler,
-            bool throwOnInvalidTriggers = true)
+            bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
             Contract.Requires<ArgumentNullException>(initialState != null);
             Contract.Requires<ArgumentNullException>(config != null);
             Contract.Requires<ArgumentNullException>(customScheduler != null);
 
-            return Create(initialState, config, false, null, throwOnInvalidTriggers);
+            return Create(initialState, config, false, null, throwOnInvalidTriggers, throwOnInvalidState);
         }
 
         public static Synchronous.Core.Configuration<TState, TTrigger> CreateConfiguration<TState, TTrigger>()
@@ -69,11 +73,11 @@ namespace LiquidState
         }
 
         private static Awaitable.Core.IStateMachine<TState, TTrigger> Create<TState, TTrigger>(TState initialState,
-            Awaitable.Core.Configuration<TState, TTrigger> config, bool asyncMachine, TaskScheduler scheduler,
-            bool throwOnInvalidTriggers)
+            Awaitable.Core.Configuration<TState, TTrigger> config, bool queued, TaskScheduler scheduler,
+            bool throwOnInvalidTriggers, bool throwOnInvalidState = true)
         {
             Awaitable.Core.IStateMachine<TState, TTrigger> sm;
-            if (asyncMachine)
+            if (queued)
             {
                 sm = new QueuedStateMachine<TState, TTrigger>(initialState, config);
             }
@@ -87,6 +91,10 @@ namespace LiquidState
 
             if (throwOnInvalidTriggers)
                 sm.UnhandledTrigger += InvalidTriggerException<TTrigger, TState>.Throw;
+
+            if (throwOnInvalidState)
+                sm.InvalidState += InvalidStateException<TState>.Throw;
+
             return sm;
         }
     }

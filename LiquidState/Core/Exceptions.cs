@@ -36,6 +36,11 @@ namespace LiquidState.Core
         {
             throw new InvalidStateException<TExceptionState>(state);
         }
+
+        public static void Throw<TTrigger>(TransitionEventArgs<TState, TTrigger> eventArgs)
+        {
+            throw new InvalidStateException<TState>(eventArgs.TargetState);
+        }
     }
 
     public class InvalidTriggerException<TTrigger, TState> : Exception
