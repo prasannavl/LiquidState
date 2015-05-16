@@ -368,4 +368,7 @@ Breaking changes:
 ######v.6.0.0
 
 - Complete rewrite, removed a lot of code duplication, and restructured.
-- Fully backward compatible when initialized with StateMachineFactory (the recommended way).
+
+Breaking changes: 
+
+- Everthing other than the MoveToState*, Fire* and configuration methods. 

@@ -167,11 +167,11 @@ namespace LiquidState.Awaitable.Core
             if (CheckFlag(triggerRep.TransitionFlags,
                 AwaitableStateTransitionFlag.NextStateRepresentationIsTargetStateTask))
             {
-                var state = await ((Task<TState>) triggerRep.NextStateRepresentationPredicate);
+                var state = await ((Func<Task<TState>>)triggerRep.NextStateRepresentationPredicate)();
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
                 if (nextStateRep == null)
                 {
-                    InvalidStateException<TState>.Throw(state);
+                    machine.RaiseInvalidState(state);
                     return;
                 }
             }
@@ -277,7 +277,7 @@ namespace LiquidState.Awaitable.Core
             if (CheckFlag(triggerRep.TransitionFlags,
                 AwaitableStateTransitionFlag.NextStateRepresentationIsTargetStateTask))
             {
-                var state = await ((Task<TState>)triggerRep.NextStateRepresentationPredicate);
+                var state = await ((Func<Task<TState>>)triggerRep.NextStateRepresentationPredicate)();
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
                 if (nextStateRep == null)
                 {
