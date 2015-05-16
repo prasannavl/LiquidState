@@ -365,7 +365,7 @@ Breaking changes:
 
 - Removed `bool CanHandleTrigger(TTrigger trigger)` from it IAwaitableStateMachine. Has been replaced by the async version.
 
-######v.6.0.0
+######vNext
 
 - Complete rewrite, removed a lot of code duplication, and restructured.
 
