@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.Contracts;
+using System.Collections.Generic;
 using LiquidState.Common;
 using LiquidState.Core;
 
@@ -26,7 +27,7 @@ namespace LiquidState.Synchronous.Core
             if (machine.Representations.TryGetValue(state, out targetRep))
             {
 
-                var currentRep = machine.CurrentStateRepresentation;                
+                var currentRep = machine.CurrentStateRepresentation;
                 machine.RaiseTransitionStarted(targetRep.State);
 
                 if ((option & StateTransitionOption.CurrentStateExitTransition) ==
@@ -76,7 +77,7 @@ namespace LiquidState.Synchronous.Core
 
             // Handle ignored trigger
 
-            if (triggerRep.NextStateRepresentation == null)
+            if (triggerRep.NextStateRepresentationPredicate == null)
             {
                 return null;
             }
@@ -103,10 +104,13 @@ namespace LiquidState.Synchronous.Core
             catch (InvalidCastException)
             {
                 InvalidTriggerParameterException<TTrigger>.Throw(trigger);
-                return;
             }
 
-            var nextStateRep = triggerRep.NextStateRepresentation();
+            var nextStateRep = triggerRep.NextStateRepresentationPredicate();
+
+            // Exceptions are handled during configuration. Simply return. 
+            if (nextStateRep == null) return;
+
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit
@@ -147,10 +151,9 @@ namespace LiquidState.Synchronous.Core
             catch (InvalidCastException)
             {
                 InvalidTriggerParameterException<TTrigger>.Throw(trigger);
-                return;
             }
 
-            var nextStateRep = triggerRep.NextStateRepresentation();
+            var nextStateRep = triggerRep.NextStateRepresentationPredicate();
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit

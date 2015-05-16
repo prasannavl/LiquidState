@@ -31,7 +31,7 @@ namespace LiquidState.Synchronous.Core
     {
         public readonly TTrigger Trigger;
         public Func<bool> ConditionalTriggerPredicate;
-        public Func<StateRepresentation<TState, TTrigger>> NextStateRepresentation;
+        public Func<StateRepresentation<TState, TTrigger>> NextStateRepresentationPredicate;
         public object OnTriggerAction;
 
         internal TriggerRepresentation(TTrigger trigger)

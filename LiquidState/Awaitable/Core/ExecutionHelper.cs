@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LiquidState.Common;
@@ -16,6 +17,12 @@ namespace LiquidState.Awaitable.Core
         internal static bool CheckFlag(AwaitableStateTransitionFlag source, AwaitableStateTransitionFlag flagToCheck)
         {
             return (source & flagToCheck) == flagToCheck;
+        }
+
+        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(TState initialState, Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
+        {
+            StateRepresentation<TState, TTrigger> rep;
+            return representations.TryGetValue(initialState, out rep) ? rep : null;
         }
 
         internal static async Task MoveToStateCoreAsync<TState, TTrigger>(TState state, StateTransitionOption option, RawStateMachineBase<TState, TTrigger> machine)
@@ -109,7 +116,7 @@ namespace LiquidState.Awaitable.Core
 
             // Handle ignored trigger
 
-            if (triggerRep.NextStateRepresentation == null)
+            if (triggerRep.NextStateRepresentationPredicate == null)
             {
                 return null;
             }
@@ -155,7 +162,28 @@ namespace LiquidState.Awaitable.Core
                 }
             }
 
-            var nextStateRep = triggerRep.NextStateRepresentation();
+            StateRepresentation<TState, TTrigger> nextStateRep = null;
+
+            if (CheckFlag(triggerRep.TransitionFlags,
+                AwaitableStateTransitionFlag.NextStateRepresentationIsTargetStateTask))
+            {
+                var state = await ((Task<TState>) triggerRep.NextStateRepresentationPredicate);
+                nextStateRep = FindStateRepresentation(state, machine.Representations);
+                if (nextStateRep == null)
+                {
+                    InvalidStateException<TState>.Throw(state);
+                    return;
+                }
+            }
+            else
+            {
+                var func = (Func<StateRepresentation<TState, TTrigger>>)triggerRep.NextStateRepresentationPredicate;
+                nextStateRep = func();
+
+                // Simply return. Don't throw in this case, as it should be pre-evaluated during configuration.
+                if (nextStateRep == null) return;
+            }
+
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit
@@ -244,7 +272,28 @@ namespace LiquidState.Awaitable.Core
                 }
             }
 
-            var nextStateRep = triggerRep.NextStateRepresentation();
+            StateRepresentation<TState, TTrigger> nextStateRep = null;
+
+            if (CheckFlag(triggerRep.TransitionFlags,
+                AwaitableStateTransitionFlag.NextStateRepresentationIsTargetStateTask))
+            {
+                var state = await ((Task<TState>)triggerRep.NextStateRepresentationPredicate);
+                nextStateRep = FindStateRepresentation(state, machine.Representations);
+                if (nextStateRep == null)
+                {
+                    InvalidStateException<TState>.Throw(state);
+                    return;
+                }
+            }
+            else
+            {
+                var func = (Func<StateRepresentation<TState, TTrigger>>)triggerRep.NextStateRepresentationPredicate;
+                nextStateRep = func();
+
+                // Simply return. Don't throw in this case, as it should be pre-evaluated during configuration.
+                if (nextStateRep == null) return;
+            } 
+            
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit

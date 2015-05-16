@@ -49,11 +49,7 @@ namespace LiquidState.Awaitable.Core
             Contract.Requires(initialState != null);
 
             StateRepresentation<TState, TTrigger> rep;
-            if (Representations.TryGetValue(initialState, out rep))
-            {
-                return rep;
-            }
-            return Representations.Values.FirstOrDefault();
+            return Representations.TryGetValue(initialState, out rep) ? rep : Representations.Values.FirstOrDefault();
         }
     }
 }

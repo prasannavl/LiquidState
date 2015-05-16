@@ -32,13 +32,15 @@ namespace LiquidState.Synchronous
             Contract.Requires(configuration != null);
             Contract.Requires(initialState != null);
 
-            CurrentStateRepresentation = configuration.GetInitialStateRepresentation(initialState);
+            Representations = configuration.Representations;
+
+            CurrentStateRepresentation = StateConfigurationHelper<TState, TTrigger>.FindStateRepresentation(
+                initialState, Representations);
+
             if (CurrentStateRepresentation == null)
             {
                 InvalidStateException<TState>.Throw(initialState);
             }
-
-            Representations = configuration.Representations;
         }
 
         public virtual void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)

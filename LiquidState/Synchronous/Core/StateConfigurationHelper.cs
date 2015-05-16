@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using System.Reflection;
 using LiquidState.Common;
 using LiquidState.Core;
 
@@ -163,6 +164,43 @@ namespace LiquidState.Synchronous.Core
             return PermitInternal(predicate, trigger, resultingState, onEntryAction);
         }
 
+        public StateConfigurationHelper<TState, TTrigger> PermitDynamic(TTrigger trigger,
+            Func<TState> targetStatePredicate,
+            Action onEntryAction)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(targetStatePredicate != null);
+
+            if (FindTriggerRepresentation(trigger, currentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
+
+            var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
+            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(targetStatePredicate);
+            rep.OnTriggerAction = onEntryAction;
+            rep.ConditionalTriggerPredicate = null;
+
+            return this;
+        }
+
+        public StateConfigurationHelper<TState, TTrigger> PermitDynamic<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<TState> targetStatePredicate,
+            Action<TArgument> onEntryAction)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(targetStatePredicate != null);
+
+            if (FindTriggerRepresentation(trigger.Trigger, currentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
+
+            var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
+            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(targetStatePredicate);
+            rep.OnTriggerAction = onEntryAction;
+            rep.ConditionalTriggerPredicate = null;
+
+            return this;
+        }
+
         internal static StateRepresentation<TState, TTrigger> FindOrCreateStateRepresentation(TState state,
             Dictionary<TState, StateRepresentation<TState, TTrigger>> config)
         {
@@ -177,9 +215,22 @@ namespace LiquidState.Synchronous.Core
                 return rep;
             }
 
-            rep = new StateRepresentation<TState, TTrigger>(state);
-            config[state] = rep;
+            rep = CreateStateRepresentation(state, config);
+            return rep;
+        }
 
+        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation(TState initialState,
+            Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
+        {
+            StateRepresentation<TState, TTrigger> rep;
+            return representations.TryGetValue(initialState, out rep) ? rep : null;
+        }
+
+        internal static StateRepresentation<TState, TTrigger> CreateStateRepresentation(TState state,
+            Dictionary<TState, StateRepresentation<TState, TTrigger>> config)
+        {
+            var rep = new StateRepresentation<TState, TTrigger>(state);
+            config[state] = rep;
             return rep;
         }
 
@@ -194,8 +245,9 @@ namespace LiquidState.Synchronous.Core
             var rep = FindTriggerRepresentation(trigger, stateRepresentation);
             return rep ?? CreateTriggerRepresentation(trigger, stateRepresentation);
         }
+
         internal static TriggerRepresentation<TTrigger, TState> CreateTriggerRepresentation(TTrigger trigger,
-    StateRepresentation<TState, TTrigger> stateRepresentation)
+            StateRepresentation<TState, TTrigger> stateRepresentation)
         {
             var rep = new TriggerRepresentation<TTrigger, TState>(trigger);
             stateRepresentation.Triggers.Add(rep);
@@ -218,7 +270,7 @@ namespace LiquidState.Synchronous.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
-            rep.NextStateRepresentation = GetNextStateRepresentation(resultingState);
+            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = predicate;
 
@@ -232,23 +284,15 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires<ArgumentNullException>(trigger != null);
             Contract.Requires<ArgumentNullException>(resultingState != null);
 
-            Contract.Assume(trigger.Trigger != null);
-
             if (FindTriggerRepresentation(trigger.Trigger, currentStateRepresentation) != null)
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
-            rep.NextStateRepresentation = GetNextStateRepresentation(resultingState);
+            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = predicate;
 
             return this;
-        }
-
-        private Func<StateRepresentation<TState, TTrigger>> GetNextStateRepresentation(TState resultingState)
-        {
-            var stateRep = FindOrCreateStateRepresentation(resultingState, config);
-            return () => stateRep; 
         }
 
         private StateConfigurationHelper<TState, TTrigger> IgnoreInternal(Func<bool> predicate, TTrigger trigger)
@@ -259,10 +303,44 @@ namespace LiquidState.Synchronous.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
-            rep.NextStateRepresentation = null;
+            rep.NextStateRepresentationPredicate = null;
             rep.ConditionalTriggerPredicate = predicate;
 
             return this;
+        }
+
+        private Func<StateRepresentation<TState, TTrigger>> GetNextStateRepresentationPredicate(TState resultingState)
+        {
+            var stateRep = FindOrCreateStateRepresentation(resultingState, config);
+            return () => stateRep;
+        }
+
+        private Func<StateRepresentation<TState, TTrigger>> GetNextStateRepresentationPredicate(
+            Func<TState> targetStatePredicate)
+        {
+            var pack = new StateRepresentationPredicatedCreationHelper
+            {
+                Representations = config,
+                TargetStatePredicate = targetStatePredicate,
+            };
+
+            return () =>
+            {
+                var state = pack.TargetStatePredicate();
+                var rep = FindStateRepresentation(state, pack.Representations);
+                if (rep == null)
+                {
+                    InvalidStateException<TState>.Throw(state);
+                }
+
+                return rep;
+            };
+        }
+
+        private struct StateRepresentationPredicatedCreationHelper
+        {
+            public Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
+            public Func<TState> TargetStatePredicate;
         }
     }
 }

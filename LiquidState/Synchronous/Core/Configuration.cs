@@ -37,17 +37,5 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires<ArgumentNullException>(trigger != null);
             return new ParameterizedTrigger<TTrigger, TArgument>(trigger);
         }
-
-        internal StateRepresentation<TState, TTrigger> GetInitialStateRepresentation(TState initialState)
-        {
-            Contract.Requires(initialState != null);
-
-            StateRepresentation<TState, TTrigger> rep;
-            if (Representations.TryGetValue(initialState, out rep))
-            {
-                return rep;
-            }
-            return Representations.Values.FirstOrDefault();
-        }
     }
 }

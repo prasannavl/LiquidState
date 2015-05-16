@@ -34,7 +34,7 @@ namespace LiquidState.Awaitable.Core
     {
         public readonly TTrigger Trigger;
         public object ConditionalTriggerPredicate;
-        public Func<StateRepresentation<TState, TTrigger>> NextStateRepresentation;
+        public object NextStateRepresentationPredicate;
         public object OnTriggerAction;
         public AwaitableStateTransitionFlag TransitionFlags;
 
@@ -48,14 +48,13 @@ namespace LiquidState.Awaitable.Core
     }
 
     [Flags]
-    internal enum AwaitableStateTransitionFlag : byte
+    internal enum AwaitableStateTransitionFlag
     {
         None = 0x0,
-        OverrideFluidState = 0x01,
-        FluidStateActive = 0x02,
-        EntryReturnsTask = 0x04,
-        ExitReturnsTask = 0x08,
-        TriggerActionReturnsTask = 0x10,
-        TriggerPredicateReturnsTask = 0x20
+        EntryReturnsTask = 0x01,
+        ExitReturnsTask = 0x02,
+        TriggerActionReturnsTask = 0x04,
+        TriggerPredicateReturnsTask = 0x08,
+        NextStateRepresentationIsTargetStateTask = 0x10,
     }
 }
