@@ -31,8 +31,9 @@ namespace LiquidState.Synchronous.Core
     {
         public readonly TTrigger Trigger;
         public Func<bool> ConditionalTriggerPredicate;
-        public Func<StateRepresentation<TState, TTrigger>> NextStateRepresentationPredicate;
+        public object NextStateRepresentationPredicate;
         public object OnTriggerAction;
+        public TransitionFlag TransitionFlags;
 
         internal TriggerRepresentation(TTrigger trigger)
         {
@@ -41,5 +42,12 @@ namespace LiquidState.Synchronous.Core
 
             Trigger = trigger;
         }
+    }
+
+    [Flags]
+    internal enum TransitionFlag
+    {
+        None = 0,
+        DynamicState = 1,
     }
 }

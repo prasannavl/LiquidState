@@ -38,7 +38,7 @@ namespace LiquidState.Awaitable.Core
         public StateConfigurationHelper<TState, TTrigger> OnEntry(Func<Task> asyncAction)
         {
             currentStateRepresentation.OnEntryAction = asyncAction;
-            currentStateRepresentation.TransitionFlags |= AwaitableStateTransitionFlag.EntryReturnsTask;
+            currentStateRepresentation.TransitionFlags |= TransitionFlag.EntryReturnsTask;
 
             return this;
         }
@@ -52,7 +52,7 @@ namespace LiquidState.Awaitable.Core
         public StateConfigurationHelper<TState, TTrigger> OnExit(Func<Task> asyncAction)
         {
             currentStateRepresentation.OnExitAction = asyncAction;
-            currentStateRepresentation.TransitionFlags |= AwaitableStateTransitionFlag.ExitReturnsTask;
+            currentStateRepresentation.TransitionFlags |= TransitionFlag.ExitReturnsTask;
 
             return this;
         }
@@ -329,9 +329,10 @@ namespace LiquidState.Awaitable.Core
             if (FindTriggerRepresentation(trigger, currentStateRepresentation) != null)
                 ExceptionHelper.ThrowExclusiveOperation();
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(targetStatePredicate);
+            rep.NextStateRepresentationPredicate = targetStatePredicate;
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = null;
+            rep.TransitionFlags |= TransitionFlag.DynamicState;
 
             return this;
         }
@@ -347,10 +348,10 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(targetStatePredicate);
+            rep.NextStateRepresentationPredicate = targetStatePredicate;
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = null;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerActionReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerActionReturnsTask | TransitionFlag.DynamicState;
 
             return this;
         }
@@ -369,7 +370,7 @@ namespace LiquidState.Awaitable.Core
             rep.NextStateRepresentationPredicate = targetStatePredicate;
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = null;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.NextStateRepresentationIsTargetStateTask;
+            rep.TransitionFlags |= TransitionFlag.DynamicStateReturnsTask;
 
             return this;
         }
@@ -385,9 +386,10 @@ namespace LiquidState.Awaitable.Core
             if (FindTriggerRepresentation(trigger.Trigger, currentStateRepresentation) != null)
                 ExceptionHelper.ThrowExclusiveOperation();
             var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(targetStatePredicate);
+            rep.NextStateRepresentationPredicate = targetStatePredicate;
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = null;
+            rep.TransitionFlags |= TransitionFlag.DynamicState;
 
             return this;
         }
@@ -404,10 +406,10 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(targetStatePredicate);
+            rep.NextStateRepresentationPredicate = targetStatePredicate;
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = null;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerActionReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerActionReturnsTask | TransitionFlag.DynamicState;
 
             return this;
         }
@@ -427,7 +429,7 @@ namespace LiquidState.Awaitable.Core
             rep.NextStateRepresentationPredicate = targetStatePredicate;
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = null;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.NextStateRepresentationIsTargetStateTask;
+            rep.TransitionFlags |= TransitionFlag.DynamicStateReturnsTask;
 
             return this;
         }
@@ -446,8 +448,8 @@ namespace LiquidState.Awaitable.Core
             rep.NextStateRepresentationPredicate = targetStatePredicate;
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = null;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerActionReturnsTask |
-                                   AwaitableStateTransitionFlag.NextStateRepresentationIsTargetStateTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerActionReturnsTask |
+                                   TransitionFlag.DynamicStateReturnsTask;
 
             return this;
         }
@@ -467,8 +469,8 @@ namespace LiquidState.Awaitable.Core
             rep.NextStateRepresentationPredicate = targetStatePredicate;
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = null;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerActionReturnsTask |
-                                   AwaitableStateTransitionFlag.NextStateRepresentationIsTargetStateTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerActionReturnsTask |
+                                   TransitionFlag.DynamicStateReturnsTask;
 
             return this;
         }
@@ -539,7 +541,7 @@ namespace LiquidState.Awaitable.Core
 
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
 
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
+            rep.NextStateRepresentationPredicate = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = predicate;
 
@@ -557,7 +559,7 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
+            rep.NextStateRepresentationPredicate = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAction;
             rep.ConditionalTriggerPredicate = predicate;
 
@@ -575,11 +577,11 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
+            rep.NextStateRepresentationPredicate = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = predicate;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerPredicateReturnsTask;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerActionReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerPredicateReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerActionReturnsTask;
 
             return this;
         }
@@ -596,11 +598,11 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
+            rep.NextStateRepresentationPredicate = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = predicate;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerPredicateReturnsTask;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerActionReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerPredicateReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerActionReturnsTask;
 
             return this;
         }
@@ -616,10 +618,10 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
+            rep.NextStateRepresentationPredicate = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = predicate;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerActionReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerActionReturnsTask;
 
             return this;
         }
@@ -636,10 +638,10 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
+            rep.NextStateRepresentationPredicate = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = predicate;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerActionReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerActionReturnsTask;
 
             return this;
         }
@@ -656,10 +658,10 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
+            rep.NextStateRepresentationPredicate = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = predicate;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerPredicateReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerPredicateReturnsTask;
 
             return this;
         }
@@ -676,10 +678,10 @@ namespace LiquidState.Awaitable.Core
                 ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = CreateTriggerRepresentation(trigger.Trigger, currentStateRepresentation);
-            rep.NextStateRepresentationPredicate = GetNextStateRepresentationPredicate(resultingState);
+            rep.NextStateRepresentationPredicate = FindOrCreateStateRepresentation(resultingState, config);
             rep.OnTriggerAction = onEntryAsyncAction;
             rep.ConditionalTriggerPredicate = predicate;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerPredicateReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerPredicateReturnsTask;
 
             return this;
         }
@@ -711,43 +713,9 @@ namespace LiquidState.Awaitable.Core
             var rep = CreateTriggerRepresentation(trigger, currentStateRepresentation);
             rep.NextStateRepresentationPredicate = null;
             rep.ConditionalTriggerPredicate = predicate;
-            rep.TransitionFlags |= AwaitableStateTransitionFlag.TriggerPredicateReturnsTask;
+            rep.TransitionFlags |= TransitionFlag.TriggerPredicateReturnsTask;
 
             return this;
-        }
-
-        private Func<StateRepresentation<TState, TTrigger>> GetNextStateRepresentationPredicate(TState resultingState)
-        {
-            var stateRep = FindOrCreateStateRepresentation(resultingState, config);
-            return () => stateRep;
-        }
-
-        private Func<StateRepresentation<TState, TTrigger>> GetNextStateRepresentationPredicate(
-            Func<TState> targetStatePredicate)
-        {
-            var pack = new StateRepresentationPredicatedCreationHelper
-            {
-                Representations = config,
-                TargetStatePredicate = targetStatePredicate,
-            };
-
-            return () =>
-            {
-                var state = pack.TargetStatePredicate();
-                var rep = ExecutionHelper.FindStateRepresentation(state, pack.Representations);
-                if (rep == null)
-                {
-                    InvalidStateException<TState>.Throw(state);
-                }
-
-                return rep;
-            };
-        }
-
-        private struct StateRepresentationPredicatedCreationHelper
-        {
-            public Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
-            public Func<TState> TargetStatePredicate;
         }
     }
 }

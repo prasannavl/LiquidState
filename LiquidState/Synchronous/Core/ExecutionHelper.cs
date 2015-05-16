@@ -10,12 +10,23 @@ namespace LiquidState.Synchronous.Core
     {
         internal static void ThrowInTransition()
         {
-            throw new InvalidOperationException("State cannot be changed while in transition. Use AsyncStateMachine or a BlockingStateMachine for these semantics.");
+            throw new InvalidOperationException("State cannot be changed while already in transition. Tip: Use an asynchronous state machine such as QueuedStateMachine that has these parallel semantics for these to work out of the box.");
+        }
+
+        internal static bool CheckFlag(TransitionFlag source, TransitionFlag flagToCheck)
+        {
+            return (source & flagToCheck) == flagToCheck;
         }
 
         internal static void ExecuteAction(Action action)
         {
             if (action != null) action.Invoke();
+        }
+
+        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(TState initialState, Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
+        {
+            StateRepresentation<TState, TTrigger> rep;
+            return representations.TryGetValue(initialState, out rep) ? rep : null;
         }
 
         internal static void MoveToStateCore<TState, TTrigger>(TState state, StateTransitionOption option, RawStateMachineBase<TState, TTrigger> machine)
@@ -103,13 +114,26 @@ namespace LiquidState.Synchronous.Core
             }
             catch (InvalidCastException)
             {
-                InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                machine.RaiseInvalidTrigger(trigger);
             }
 
-            var nextStateRep = triggerRep.NextStateRepresentationPredicate();
+            StateRepresentation<TState, TTrigger> nextStateRep = null;
 
-            // Exceptions are handled during configuration. Simply return. 
-            if (nextStateRep == null) return;
+            if (CheckFlag(triggerRep.TransitionFlags,
+                TransitionFlag.DynamicState))
+            {
+                var state = ((Func<TState>) triggerRep.NextStateRepresentationPredicate)();
+                nextStateRep = FindStateRepresentation(state, machine.Representations);
+                if (nextStateRep == null)
+                {
+                    machine.RaiseInvalidState(state);
+                    return;
+                }
+            }
+            else
+            {
+                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationPredicate;
+            }
 
             machine.RaiseTransitionStarted(nextStateRep.State);
 
@@ -150,15 +174,32 @@ namespace LiquidState.Synchronous.Core
             }
             catch (InvalidCastException)
             {
-                InvalidTriggerParameterException<TTrigger>.Throw(trigger);
+                machine.RaiseInvalidTrigger(trigger);
             }
 
-            var nextStateRep = triggerRep.NextStateRepresentationPredicate();
+            StateRepresentation<TState, TTrigger> nextStateRep = null;
+
+            if (CheckFlag(triggerRep.TransitionFlags,
+                TransitionFlag.DynamicState))
+            {
+                var state = ((Func<TState>)triggerRep.NextStateRepresentationPredicate)();
+                nextStateRep = FindStateRepresentation(state, machine.Representations);
+                if (nextStateRep == null)
+                {
+                    machine.RaiseInvalidState(state);
+                    return;
+                }
+            }
+            else
+            {
+                nextStateRep = (StateRepresentation<TState, TTrigger>)triggerRep.NextStateRepresentationPredicate;
+            } 
+            
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit
             var currentExit = currentStateRepresentation.OnExitAction;
-            ExecutionHelper.ExecuteAction(currentExit);
+            ExecuteAction(currentExit);
 
             // Trigger entry
             if (triggerAction != null) triggerAction.Invoke(argument);
@@ -166,7 +207,7 @@ namespace LiquidState.Synchronous.Core
 
             // Next entry
             var nextEntry = nextStateRep.OnEntryAction;
-            ExecutionHelper.ExecuteAction(nextEntry);
+            ExecuteAction(nextEntry);
 
             var pastState = machine.CurrentState;
             machine.CurrentStateRepresentation = nextStateRep;
