@@ -1,114 +1,98 @@
 LiquidState
 ===========
 
-Efficient state machines for .NET with both synchronous and asynchronous support.  
-Heavily inspired by the excellent state machine library [**Stateless**](https://github.com/nblumhardt/stateless) by 
+Efficient state machines for .NET with both synchronous and asynchronous support.
+Heavily inspired by the excellent state machine library [**Stateless**](https://github.com/nblumhardt/stateless) by
 **Nicholas Blumhardt.**
 
 [![Build status](https://ci.appveyor.com/api/projects/status/6a1pmx2o3jaje60m/branch/master?svg=true)](https://ci.appveyor.com/project/prasannavl/liquidstate/branch/master) [![NuGet downloads](http://img.shields.io/nuget/dt/LiquidState.svg?style=flat)](https://www.nuget.org/packages/LiquidState)
 [![NuGet stable version](http://img.shields.io/nuget/v/LiquidState.svg?style=flat)](https://www.nuget.org/packages/LiquidState) [![NuGet pre version](http://img.shields.io/nuget/vpre/LiquidState.svg?style=flat)](https://www.nuget.org/packages/LiquidState)
 
-**NuGet:** 
+**NuGet:**
 
 > Install-Package LiquidState
- 
 
-- **v3 was a full rewrite with lock-free algorithms, and v4 now includes both thread-safe, and non-threadsafe variants with a both locking, and lock-free machines**
-  
+
 Supported Platforms:
-> PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android. 
+> PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android.
 
 
 **Available State Machines:**
 
-1. **StateMachine** - Fully synchronous. Not thread-safe.
-1. **BlockingStateMachine** - Fully synchornous. Blocking, but thread-safe.
-1. **AwaitableStateMachine** - Logically synchronous, but accepts Task and async methods and can be awaited. Not thread-safe.
-1. **AwaitableStateMachineWithScheduler** - Same as the AwaitableStateMachine, but takes a custom task scheduler which runs the state changes. Thread safety, and execution order is the responsibility of the scheduler. Its simply passes the actual raw change actions into the scheduler without any synchronization overheads.
-1. **AsyncStateMachine** - Fully asynchronous, thread-safe and is queued by default. 
+* **Both Synchronous and Awaitable\* :**
 
-**Note:** When AsyncStateMachine or AwaitableStateMachines are used with synchronous (non-task returning) methods, it is almost as fast as the synchronous StateMachine (the penalty is really negligible anyway, unless you're running a 10 millions state changes per second).
+    1. **RawStateMachine** - Directly, raw state machines. No protective abstractions or overheads. Typically used as a base for other machines.
+
+    1. **GuardedStateMachine** - Lock-free protection over raw state machine. Minimal statemachine for independant usage.
+
+* **Synchronous:**
+
+    1. **BlockingStateMachine** - Synchronized using Monitor and blocks until all of the requests are completed one by one. Order is not guareented due to the nature of locks.
+
+* **Awaitable:**
+
+    1. **ScheduledStateMachine** - Schedules the machine implementation to an external TaskScheduler. Thread-safety, order, and synchronization are the responsibility of the scheduler.
+
+    1. **QueuedStateMachine** - A lock-free implementation of a fully asynchronous queued statemachine. Order is guarenteed.
+
+\* - Awaitable state machines are a superset of asynchronous machines. All async machines are awaitable, but the opposite `may or may not` be true.
+
 
 ######Why LiquidState:
 
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
 - Builds a linked object graph internally during configuration making it a much faster and more efficient implementation than regular dictionary based implementations.
 - MoveToState, to move freely between states, without triggers.
-
-**Benchmarks**
-
-Comparing with Sync Machine of Stateless for 10 million state changes:
-
-```
-Count: 10000000
-Synchronous StateMachines - Stateless => Time taken: 00:00:21.5919263
-
-Count: 10000000
-Synchronous StateMachines - LiquidState => Time taken: 00:00:02.2374253
-
-Count: 10000000
-Synchronous StateMachines - LiquidState (Task/Async Awaitable) =>
-Time taken: 00:00:13.9579566
-
-Count: 10000000
-Asynchronous StateMachines - LiquidState => Time taken: 00:00:19.4116743
-
-```
-
-Benchmarking code, and libraries at: [https://github.com/prasannavl/Benchmarks](https://github.com/prasannavl/Benchmarks)
-
+- `PermitDynamic` to support selection of states dynamically on-the-fly.
 
 **APIs:**
 
-**IStateMachine:**
- 
+**IStateMachineCore:**
 ```c#
-    public interface IStateMachine<TState, TTrigger>
-    {
-        IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
-        TState CurrentState { get; }
-        bool IsEnabled { get; }
-        bool IsInTransition { get; }
-        bool CanHandleTrigger(TTrigger trigger);
-        bool CanTransitionTo(TState state);
-        void Fire<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, 
-            TArgument argument);
-        void Fire(TTrigger trigger);
-        void MoveToState(TState state, 
-            StateTransitionOption option = StateTransitionOption.Default);
-        void Pause();
-        void Resume();
-        event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        event Action<TState, TState> StateChanged;
-    }
+public interface IStateMachineCore<TState, TTrigger>
+{
+    IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
+    TState CurrentState { get; }
+    bool IsEnabled { get; }
+    void Pause();
+    void Resume();
+
+    event Action<TriggerStateEventArgs<TState, TTrigger>> UnhandledTrigger;
+    event Action<TransitionEventArgs<TState, TTrigger>> InvalidState;
+    event Action<TransitionEventArgs<TState, TTrigger>> TransitionStarted;
+    event Action<TransitionExecutedEventArgs<TState, TTrigger>> TransitionExecuted;
+}
 ```
 
-**IAwaitableStateMachine:**
+
+**Synchronous:**
 
 ```c#
- public interface IAwaitableStateMachine<TState, TTrigger>
-    {
-        IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
-        TState CurrentState { get; }
-        bool IsEnabled { get; }
-        bool IsInTransition { get; }
-        Task<bool> CanHandleTriggerAsync(TTrigger trigger);
-        bool CanTransitionTo(TState state);
+public interface IStateMachine<TState, TTrigger> :
+    IStateMachineCore<TState, TTrigger>
+{
+    void Fire<TArgument>(
+        ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, 
+        TArgument argument);
+    void Fire(TTrigger trigger);
+    void MoveToState(TState state, 
+        StateTransitionOption option = StateTransitionOption.Default);
+}
+```
 
-        Task FireAsync<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
-            TArgument argument);
+**Awaitable:**
 
-        Task FireAsync(TTrigger trigger);
-        Task MoveToState(TState state, 
-            StateTransitionOption option = StateTransitionOption.Default);
-        void Pause();
-        void Resume();
-
-        event Action<TTrigger, TState> UnhandledTriggerExecuted;
-        event Action<TState, TState> StateChanged;
-    }
+```c#
+public interface IStateMachine<TState, TTrigger> : 
+    IStateMachineCore<TState, TTrigger>
+{
+    Task FireAsync<TArgument>(
+        ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+        TArgument argument);
+    Task FireAsync(TTrigger trigger);
+    Task MoveToStateAsync(TState state, 
+        StateTransitionOption option = StateTransitionOption.Default);
+}
 ```
 
 **How To Use:**
@@ -134,12 +118,12 @@ var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
         .OnEntry(() => Console.WriteLine("OnEntry of Off"))
         .OnExit(() => Console.WriteLine("OnExit of Off"))
         .PermitReentry(Trigger.TurnOn)
-        .Permit(Trigger.Ring, State.Ringing, 
+        .Permit(Trigger.Ring, State.Ringing,
                 () => { Console.WriteLine("Attempting to ring"); })
-        .Permit(Trigger.Connect, State.Connected, 
+        .Permit(Trigger.Connect, State.Connected,
                 () => { Console.WriteLine("Connecting"); });
-                
-    var connectTriggerWithParameter = 
+
+    var connectTriggerWithParameter =
                 config.SetTriggerParameter<string>(Trigger.Connect);
 
     config.ForState(State.Ringing)
@@ -147,7 +131,7 @@ var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
         .OnExit(() => Console.WriteLine("OnExit of Ringing"))
         .Permit(connectTriggerWithParameter, State.Connected,
                 name => { Console.WriteLine("Attempting to connect to {0}", name); })
-        .Permit(Trigger.Talk, State.Talking, 
+        .Permit(Trigger.Talk, State.Talking,
                 () => { Console.WriteLine("Attempting to talk"); });
 ```
 
@@ -157,7 +141,7 @@ var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 var machine = StateMachineFactory.Create(State.Ringing, config);
 ```
 
-**Full examples:** 
+**Full examples:**
 
 A synchronous machine example:
 
@@ -168,12 +152,12 @@ A synchronous machine example:
         .OnEntry(() => Console.WriteLine("OnEntry of Off"))
         .OnExit(() => Console.WriteLine("OnExit of Off"))
         .PermitReentry(Trigger.TurnOn)
-        .Permit(Trigger.Ring, State.Ringing, 
+        .Permit(Trigger.Ring, State.Ringing,
                 () => { Console.WriteLine("Attempting to ring"); })
-        .Permit(Trigger.Connect, State.Connected, 
+        .Permit(Trigger.Connect, State.Connected,
                 () => { Console.WriteLine("Connecting"); });
 
-    var connectTriggerWithParameter = 
+    var connectTriggerWithParameter =
                 config.SetTriggerParameter<string>(Trigger.Connect);
 
     config.ForState(State.Ringing)
@@ -181,25 +165,25 @@ A synchronous machine example:
         .OnExit(() => Console.WriteLine("OnExit of Ringing"))
         .Permit(connectTriggerWithParameter, State.Connected,
                 name => { Console.WriteLine("Attempting to connect to {0}", name); })
-        .Permit(Trigger.Talk, State.Talking, 
+        .Permit(Trigger.Talk, State.Talking,
                 () => { Console.WriteLine("Attempting to talk"); });
 
     config.ForState(State.Connected)
         .OnEntry(() => Console.WriteLine("AOnEntry of Connected"))
         .OnExit(() => Console.WriteLine("AOnExit of Connected"))
         .PermitReentry(Trigger.Connect)
-        .Permit(Trigger.Talk, State.Talking, 
+        .Permit(Trigger.Talk, State.Talking,
               () => { Console.WriteLine("Attempting to talk"); })
-        .Permit(Trigger.TurnOn, State.Off, 
+        .Permit(Trigger.TurnOn, State.Off,
               () => { Console.WriteLine("Turning off"); });
 
 
     config.ForState(State.Talking)
         .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
         .OnExit(() => Console.WriteLine("OnExit of Talking"))
-        .Permit(Trigger.TurnOn, State.Off, 
+        .Permit(Trigger.TurnOn, State.Off,
               () => { Console.WriteLine("Turning off"); })
-        .Permit(Trigger.Ring, State.Ringing, 
+        .Permit(Trigger.Ring, State.Ringing,
               () => { Console.WriteLine("Attempting to ring"); });
 
     var machine = StateMachineFactory.Create(State.Ringing, config);
@@ -209,7 +193,7 @@ A synchronous machine example:
     machine.Fire(connectTriggerWithParameter, "John Doe");
 ```
 
-Now, let's take the same dumb, and terrible example, but now do it **asynchronously**!  
+Now, let's take the same dumb, and terrible example, but now do it **asynchronously**!
 (Mix and match synchronous code when you don't need asynchrony to avoid the costs.)
 
 ```c#
@@ -220,12 +204,12 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
         .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
         .OnExit(async () => Console.WriteLine("OnExit of Off"))
         .PermitReentry(Trigger.TurnOn)
-        .Permit(Trigger.Ring, State.Ringing, 
+        .Permit(Trigger.Ring, State.Ringing,
               async () => { Console.WriteLine("Attempting to ring"); })
-        .Permit(Trigger.Connect, State.Connected, 
+        .Permit(Trigger.Connect, State.Connected,
               async () => { Console.WriteLine("Connecting"); });
 
-    var connectTriggerWithParameter = 
+    var connectTriggerWithParameter =
                 config.SetTriggerParameter<string>(Trigger.Connect);
 
     config.ForState(State.Ringing)
@@ -233,24 +217,24 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
         .OnExit(() => Console.WriteLine("OnExit of Ringing"))
         .Permit(connectTriggerWithParameter, State.Connected,
                 name => { Console.WriteLine("Attempting to connect to {0}", name); })
-        .Permit(Trigger.Talk, State.Talking, 
+        .Permit(Trigger.Talk, State.Talking,
                 () => { Console.WriteLine("Attempting to talk"); });
 
     config.ForState(State.Connected)
         .OnEntry(async () => Console.WriteLine("AOnEntry of Connected"))
         .OnExit(async () => Console.WriteLine("AOnExit of Connected"))
         .PermitReentry(Trigger.Connect)
-        .Permit(Trigger.Talk, State.Talking, 
+        .Permit(Trigger.Talk, State.Talking,
               async () => { Console.WriteLine("Attempting to talk"); })
-        .Permit(Trigger.TurnOn, State.Off, 
+        .Permit(Trigger.TurnOn, State.Off,
               async () => { Console.WriteLine("Turning off"); });
 
     config.ForState(State.Talking)
         .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
         .OnExit(() => Console.WriteLine("OnExit of Talking"))
-        .Permit(Trigger.TurnOn, State.Off, 
+        .Permit(Trigger.TurnOn, State.Off,
               () => { Console.WriteLine("Turning off"); })
-        .Permit(Trigger.Ring, State.Ringing, 
+        .Permit(Trigger.Ring, State.Ringing,
               () => { Console.WriteLine("Attempting to ring"); });
 
     var machine = StateMachineFactory.Create(State.Ringing, config);
@@ -375,8 +359,13 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 ######v.5.0.0
 
 - Add `Task<bool> CanHandleTriggerAsync(TTrigger trigger);` to IAwaitableStateMachine
-- Make CanHandleTrigger check for predicates, if present. 
+- Make CanHandleTrigger check for predicates, if present.
 
 Breaking changes:
 
 - Removed `bool CanHandleTrigger(TTrigger trigger)` from it IAwaitableStateMachine. Has been replaced by the async version.
+
+######v.6.0.0
+
+- Complete rewrite, removed a lot of code duplication, and restructured.
+- Fully backward compatible when initialized with StateMachineFactory (the recommended way).
