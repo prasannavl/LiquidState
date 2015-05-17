@@ -1,5 +1,5 @@
 -
-    version: '6.0.0.{build}'
+    version: '6.0.1.{build}'
 
     ## -- Git --
 
@@ -8,7 +8,7 @@
       - master
     clone_depth: 1
     skip_commits:
-      message: '(?i)Update README(\.md)?$'
+      message: '(?i)Update README(\.md)?(\s*)$'
 
     ## -- Environment --
 

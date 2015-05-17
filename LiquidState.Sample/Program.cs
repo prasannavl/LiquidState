@@ -44,7 +44,7 @@ namespace LiquidState.Sample
                 .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(() => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
-                .Permit(Trigger.Ring, State.Ringing, () => { Console.WriteLine("Attempting to ring"); });
+                .PermitDynamic(Trigger.Ring, () => State.Ringing, () => { Console.WriteLine("Attempting to ring"); });
 
             var machine = StateMachineFactory.Create(State.Ringing, config);
 
@@ -85,12 +85,13 @@ namespace LiquidState.Sample
                 .OnEntry(async () => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(async () => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); })
-                .Permit(Trigger.Ring, State.Ringing, async () => { Console.WriteLine("Attempting to ring"); });
+                .PermitDynamic(Trigger.Ring, () => State.Ringing, async () => { Console.WriteLine("Attempting to ring"); });
 
             var machine = StateMachineFactory.Create(State.Ringing, config, queued: false);
 
             machine.FireAsync(Trigger.Talk).Wait();
             machine.FireAsync(Trigger.Ring).Wait();
+            machine.FireAsync(Trigger.Talk).Wait();
         }
 
         public static async Task LiquidStateAsyncTest()
