@@ -22,4 +22,4 @@ Supported Platforms:
 - MoveToState, to move freely between states, without triggers.
 - `PermitDynamic` to support selection of states dynamically on-the-fly.
 
-For documentation, examples on how to use, and release notes, please have a look at the [Wiki](https://github.com/prasannavl/LiquidState/wiki/Table-of-Contents). If you find something missing, or incomplete, please feel free to contribute :)  
+For documentation, examples on how to use, and release notes, please have a look at the [Wiki](https://github.com/prasannavl/LiquidState/wiki/Table-of-Contents). If you find something missing or incomplete, please feel free to contribute :)  
