@@ -87,7 +87,7 @@ namespace LiquidState.Sample
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); })
                 .Permit(Trigger.Ring, State.Ringing, async () => { Console.WriteLine("Attempting to ring"); });
 
-            var machine = StateMachineFactory.Create(State.Ringing, config, asyncMachine: false);
+            var machine = StateMachineFactory.Create(State.Ringing, config, queued: false);
 
             machine.FireAsync(Trigger.Talk).Wait();
             machine.FireAsync(Trigger.Ring).Wait();
@@ -130,7 +130,7 @@ namespace LiquidState.Sample
                 .PermitReentry(Trigger.Talk);
 
 
-            var machine = StateMachineFactory.Create(State.Ringing, config, asyncMachine: true);
+            var machine = StateMachineFactory.Create(State.Ringing, config, queued: true);
 
             var sw = Stopwatch.StartNew();
 
