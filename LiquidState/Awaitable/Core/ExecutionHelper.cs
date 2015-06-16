@@ -11,7 +11,8 @@ namespace LiquidState.Awaitable.Core
     {
         internal static void ThrowInTransition()
         {
-            throw new InvalidOperationException("State cannot be changed while already in transition. Tip: QueuedStateMachine has these parallel semantics which will work out of the box.");
+            throw new InvalidOperationException(
+                "State cannot be changed while already in transition. Tip: QueuedStateMachine has these parallel semantics which will work out of the box.");
         }
 
         internal static bool CheckFlag(TransitionFlag source, TransitionFlag flagToCheck)
@@ -19,26 +20,26 @@ namespace LiquidState.Awaitable.Core
             return (source & flagToCheck) == flagToCheck;
         }
 
-        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(TState initialState, Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
+        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(
+            TState initialState, Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
             StateRepresentation<TState, TTrigger> rep;
             return representations.TryGetValue(initialState, out rep) ? rep : null;
         }
 
-        internal static async Task MoveToStateCoreAsync<TState, TTrigger>(TState state, StateTransitionOption option, RawStateMachineBase<TState, TTrigger> machine)
+        internal static async Task MoveToStateCoreAsync<TState, TTrigger>(TState state, StateTransitionOption option,
+            RawStateMachineBase<TState, TTrigger> machine, bool raiseInvalidStates = true)
         {
-
             Contract.Requires(machine != null);
 
             StateRepresentation<TState, TTrigger> targetRep;
             if (machine.Representations.TryGetValue(state, out targetRep))
             {
-
-                var currentRep = machine.CurrentStateRepresentation;                
+                var currentRep = machine.CurrentStateRepresentation;
                 machine.RaiseTransitionStarted(targetRep.State);
 
                 if ((option & StateTransitionOption.CurrentStateExitTransition) ==
-                                    StateTransitionOption.CurrentStateExitTransition)
+                    StateTransitionOption.CurrentStateExitTransition)
                 {
                     if (CheckFlag(currentRep.TransitionFlags, TransitionFlag.ExitReturnsTask))
                     {
@@ -76,11 +77,14 @@ namespace LiquidState.Awaitable.Core
             }
             else
             {
-               machine.RaiseInvalidState(state);
+                if (raiseInvalidStates)
+                    machine.RaiseInvalidState(state);
             }
         }
 
-        internal static async Task<TriggerRepresentation<TTrigger, TState>> FindAndEvaluateTriggerRepresentationAsync<TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine)
+        internal static async Task<TriggerRepresentation<TTrigger, TState>> FindAndEvaluateTriggerRepresentationAsync
+            <TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine,
+                bool raiseInvalidTriggers = true)
         {
             Contract.Requires(machine != null);
 
@@ -89,27 +93,27 @@ namespace LiquidState.Awaitable.Core
 
             if (triggerRep == null)
             {
-                machine.RaiseInvalidTrigger(trigger);
+                if (raiseInvalidTriggers) machine.RaiseInvalidTrigger(trigger);
                 return null;
             }
 
             if (CheckFlag(triggerRep.TransitionFlags, TransitionFlag.TriggerPredicateReturnsTask))
             {
-                var predicate = (Func<Task<bool>>)triggerRep.ConditionalTriggerPredicate;
+                var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
                 if (predicate != null)
                     if (!await predicate())
                     {
-                        machine.RaiseInvalidTrigger(trigger);
+                        if (raiseInvalidTriggers) machine.RaiseInvalidTrigger(trigger);
                         return null;
                     }
             }
             else
             {
-                var predicate = (Func<bool>)triggerRep.ConditionalTriggerPredicate;
+                var predicate = (Func<bool>) triggerRep.ConditionalTriggerPredicate;
                 if (predicate != null)
                     if (!predicate())
                     {
-                        machine.RaiseInvalidTrigger(trigger);
+                        if (raiseInvalidTriggers) machine.RaiseInvalidTrigger(trigger);
                         return null;
                     }
             }
@@ -124,12 +128,14 @@ namespace LiquidState.Awaitable.Core
             return triggerRep;
         }
 
-        internal static async Task FireCoreAsync<TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine)
+        internal static async Task FireCoreAsync<TState, TTrigger>(TTrigger trigger,
+            RawStateMachineBase<TState, TTrigger> machine, bool raiseInvalidStateOrTrigger = true)
         {
             Contract.Requires(machine != null);
 
             var currentStateRepresentation = machine.CurrentStateRepresentation;
-            var triggerRep = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine);
+            var triggerRep =
+                await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, raiseInvalidStateOrTrigger);
             if (triggerRep == null)
                 return;
 
@@ -141,11 +147,12 @@ namespace LiquidState.Awaitable.Core
             {
                 try
                 {
-                    triggerFunc = (Func<Task>)triggerRep.OnTriggerAction;
+                    triggerFunc = (Func<Task>) triggerRep.OnTriggerAction;
                 }
                 catch (InvalidCastException)
                 {
-                    machine.RaiseInvalidTrigger(trigger);
+                    if (raiseInvalidStateOrTrigger)
+                        machine.RaiseInvalidTrigger(trigger);
                     return;
                 }
             }
@@ -153,11 +160,12 @@ namespace LiquidState.Awaitable.Core
             {
                 try
                 {
-                    triggerAction = (Action)triggerRep.OnTriggerAction;
+                    triggerAction = (Action) triggerRep.OnTriggerAction;
                 }
                 catch (InvalidCastException)
                 {
-                    machine.RaiseInvalidTrigger(trigger);
+                    if (raiseInvalidStateOrTrigger)
+                        machine.RaiseInvalidTrigger(trigger);
                     return;
                 }
             }
@@ -170,23 +178,24 @@ namespace LiquidState.Awaitable.Core
                 TState state;
                 if (CheckFlag(triggerRep.TransitionFlags, TransitionFlag.DynamicStateReturnsTask))
                 {
-                    state = await ((Func<Task<TState>>)triggerRep.NextStateRepresentationPredicate)();
+                    state = await ((Func<Task<TState>>) triggerRep.NextStateRepresentationPredicate)();
                 }
                 else
                 {
-                    state = ((Func<TState>)triggerRep.NextStateRepresentationPredicate)();
+                    state = ((Func<TState>) triggerRep.NextStateRepresentationPredicate)();
                 }
 
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
                 if (nextStateRep == null)
                 {
-                    machine.RaiseInvalidState(state);
+                    if (raiseInvalidStateOrTrigger)
+                        machine.RaiseInvalidState(state);
                     return;
                 }
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>)triggerRep.NextStateRepresentationPredicate;
+                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationPredicate;
             }
 
             machine.RaiseTransitionStarted(nextStateRep.State);
@@ -196,13 +205,13 @@ namespace LiquidState.Awaitable.Core
             if (CheckFlag(currentStateRepresentation.TransitionFlags,
                 TransitionFlag.ExitReturnsTask))
             {
-                var exit = (Func<Task>)currentStateRepresentation.OnExitAction;
+                var exit = (Func<Task>) currentStateRepresentation.OnExitAction;
                 if (exit != null)
                     await exit();
             }
             else
             {
-                var exit = (Action)currentStateRepresentation.OnExitAction;
+                var exit = (Action) currentStateRepresentation.OnExitAction;
                 if (exit != null) exit();
             }
 
@@ -237,14 +246,16 @@ namespace LiquidState.Awaitable.Core
         }
 
         internal static async Task FireCoreAsync<TState, TTrigger, TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument, RawStateMachineBase<TState, TTrigger> machine)
+            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument,
+            RawStateMachineBase<TState, TTrigger> machine, bool raiseInvalidStateOrTrigger = true)
         {
             Contract.Requires(machine != null);
 
             var currentStateRepresentation = machine.CurrentStateRepresentation;
             var trigger = parameterizedTrigger.Trigger;
 
-            var triggerRep = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine);
+            var triggerRep =
+                await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, raiseInvalidStateOrTrigger);
             if (triggerRep == null)
                 return;
 
@@ -256,11 +267,12 @@ namespace LiquidState.Awaitable.Core
             {
                 try
                 {
-                    triggerFunc = (Func<TArgument, Task>)triggerRep.OnTriggerAction;
+                    triggerFunc = (Func<TArgument, Task>) triggerRep.OnTriggerAction;
                 }
                 catch (InvalidCastException)
                 {
-                    machine.RaiseInvalidTrigger(trigger);
+                    if (raiseInvalidStateOrTrigger)
+                        machine.RaiseInvalidTrigger(trigger);
                     return;
                 }
             }
@@ -268,11 +280,12 @@ namespace LiquidState.Awaitable.Core
             {
                 try
                 {
-                    triggerAction = (Action<TArgument>)triggerRep.OnTriggerAction;
+                    triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
                 }
                 catch (InvalidCastException)
                 {
-                    machine.RaiseInvalidTrigger(trigger);
+                    if (raiseInvalidStateOrTrigger)
+                        machine.RaiseInvalidTrigger(trigger);
                     return;
                 }
             }
@@ -289,21 +302,22 @@ namespace LiquidState.Awaitable.Core
                 }
                 else
                 {
-                    state = ((Func<TState>)triggerRep.NextStateRepresentationPredicate)();
+                    state = ((Func<TState>) triggerRep.NextStateRepresentationPredicate)();
                 }
 
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
                 if (nextStateRep == null)
                 {
-                    machine.RaiseInvalidState(state);
+                    if (raiseInvalidStateOrTrigger)
+                        machine.RaiseInvalidState(state);
                     return;
                 }
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>)triggerRep.NextStateRepresentationPredicate;
+                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationPredicate;
             }
-            
+
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit
@@ -311,13 +325,13 @@ namespace LiquidState.Awaitable.Core
             if (CheckFlag(currentStateRepresentation.TransitionFlags,
                 TransitionFlag.ExitReturnsTask))
             {
-                var exit = (Func<Task>)currentStateRepresentation.OnExitAction;
+                var exit = (Func<Task>) currentStateRepresentation.OnExitAction;
                 if (exit != null)
                     await exit();
             }
             else
             {
-                var exit = (Action)currentStateRepresentation.OnExitAction;
+                var exit = (Action) currentStateRepresentation.OnExitAction;
                 if (exit != null) exit();
             }
 
@@ -336,13 +350,13 @@ namespace LiquidState.Awaitable.Core
 
             if (CheckFlag(nextStateRep.TransitionFlags, TransitionFlag.EntryReturnsTask))
             {
-                var entry = (Func<Task>)nextStateRep.OnEntryAction;
+                var entry = (Func<Task>) nextStateRep.OnEntryAction;
                 if (entry != null)
                     await entry();
             }
             else
             {
-                var entry = (Action)nextStateRep.OnEntryAction;
+                var entry = (Action) nextStateRep.OnEntryAction;
                 if (entry != null) entry();
             }
 

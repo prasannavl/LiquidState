@@ -10,7 +10,8 @@ namespace LiquidState.Synchronous.Core
     {
         internal static void ThrowInTransition()
         {
-            throw new InvalidOperationException("State cannot be changed while already in transition. Tip: Use an asynchronous state machine such as QueuedStateMachine that has these parallel semantics for these to work out of the box.");
+            throw new InvalidOperationException(
+                "State cannot be changed while already in transition. Tip: Use an asynchronous state machine such as QueuedStateMachine that has these parallel semantics for these to work out of the box.");
         }
 
         internal static bool CheckFlag(TransitionFlag source, TransitionFlag flagToCheck)
@@ -23,21 +24,21 @@ namespace LiquidState.Synchronous.Core
             if (action != null) action.Invoke();
         }
 
-        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(TState initialState, Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
+        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(
+            TState initialState, Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
             StateRepresentation<TState, TTrigger> rep;
             return representations.TryGetValue(initialState, out rep) ? rep : null;
         }
 
-        internal static void MoveToStateCore<TState, TTrigger>(TState state, StateTransitionOption option, RawStateMachineBase<TState, TTrigger> machine)
+        internal static void MoveToStateCore<TState, TTrigger>(TState state, StateTransitionOption option,
+            RawStateMachineBase<TState, TTrigger> machine, bool ignoreInvalidStates = false)
         {
-
             Contract.Requires(machine != null);
 
             StateRepresentation<TState, TTrigger> targetRep;
             if (machine.Representations.TryGetValue(state, out targetRep))
             {
-
                 var currentRep = machine.CurrentStateRepresentation;
                 machine.RaiseTransitionStarted(targetRep.State);
 
@@ -58,11 +59,13 @@ namespace LiquidState.Synchronous.Core
             }
             else
             {
-               machine.RaiseInvalidState(state);
+                if (!ignoreInvalidStates)
+                    machine.RaiseInvalidState(state);
             }
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> FindAndEvaluateTriggerRepresentation<TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine)
+        internal static TriggerRepresentation<TTrigger, TState> FindAndEvaluateTriggerRepresentation<TState, TTrigger>(
+            TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine, bool raiseInvalidTriggers = true)
         {
             Contract.Requires(machine != null);
 
@@ -71,7 +74,7 @@ namespace LiquidState.Synchronous.Core
 
             if (triggerRep == null)
             {
-                machine.RaiseInvalidTrigger(trigger);
+                if (raiseInvalidTriggers) machine.RaiseInvalidTrigger(trigger);
                 return null;
             }
 
@@ -81,7 +84,7 @@ namespace LiquidState.Synchronous.Core
             {
                 if (!predicate())
                 {
-                    machine.RaiseInvalidTrigger(trigger);
+                    if (raiseInvalidTriggers) machine.RaiseInvalidTrigger(trigger);
                     return null;
                 }
             }
@@ -96,12 +99,14 @@ namespace LiquidState.Synchronous.Core
             return triggerRep;
         }
 
-        internal static void FireCore<TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine)
+        internal static void FireCore<TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine,
+            bool raiseInvalidStateOrTrigger = true)
         {
             Contract.Requires(machine != null);
 
             var currentStateRepresentation = machine.CurrentStateRepresentation;
-            var triggerRep = FindAndEvaluateTriggerRepresentation(trigger, machine);
+            var triggerRep = FindAndEvaluateTriggerRepresentation(trigger, machine, raiseInvalidStateOrTrigger);
+
             if (triggerRep == null)
                 return;
 
@@ -110,11 +115,14 @@ namespace LiquidState.Synchronous.Core
             Action triggerAction = null;
             try
             {
-                triggerAction = (Action)triggerRep.OnTriggerAction;
+                triggerAction = (Action) triggerRep.OnTriggerAction;
             }
             catch (InvalidCastException)
             {
-                machine.RaiseInvalidTrigger(trigger);
+                if (raiseInvalidStateOrTrigger)
+                    machine.RaiseInvalidTrigger(trigger);
+
+                return;
             }
 
             StateRepresentation<TState, TTrigger> nextStateRep = null;
@@ -126,7 +134,8 @@ namespace LiquidState.Synchronous.Core
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
                 if (nextStateRep == null)
                 {
-                    machine.RaiseInvalidState(state);
+                    if (raiseInvalidStateOrTrigger)
+                        machine.RaiseInvalidState(state);
                     return;
                 }
             }
@@ -154,14 +163,15 @@ namespace LiquidState.Synchronous.Core
         }
 
         internal static void FireCore<TState, TTrigger, TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument, RawStateMachineBase<TState, TTrigger> machine)
+            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument,
+            RawStateMachineBase<TState, TTrigger> machine, bool raiseInvalidStateOrTrigger = true)
         {
             Contract.Requires(machine != null);
 
             var currentStateRepresentation = machine.CurrentStateRepresentation;
             var trigger = parameterizedTrigger.Trigger;
 
-            var triggerRep = FindAndEvaluateTriggerRepresentation(trigger, machine);
+            var triggerRep = FindAndEvaluateTriggerRepresentation(trigger, machine, raiseInvalidStateOrTrigger);
             if (triggerRep == null)
                 return;
 
@@ -170,11 +180,13 @@ namespace LiquidState.Synchronous.Core
             Action<TArgument> triggerAction = null;
             try
             {
-                triggerAction = (Action<TArgument>)triggerRep.OnTriggerAction;
+                triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
             }
             catch (InvalidCastException)
             {
-                machine.RaiseInvalidTrigger(trigger);
+                if (raiseInvalidStateOrTrigger)
+                    machine.RaiseInvalidTrigger(trigger);
+                return;
             }
 
             StateRepresentation<TState, TTrigger> nextStateRep = null;
@@ -182,19 +194,20 @@ namespace LiquidState.Synchronous.Core
             if (CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
-                var state = ((Func<TState>)triggerRep.NextStateRepresentationPredicate)();
+                var state = ((Func<TState>) triggerRep.NextStateRepresentationPredicate)();
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
                 if (nextStateRep == null)
                 {
-                    machine.RaiseInvalidState(state);
+                    if (raiseInvalidStateOrTrigger)
+                        machine.RaiseInvalidState(state);
                     return;
                 }
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>)triggerRep.NextStateRepresentationPredicate;
-            } 
-            
+                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationPredicate;
+            }
+
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit
