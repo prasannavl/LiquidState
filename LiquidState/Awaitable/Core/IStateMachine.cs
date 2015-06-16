@@ -19,6 +19,9 @@ namespace LiquidState.Awaitable.Core
             TArgument argument);
         Task FireAsync(TTrigger trigger);
         Task MoveToStateAsync(TState state, StateTransitionOption option = StateTransitionOption.Default);
+        Task<bool> CanHandleTriggerAsync(TTrigger trigger, bool exactMatch = false);
+        Task<bool> CanHandleTriggerAsync(TTrigger trigger, Type argumentType);
+        Task<bool> CanHandleTriggerAsync<TArgument>(TTrigger trigger);
     }
 
     [ContractClassFor(typeof (IStateMachine<,>))]
@@ -27,12 +30,20 @@ namespace LiquidState.Awaitable.Core
         public abstract Task MoveToStateAsync(TState state, StateTransitionOption option = StateTransitionOption.Default);
         public abstract void Pause();
         public abstract void Resume();
+        public abstract Task<bool> CanHandleTriggerAsync(TTrigger trigger, bool exactMatch = false);
+
+        public Task<bool> CanHandleTriggerAsync(TTrigger trigger, Type argumentType)
+        {
+            Contract.Requires<ArgumentNullException>(argumentType != null);
+            return default(Task<bool>);
+        }
+        public abstract Task<bool> CanHandleTriggerAsync<TArgument>(TTrigger trigger);
 
         public abstract event Action<TransitionExecutedEventArgs<TState, TTrigger>> TransitionExecuted;
 
         public Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
         {
-            Contract.Requires<NullReferenceException>(parameterizedTrigger != null);
+            Contract.Requires<ArgumentNullException>(parameterizedTrigger != null);
             return default(Task);
         }
 

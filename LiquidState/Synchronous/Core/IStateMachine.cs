@@ -17,12 +17,24 @@ namespace LiquidState.Synchronous.Core
         void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument);
         void Fire(TTrigger trigger);
         void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default);
+        bool CanHandleTrigger(TTrigger trigger, bool exactMatch = false);
+        bool CanHandleTrigger(TTrigger trigger, Type argumentType);
+        bool CanHandleTrigger<TArgument>(TTrigger trigger);
     }
 
     [ContractClassFor(typeof (IStateMachine<,>))]
     public abstract class StateMachineContract<TState, TTrigger> : IStateMachine<TState, TTrigger>
     {
         public abstract void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default);
+        public abstract bool CanHandleTrigger(TTrigger trigger, bool exactMatch = false);
+
+        public bool CanHandleTrigger(TTrigger trigger, Type argumentType)
+        {
+            Contract.Requires<ArgumentNullException>(argumentType != null);
+            return false;
+        }
+
+        public abstract bool CanHandleTrigger<TArgument>(TTrigger trigger);
         public abstract void Pause();
         public abstract void Resume();
 
@@ -30,7 +42,7 @@ namespace LiquidState.Synchronous.Core
 
         public void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument)
         {
-            Contract.Requires<NullReferenceException>(parameterizedTrigger != null);
+            Contract.Requires<ArgumentNullException>(parameterizedTrigger != null);
         }
 
         public abstract void Fire(TTrigger trigger);

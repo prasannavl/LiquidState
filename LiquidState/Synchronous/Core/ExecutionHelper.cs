@@ -24,6 +24,34 @@ namespace LiquidState.Synchronous.Core
             if (action != null) action.Invoke();
         }
 
+        internal static bool CanHandleTrigger<TState, TTrigger>(TTrigger trigger,
+            RawStateMachineBase<TState, TTrigger> machine, bool exactMatch = false)
+        {
+            var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
+            if (res == null) return false;
+
+            if (!exactMatch) return true;
+            return res.OnTriggerAction.GetType() == typeof (Action);
+        }
+
+        internal static bool CanHandleTrigger<TState, TTrigger>(TTrigger trigger,
+            RawStateMachineBase<TState, TTrigger> machine, Type argumentType)
+        {
+            var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
+            if (res == null) return false;
+
+            var type = typeof (Action<>).MakeGenericType(argumentType);
+            return res.OnTriggerAction.GetType() == type;
+        }
+
+        internal static bool CanHandleTrigger<TState, TTrigger, TArgument>(TTrigger trigger,
+            RawStateMachineBase<TState, TTrigger> machine)
+        {
+            var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
+            if (res == null) return false;
+            return res.OnTriggerAction.GetType() == typeof (Action<TArgument>);
+        }
+
         internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(
             TState initialState, Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
@@ -110,7 +138,7 @@ namespace LiquidState.Synchronous.Core
             if (triggerRep == null)
                 return;
 
-            // Catch invalid paramters before execution.
+            // Catch invalid parameters before execution.
 
             Action triggerAction = null;
             try

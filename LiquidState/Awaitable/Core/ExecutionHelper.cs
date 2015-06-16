@@ -27,6 +27,56 @@ namespace LiquidState.Awaitable.Core
             return representations.TryGetValue(initialState, out rep) ? rep : null;
         }
 
+        internal static async Task<bool> CanHandleTriggerAsync<TState, TTrigger>(TTrigger trigger,
+            RawStateMachineBase<TState, TTrigger> machine, bool exactMatch = false)
+        {
+            var res = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, false);
+            if (res == null) return false;
+
+            if (!exactMatch) return true;
+
+            var currentType = res.OnTriggerAction.GetType();
+            return CheckFlag(res.TransitionFlags, TransitionFlag.TriggerActionReturnsTask)
+                ? currentType == typeof (Func<Task>)
+                : currentType == typeof (Action);
+        }
+
+        internal static async Task<bool> CanHandleTriggerAsync<TState, TTrigger>(TTrigger trigger,
+            RawStateMachineBase<TState, TTrigger> machine, Type argumentType)
+        {
+            var res = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, false);
+            if (res == null) return false;
+
+            var currentType = res.OnTriggerAction.GetType();
+            if (CheckFlag(res.TransitionFlags, TransitionFlag.TriggerActionReturnsTask))
+            {
+                var targetType = typeof (Func<>).MakeGenericType(argumentType, typeof (Task));
+                return currentType == targetType;
+            }
+            else
+            {
+                var targetType = typeof (Action<>).MakeGenericType(argumentType);
+                return currentType == targetType;
+            }
+        }
+
+        internal static async Task<bool> CanHandleTriggerAsync<TState, TTrigger, TArgument>(TTrigger trigger,
+            RawStateMachineBase<TState, TTrigger> machine)
+        {
+            var res = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, false);
+            if (res == null) return false;
+
+            var currentType = res.OnTriggerAction.GetType();
+            if (CheckFlag(res.TransitionFlags, TransitionFlag.TriggerActionReturnsTask))
+            {
+                return currentType == typeof (Func<TArgument, Task>);
+            }
+            else
+            {
+                return currentType == typeof (Action<TArgument>);
+            }
+        }
+
         internal static async Task MoveToStateCoreAsync<TState, TTrigger>(TState state, StateTransitionOption option,
             RawStateMachineBase<TState, TTrigger> machine, bool raiseInvalidStates = true)
         {

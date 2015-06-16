@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using LiquidState.Common;
 using LiquidState.Core;
@@ -47,6 +48,21 @@ namespace LiquidState.Synchronous
         {
             if (!IsEnabled) return;
             ExecutionHelper.MoveToStateCore(state, option, this);
+        }
+
+        public bool CanHandleTrigger(TTrigger trigger, bool exactMatch = false)
+        {
+            return ExecutionHelper.CanHandleTrigger(trigger, this, exactMatch);
+        }
+
+        public bool CanHandleTrigger(TTrigger trigger, Type argumentType)
+        {
+            return ExecutionHelper.CanHandleTrigger(trigger, this, argumentType);
+        }
+
+        public bool CanHandleTrigger<TArgument>(TTrigger trigger)
+        {
+            return ExecutionHelper.CanHandleTrigger<TState, TTrigger, TArgument>(trigger, this);
         }
 
         public virtual void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,

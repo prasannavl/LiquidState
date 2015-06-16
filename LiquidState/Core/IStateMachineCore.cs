@@ -8,6 +8,7 @@ namespace LiquidState.Core
     {
         IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
         TState CurrentState { get; }
+
         bool IsEnabled { get; }
         void Pause();
         void Resume();
