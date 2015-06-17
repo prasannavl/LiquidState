@@ -129,6 +129,7 @@
     <Compile Include="Awaitable\GuardedStateMachine.cs" />
     <Compile Include="Awaitable\RawStateMachine.cs" />
     <Compile Include="Common\TaskHelpers.cs" />
+    <Compile Include="Core\DynamicState.cs" />
     <Compile Include="Core\TransitionEventArgs.cs" />
     <Compile Include="Core\Exceptions.cs" />
     <Compile Include="Common\ImmutableCollections.cs" />

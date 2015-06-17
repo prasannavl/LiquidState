@@ -30,6 +30,14 @@ namespace LiquidState.Synchronous.Core
             var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
             if (res == null) return false;
 
+            if (CheckFlag(res.TransitionFlags,
+                TransitionFlag.DynamicState))
+            {
+                var dynamicState = ((Func<DynamicState<TState>>) res.NextStateRepresentationWrapper)();
+                if (!dynamicState.CanTransition)
+                    return false;
+            }
+
             if (!exactMatch) return true;
             return res.OnTriggerAction.GetType() == typeof (Action);
         }
@@ -40,6 +48,14 @@ namespace LiquidState.Synchronous.Core
             var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
             if (res == null) return false;
 
+            if (CheckFlag(res.TransitionFlags,
+                TransitionFlag.DynamicState))
+            {
+                var dynamicState = ((Func<DynamicState<TState>>) res.NextStateRepresentationWrapper)();
+                if (!dynamicState.CanTransition)
+                    return false;
+            }
+
             var type = typeof (Action<>).MakeGenericType(argumentType);
             return res.OnTriggerAction.GetType() == type;
         }
@@ -49,6 +65,15 @@ namespace LiquidState.Synchronous.Core
         {
             var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
             if (res == null) return false;
+
+            if (CheckFlag(res.TransitionFlags,
+    TransitionFlag.DynamicState))
+            {
+                var dynamicState = ((Func<DynamicState<TState>>)res.NextStateRepresentationWrapper)();
+                if (!dynamicState.CanTransition)
+                    return false;
+            }
+
             return res.OnTriggerAction.GetType() == typeof (Action<TArgument>);
         }
 
@@ -119,7 +144,7 @@ namespace LiquidState.Synchronous.Core
 
             // Handle ignored trigger
 
-            if (triggerRep.NextStateRepresentationPredicate == null)
+            if (triggerRep.NextStateRepresentationWrapper == null)
             {
                 return null;
             }
@@ -158,8 +183,13 @@ namespace LiquidState.Synchronous.Core
             if (CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
-                var state = ((Func<TState>) triggerRep.NextStateRepresentationPredicate)();
+                var dynamicState = ((Func<DynamicState<TState>>)triggerRep.NextStateRepresentationWrapper)();
+                if (!dynamicState.CanTransition)
+                    return;
+
+                var state = dynamicState.ResultingState;
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
+
                 if (nextStateRep == null)
                 {
                     if (raiseInvalidStateOrTrigger)
@@ -169,7 +199,7 @@ namespace LiquidState.Synchronous.Core
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationPredicate;
+                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
             }
 
             machine.RaiseTransitionStarted(nextStateRep.State);
@@ -222,8 +252,13 @@ namespace LiquidState.Synchronous.Core
             if (CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
-                var state = ((Func<TState>) triggerRep.NextStateRepresentationPredicate)();
+                var dynamicState = ((Func<DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)();
+                if (!dynamicState.CanTransition)
+                    return;
+
+                var state = dynamicState.ResultingState;
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
+
                 if (nextStateRep == null)
                 {
                     if (raiseInvalidStateOrTrigger)
@@ -233,7 +268,7 @@ namespace LiquidState.Synchronous.Core
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationPredicate;
+                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
             }
 
             machine.RaiseTransitionStarted(nextStateRep.State);

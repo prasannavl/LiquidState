@@ -27,6 +27,22 @@ namespace LiquidState.Awaitable.Core
             return representations.TryGetValue(initialState, out rep) ? rep : null;
         }
 
+        internal static async Task<DynamicState<TState>?> GetValidatedDynamicTransition<TState, TTrigger>(
+            TriggerRepresentation<TTrigger, TState> triggerRep)
+        {
+            DynamicState<TState> dynamicState;
+            if (CheckFlag(triggerRep.TransitionFlags, TransitionFlag.DynamicStateReturnsTask))
+            {
+                dynamicState = await ((Func<Task<DynamicState<TState>>>) triggerRep.NextStateRepresentationWrapper)();
+            }
+            else
+            {
+                dynamicState = ((Func<DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)();
+            }
+
+            return dynamicState.CanTransition ? new DynamicState<TState>?(dynamicState) : null;
+        }
+
         internal static async Task<bool> CanHandleTriggerAsync<TState, TTrigger>(TTrigger trigger,
             RawStateMachineBase<TState, TTrigger> machine, bool exactMatch = false)
         {
@@ -34,6 +50,12 @@ namespace LiquidState.Awaitable.Core
             if (res == null) return false;
 
             if (!exactMatch) return true;
+
+            if (CheckFlag(res.TransitionFlags, TransitionFlag.DynamicState))
+            {
+                if (await GetValidatedDynamicTransition(res) == null)
+                    return false;
+            }
 
             var currentType = res.OnTriggerAction.GetType();
             return CheckFlag(res.TransitionFlags, TransitionFlag.TriggerActionReturnsTask)
@@ -46,6 +68,12 @@ namespace LiquidState.Awaitable.Core
         {
             var res = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, false);
             if (res == null) return false;
+
+            if (CheckFlag(res.TransitionFlags, TransitionFlag.DynamicState))
+            {
+                if (await GetValidatedDynamicTransition(res) == null)
+                    return false;
+            }
 
             var currentType = res.OnTriggerAction.GetType();
             if (CheckFlag(res.TransitionFlags, TransitionFlag.TriggerActionReturnsTask))
@@ -65,6 +93,12 @@ namespace LiquidState.Awaitable.Core
         {
             var res = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, false);
             if (res == null) return false;
+
+            if (CheckFlag(res.TransitionFlags, TransitionFlag.DynamicState))
+            {
+                if (await GetValidatedDynamicTransition(res) == null)
+                    return false;
+            }
 
             var currentType = res.OnTriggerAction.GetType();
             if (CheckFlag(res.TransitionFlags, TransitionFlag.TriggerActionReturnsTask))
@@ -170,7 +204,7 @@ namespace LiquidState.Awaitable.Core
 
             // Handle ignored trigger
 
-            if (triggerRep.NextStateRepresentationPredicate == null)
+            if (triggerRep.NextStateRepresentationWrapper == null)
             {
                 return null;
             }
@@ -225,15 +259,10 @@ namespace LiquidState.Awaitable.Core
             if (CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
-                TState state;
-                if (CheckFlag(triggerRep.TransitionFlags, TransitionFlag.DynamicStateReturnsTask))
-                {
-                    state = await ((Func<Task<TState>>) triggerRep.NextStateRepresentationPredicate)();
-                }
-                else
-                {
-                    state = ((Func<TState>) triggerRep.NextStateRepresentationPredicate)();
-                }
+                var dynamicState = await GetValidatedDynamicTransition(triggerRep);
+                if (dynamicState == null) return;
+
+                var state = dynamicState.Value.ResultingState;
 
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
                 if (nextStateRep == null)
@@ -245,7 +274,7 @@ namespace LiquidState.Awaitable.Core
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationPredicate;
+                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
             }
 
             machine.RaiseTransitionStarted(nextStateRep.State);
@@ -345,15 +374,10 @@ namespace LiquidState.Awaitable.Core
             if (CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
-                TState state;
-                if (CheckFlag(triggerRep.TransitionFlags, TransitionFlag.DynamicStateReturnsTask))
-                {
-                    state = await ((Func<Task<TState>>) triggerRep.NextStateRepresentationPredicate)();
-                }
-                else
-                {
-                    state = ((Func<TState>) triggerRep.NextStateRepresentationPredicate)();
-                }
+                var dynamicState = await GetValidatedDynamicTransition(triggerRep);
+                if (dynamicState == null) return;
+
+                var state = dynamicState.Value.ResultingState;
 
                 nextStateRep = FindStateRepresentation(state, machine.Representations);
                 if (nextStateRep == null)
@@ -365,7 +389,7 @@ namespace LiquidState.Awaitable.Core
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationPredicate;
+                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
             }
 
             machine.RaiseTransitionStarted(nextStateRep.State);

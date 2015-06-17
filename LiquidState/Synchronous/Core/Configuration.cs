@@ -28,7 +28,6 @@ namespace LiquidState.Synchronous.Core
         public StateConfigurationHelper<TState, TTrigger> ForState(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
-
             return new StateConfigurationHelper<TState, TTrigger>(Representations, state);
         }
 

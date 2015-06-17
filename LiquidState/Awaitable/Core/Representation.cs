@@ -34,7 +34,7 @@ namespace LiquidState.Awaitable.Core
     {
         public readonly TTrigger Trigger;
         public object ConditionalTriggerPredicate;
-        public object NextStateRepresentationPredicate;
+        public object NextStateRepresentationWrapper;
         public object OnTriggerAction;
         public TransitionFlag TransitionFlags;
 
