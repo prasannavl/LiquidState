@@ -262,6 +262,11 @@ namespace LiquidState.Synchronous.Core
             return stateRepresentation.Triggers.Find(x => x.Trigger.Equals(trigger));
         }
 
+        internal static bool CheckFlag(TransitionFlag source, TransitionFlag flagToCheck)
+        {
+            return (source & flagToCheck) == flagToCheck;
+        }
+
         private StateConfigurationHelper<TState, TTrigger> PermitInternal(Func<bool> predicate, TTrigger trigger,
             TState resultingState, Action onEntryAction)
         {

@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using LiquidState.Common;
 
 namespace LiquidState.Core
 {
     public interface IStateMachineCore<TState, TTrigger>
     {
-        IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
-
         TState CurrentState { get; }
 
         bool IsEnabled { get; }
@@ -20,8 +19,9 @@ namespace LiquidState.Core
         event Action<TransitionExecutedEventArgs<TState, TTrigger>> TransitionExecuted;
     }
 
-    public interface IStateMachineDiagnostics<TState, TTrigger>
+    public interface IStateMachineDiagnosticsCore<TState, TTrigger>
     {
         IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
     }
+
 }

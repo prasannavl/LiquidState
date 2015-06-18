@@ -24,7 +24,6 @@ namespace LiquidState.Core
 
         private int isEnabled = 1;
 
-        public abstract IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
         public abstract TState CurrentState { get; }
 
         public bool IsEnabled

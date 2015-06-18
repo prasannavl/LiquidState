@@ -7,26 +7,12 @@ using LiquidState.Synchronous.Core;
 
 namespace LiquidState.Synchronous
 {
-    public abstract class RawStateMachineBase<TState, TTrigger> : AbstractStateMachineCore<TState, TTrigger>, IStateMachine<TState, TTrigger>
+    public abstract class RawStateMachineBase<TState, TTrigger> : AbstractStateMachineCore<TState, TTrigger>,
+        IStateMachine<TState, TTrigger>
     {
         internal StateRepresentation<TState, TTrigger> CurrentStateRepresentation;
         internal Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
-
-        public override TState CurrentState
-        {
-            get { return CurrentStateRepresentation.State; }
-        }
-
-        public override IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get
-            {
-                foreach (var triggerRepresentation in CurrentStateRepresentation.Triggers)
-                {
-                    yield return triggerRepresentation.Trigger;
-                }
-            }
-        }
+        private readonly RawStateMachineDiagnostics<TState, TTrigger> diagnostics;
 
         protected RawStateMachineBase(TState initialState, Configuration<TState, TTrigger> configuration)
         {
@@ -42,27 +28,14 @@ namespace LiquidState.Synchronous
             {
                 InvalidStateException<TState>.Throw(initialState);
             }
+
+            diagnostics = new RawStateMachineDiagnostics<TState, TTrigger>(this);
         }
 
         public virtual void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
         {
             if (!IsEnabled) return;
             ExecutionHelper.MoveToStateCore(state, option, this);
-        }
-
-        public bool CanHandleTrigger(TTrigger trigger, bool exactMatch = false)
-        {
-            return ExecutionHelper.CanHandleTrigger(trigger, this, exactMatch);
-        }
-
-        public bool CanHandleTrigger(TTrigger trigger, Type argumentType)
-        {
-            return ExecutionHelper.CanHandleTrigger(trigger, this, argumentType);
-        }
-
-        public bool CanHandleTrigger<TArgument>(TTrigger trigger)
-        {
-            return ExecutionHelper.CanHandleTrigger<TState, TTrigger, TArgument>(trigger, this);
         }
 
         public virtual void Fire<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
@@ -76,6 +49,45 @@ namespace LiquidState.Synchronous
         {
             if (!IsEnabled) return;
             ExecutionHelper.FireCore(trigger, this);
+        }
+
+        public IStateMachineDiagnostics<TState, TTrigger> Diagnostics
+        {
+            get { return diagnostics; }
+        }
+
+        public override TState CurrentState
+        {
+            get { return CurrentStateRepresentation.State; }
+        }
+    }
+
+    public class RawStateMachineDiagnostics<TState, TTrigger> : IStateMachineDiagnostics<TState, TTrigger>
+    {
+        private readonly RawStateMachineBase<TState, TTrigger> machine;
+        public RawStateMachineDiagnostics(RawStateMachineBase<TState, TTrigger> machine)
+        {
+            this.machine = machine;
+        }
+
+        public bool CanHandleTrigger(TTrigger trigger, bool exactMatch = false)
+        {
+            return DiagnosticsHelper.CanHandleTrigger(trigger, machine, exactMatch);
+        }
+
+        public bool CanHandleTrigger(TTrigger trigger, Type argumentType)
+        {
+            return DiagnosticsHelper.CanHandleTrigger(trigger, machine, argumentType);
+        }
+
+        public bool CanHandleTrigger<TArgument>(TTrigger trigger)
+        {
+            return DiagnosticsHelper.CanHandleTrigger<TState, TTrigger, TArgument>(trigger, machine);
+        }
+
+        public IEnumerable<TTrigger> CurrentPermittedTriggers
+        {
+            get { return DiagnosticsHelper.EnumeratePermittedTriggers(machine); }
         }
     }
 

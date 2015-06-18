@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using LiquidState.Synchronous.Core;
 
 namespace LiquidState.Awaitable.Core
 {
