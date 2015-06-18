@@ -9,7 +9,7 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 [![NuGet stable version](http://img.shields.io/nuget/v/LiquidState.svg?style=flat)](https://www.nuget.org/packages/LiquidState) [![NuGet pre version](http://img.shields.io/nuget/vpre/LiquidState.svg?style=flat)](https://www.nuget.org/packages/LiquidState)
 
 Installation
-====
+----
 
 **NuGet:**
 
@@ -19,7 +19,7 @@ Installation
 > PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android.
 
 Highlights
-====
+----
 
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
 - Builds a linked object graph internally during configuration making it a much faster and more efficient implementation than regular dictionary based implementations.
@@ -28,22 +28,22 @@ Highlights
 - `Diagnostics` in-built to check for validity of triggers, and currently available triggers.
 
 Documentation
-====
+----
 
 For documentation, examples on how to use, and more detailed information, take a look at the [Wiki](https://github.com/prasannavl/LiquidState/wiki/Table-of-Contents).
 Documentation is still a work in progress, and any help is appreciated.
 
 
 Support
-====
+----
 
 - **Release Notes:** They're a part of the wiki, [here](https://github.com/prasannavl/LiquidState/wiki/Release-Notes).
 
-- **Bugs & Issues:** Please use the GitHub issue tracker if you'd like to report problems or discuss features. As always, do a priliminary search in the issue tracker for both `Closed` and `Open` issues before opening new ones.
+- **Bugs & Issues:** Please use the GitHub issue tracker [here](https://github.com/prasannavl/LiquidState/issues) if you'd like to report problems or discuss features. As always, do a preliminary search in the issue tracker before opening new ones - (*Tip:* include pull requests, closed, and open issues: *[Exhaustive search](https://github.com/prasannavl/LiquidState/issues?q=)* ).
 
 
 Contributions
-====
+----
 
 If this project has helped you, the best way to `say thanks` is to contribute back :)
 
