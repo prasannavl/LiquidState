@@ -47,6 +47,8 @@ Contributions
 
 If this project has helped you, the best way to `say thanks` is to contribute back :)
 
+Any commits into the `master` branch will be automatically built and deployed as `pre-release` nuget packages.
+
 - **Wiki and documentation:** Feel free to add new, modify out-dated or remove irrelevant information. Infact, this is a very important part the project currently that currently lags behind - Any contributions are highly appreciated.
 
 - **Non-invasive contributions:** Direct pull requests for bug-fixes and any contributions that do not include conceptual changes, or introduce new features are welcome, and much appreciated :)
