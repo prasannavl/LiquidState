@@ -23,7 +23,8 @@ Highlights
 
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
 - Builds a linked object graph internally during configuration making it a much faster and more efficient implementation than regular dictionary based implementations.
-- MoveToState, to move freely between states, without triggers.
+- Both synchronous, and asynchronous machines with full support for `async-await`.
+- `MoveToState`, to move freely between states, without triggers.
 - `PermitDynamic` to support selection of states dynamically on-the-fly.
 - `Diagnostics` in-built to check for validity of triggers, and currently available triggers.
 
@@ -37,9 +38,9 @@ Documentation is still a work in progress, and any help is appreciated.
 Support
 ----
 
-- **Release Notes:** They're a part of the wiki, [here](https://github.com/prasannavl/LiquidState/wiki/Release-Notes).
+- **Release notes:** They're a part of the wiki, [here](https://github.com/prasannavl/LiquidState/wiki/Release-Notes).
 
-- **Bugs & Issues:** Please use the GitHub issue tracker [here](https://github.com/prasannavl/LiquidState/issues) if you'd like to report problems or discuss features. As always, do a preliminary search in the issue tracker before opening new ones - (*Tip:* include pull requests, closed, and open issues: *[Exhaustive search](https://github.com/prasannavl/LiquidState/issues?q=)* ).
+- **Bugs, issues & feature requests:** Please use the GitHub issue tracker [here](https://github.com/prasannavl/LiquidState/issues) if you'd like to report problems or discuss features. As always, do a preliminary search in the issue tracker before opening new ones - (*Tip:* include pull requests, closed, and open issues: *[Exhaustive search](https://github.com/prasannavl/LiquidState/issues?q=)* ).
 
 
 Contributions
