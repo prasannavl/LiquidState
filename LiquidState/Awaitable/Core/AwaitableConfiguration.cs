@@ -11,31 +11,31 @@ using LiquidState.Core;
 
 namespace LiquidState.Awaitable.Core
 {
-    public class Configuration<TState, TTrigger>
+    public class AwaitableConfiguration<TState, TTrigger>
     {
-        internal readonly Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
+        internal readonly Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> Representations;
 
-        internal Configuration(int statesConfigStoreInitalCapacity = 4)
+        internal AwaitableConfiguration(int statesConfigStoreInitalCapacity = 4)
         {
             Contract.Ensures(Representations != null);
 
             Representations =
-                new Dictionary<TState, StateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
+                new Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
         }
 
-        internal Configuration(
-            Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
+        internal AwaitableConfiguration(
+            Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> representations)
         {
             Contract.Ensures(representations != null);
 
             Representations = representations;
         }
 
-        public StateConfigurationHelper<TState, TTrigger> ForState(TState state)
+        public AwaitableStateConfigurationHelper<TState, TTrigger> ForState(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
 
-            return new StateConfigurationHelper<TState, TTrigger>(Representations, state);
+            return new AwaitableStateConfigurationHelper<TState, TTrigger>(Representations, state);
         }
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)
@@ -44,11 +44,11 @@ namespace LiquidState.Awaitable.Core
             return new ParameterizedTrigger<TTrigger, TArgument>(trigger);
         }
 
-        internal StateRepresentation<TState, TTrigger> GetInitialStateRepresentation(TState initialState)
+        internal AwaitableStateRepresentation<TState, TTrigger> GetInitialStateRepresentation(TState initialState)
         {
             Contract.Requires(initialState != null);
 
-            StateRepresentation<TState, TTrigger> rep;
+            AwaitableStateRepresentation<TState, TTrigger> rep;
             return Representations.TryGetValue(initialState, out rep) ? rep : Representations.Values.FirstOrDefault();
         }
     }

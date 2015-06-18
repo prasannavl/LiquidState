@@ -13,14 +13,14 @@ using LiquidState.Core;
 
 namespace LiquidState.Awaitable
 {
-    public abstract class ScheduledStateMachineBase<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
+    public abstract class ScheduledAwaitableStateMachineBase<TState, TTrigger> : RawAwaitableStateMachineBase<TState, TTrigger>
     {
-        protected ScheduledStateMachineBase(TState initialState,
-            Configuration<TState, TTrigger> configuration, TaskScheduler scheduler)
-            : base(initialState, configuration)
+        protected ScheduledAwaitableStateMachineBase(TState initialState,
+            AwaitableConfiguration<TState, TTrigger> awaitableConfiguration, TaskScheduler scheduler)
+            : base(initialState, awaitableConfiguration)
         {
             Contract.Requires(initialState != null);
-            Contract.Requires(configuration != null);
+            Contract.Requires(awaitableConfiguration != null);
             Contract.Requires(scheduler != null);
 
             Scheduler = scheduler;
@@ -51,13 +51,13 @@ namespace LiquidState.Awaitable
         } 
     }
 
-    public sealed class ScheduledStateMachine<TState, TTrigger> : ScheduledStateMachineBase<TState, TTrigger>
+    public sealed class ScheduledAwaitableStateMachine<TState, TTrigger> : ScheduledAwaitableStateMachineBase<TState, TTrigger>
     {
-        public ScheduledStateMachine(TState initialState, Configuration<TState, TTrigger> configuration,
+        public ScheduledAwaitableStateMachine(TState initialState, AwaitableConfiguration<TState, TTrigger> awaitableConfiguration,
             TaskScheduler scheduler)
-            : base(initialState, configuration, scheduler)
+            : base(initialState, awaitableConfiguration, scheduler)
         {
-            Contract.Requires(configuration != null);
+            Contract.Requires(awaitableConfiguration != null);
             Contract.Requires(initialState != null);
         }
     }

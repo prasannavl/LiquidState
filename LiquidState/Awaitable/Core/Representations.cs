@@ -6,18 +6,19 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using LiquidState.Synchronous.Core;
 
 namespace LiquidState.Awaitable.Core
 {
-    internal class StateRepresentation<TState, TTrigger>
+    internal class AwaitableStateRepresentation<TState, TTrigger>
     {
         public readonly TState State;
-        public readonly List<TriggerRepresentation<TTrigger, TState>> Triggers;
+        public readonly List<AwaitableTriggerRepresentation<TTrigger, TState>> Triggers;
         public object OnEntryAction;
         public object OnExitAction;
-        public TransitionFlag TransitionFlags;
+        public AwaitableTransitionFlag AwaitableTransitionFlags;
 
-        internal StateRepresentation(TState state)
+        internal AwaitableStateRepresentation(TState state)
         {
             Contract.Requires(state != null);
 
@@ -26,19 +27,19 @@ namespace LiquidState.Awaitable.Core
 
             State = state;
             // Allocate with capacity as 1 to avoid wastage of memory.
-            Triggers = new List<TriggerRepresentation<TTrigger, TState>>(1);
+            Triggers = new List<AwaitableTriggerRepresentation<TTrigger, TState>>(1);
         }
     }
 
-    internal class TriggerRepresentation<TTrigger, TState>
+        internal class AwaitableTriggerRepresentation<TTrigger, TState>
     {
         public readonly TTrigger Trigger;
         public object ConditionalTriggerPredicate;
         public object NextStateRepresentationWrapper;
         public object OnTriggerAction;
-        public TransitionFlag TransitionFlags;
-
-        internal TriggerRepresentation(TTrigger trigger)
+        public AwaitableTransitionFlag AwaitableTransitionFlags;
+            
+        internal AwaitableTriggerRepresentation(TTrigger trigger)
         {
             Contract.Requires(trigger != null);
             Contract.Ensures(Trigger != null);
@@ -48,7 +49,7 @@ namespace LiquidState.Awaitable.Core
     }
 
     [Flags]
-    internal enum TransitionFlag
+    internal enum AwaitableTransitionFlag
     {
         None = 0,
         EntryReturnsTask = 1,

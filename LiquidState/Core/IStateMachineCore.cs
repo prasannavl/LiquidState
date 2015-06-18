@@ -7,6 +7,7 @@ namespace LiquidState.Core
     public interface IStateMachineCore<TState, TTrigger>
     {
         IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
+
         TState CurrentState { get; }
 
         bool IsEnabled { get; }
