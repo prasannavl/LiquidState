@@ -19,4 +19,9 @@ namespace LiquidState.Core
         event Action<TransitionEventArgs<TState, TTrigger>> TransitionStarted;
         event Action<TransitionExecutedEventArgs<TState, TTrigger>> TransitionExecuted;
     }
+
+    public interface IStateMachineDiagnostics<TState, TTrigger>
+    {
+        IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
+    }
 }
