@@ -50,8 +50,6 @@ If this project has helped you, the best way to `say thanks` is to contribute ba
 
 Any commits into the `master` branch will be automatically built and deployed as `pre-release` nuget packages.
 
-- **Wiki and documentation:** Feel free to add new, modify out-dated or remove irrelevant information.
-
-- **Non-invasive contributions:** Direct pull requests for bug-fixes and any contributions that do not include conceptual changes, or introduce new features are welcome, and much appreciated :)
+- **Non-invasive contributions:** Feel free to add new, modify out-dated or remove irrelevant information to the wiki and documention any time. Direct pull requests for bug-fixes and any contributions that do not include conceptual changes, or introduce new features are welcome, and much appreciated :)
 
 - **Invasive contributions:** Any contribution that may introduce new API surface, features, or includes either conceptual or implementational changes are considered invasive. It is **highly recommended** that an issue is opened first (which will be labelled accordingly), so that design notes or at-least a quick review on the direction is discussed, before any large effort is made. There's nothing I hate more than good contributions that go unmerged.
