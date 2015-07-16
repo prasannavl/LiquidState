@@ -50,7 +50,6 @@ namespace LiquidState.Sample
 
             var machine = StateMachineFactory.Create(State.Ringing, config);
 
-
             machine.Fire(Trigger.Talk);
             machine.Fire(Trigger.Ring);
         }
