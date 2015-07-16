@@ -32,6 +32,8 @@ namespace LiquidState.Synchronous.Core
                 representations);
         }
 
+        #region Entry and Exit
+
         public StateConfiguration<TState, TTrigger> OnEntry(Action action)
         {
             return StateConfigurationMethodHelper.OnEntry(this, t => action());
@@ -52,103 +54,9 @@ namespace LiquidState.Synchronous.Core
             return StateConfigurationMethodHelper.OnExit(this, t => action());
         }
 
-        public StateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
+        #endregion
 
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State, null);
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger, Action onEntryAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
-                t => onEntryAction());
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger,
-            Action<Transition<TState, TTrigger>> onEntryAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
-                onEntryAction);
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentry<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> trigger, Action<TArgument> onEntryAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
-                (t, a) => onEntryAction(a));
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentry<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
-                onEntryAction);
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State, null);
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger,
-            Action onEntryAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
-                t => onEntryAction());
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger,
-            Action<Transition<TState, TTrigger>> onEntryAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
-                onEntryAction);
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentryIf<TArgument>(Func<bool> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Action<TArgument> onEntryAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
-                (t, a) => onEntryAction(a));
-        }
-
-        public StateConfiguration<TState, TTrigger> PermitReentryIf<TArgument>(Func<bool> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
-                onEntryAction);
-        }
+        #region Permit
 
         public StateConfiguration<TState, TTrigger> Permit(TTrigger trigger, TState resultingState)
         {
@@ -156,20 +64,6 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires(resultingState != null);
 
             return StateConfigurationMethodHelper.Permit(this, null, trigger, resultingState, null);
-        }
-
-        public StateConfiguration<TState, TTrigger> Ignore(TTrigger trigger)
-        {
-            Contract.Requires(trigger != null);
-
-            return StateConfigurationMethodHelper.Ignore(this, null, trigger);
-        }
-
-        public StateConfiguration<TState, TTrigger> IgnoreIf(Func<bool> predicate, TTrigger trigger)
-        {
-            Contract.Requires(trigger != null);
-
-            return StateConfigurationMethodHelper.Ignore(this, predicate, trigger);
         }
 
         public StateConfiguration<TState, TTrigger> Permit(TTrigger trigger, TState resultingState,
@@ -210,6 +104,10 @@ namespace LiquidState.Synchronous.Core
 
             return StateConfigurationMethodHelper.Permit(this, null, trigger, resultingState, onEntryAction);
         }
+
+        #endregion
+
+        #region PermitIf
 
         public StateConfiguration<TState, TTrigger> PermitIf(Func<bool> predicate, TTrigger trigger,
             TState resultingState)
@@ -259,6 +157,135 @@ namespace LiquidState.Synchronous.Core
             return StateConfigurationMethodHelper.Permit(this, predicate, trigger, resultingState, onEntryAction);
         }
 
+        #endregion
+
+        #region PermitReentry
+
+        public StateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State, null);
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger, Action onEntryAction)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
+                t => onEntryAction());
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger,
+            Action<Transition<TState, TTrigger>> onEntryAction)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
+                onEntryAction);
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitReentry<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger, Action<TArgument> onEntryAction)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
+                (t, a) => onEntryAction(a));
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitReentry<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
+                onEntryAction);
+        }
+
+        #endregion
+
+        #region PermitReentryIf
+
+        public StateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
+                null);
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger,
+            Action onEntryAction)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
+                t => onEntryAction());
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger,
+            Action<Transition<TState, TTrigger>> onEntryAction)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
+                onEntryAction);
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitReentryIf<TArgument>(Func<bool> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Action<TArgument> onEntryAction)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
+                (t, a) => onEntryAction(a));
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitReentryIf<TArgument>(Func<bool> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
+        {
+            Contract.Requires(trigger != null);
+            Contract.Assume(CurrentStateRepresentation.State != null);
+
+            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
+                onEntryAction);
+        }
+
+        #endregion
+
+        #region Ignore and IgnoreIf
+
+        public StateConfiguration<TState, TTrigger> Ignore(TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+
+            return StateConfigurationMethodHelper.Ignore(this, null, trigger);
+        }
+
+        public StateConfiguration<TState, TTrigger> IgnoreIf(Func<bool> predicate, TTrigger trigger)
+        {
+            Contract.Requires(trigger != null);
+
+            return StateConfigurationMethodHelper.Ignore(this, predicate, trigger);
+        }
+
+        #endregion
+
+        #region Dynamic
+
         public StateConfiguration<TState, TTrigger> PermitDynamic(TTrigger trigger,
             Func<DynamicState<TState>> targetStatePredicate,
             Action onEntryAction)
@@ -302,5 +329,7 @@ namespace LiquidState.Synchronous.Core
             return StateConfigurationMethodHelper.PermitDynamic(this, trigger, targetStatePredicate,
                 (t, a) => onEntryAction(a));
         }
+
+        #endregion
     }
 }
