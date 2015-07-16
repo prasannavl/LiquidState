@@ -30,14 +30,14 @@ namespace LiquidState.Awaitable.Core
         }
     }
 
-        internal class AwaitableTriggerRepresentation<TTrigger, TState>
+    internal class AwaitableTriggerRepresentation<TTrigger, TState>
     {
         public readonly TTrigger Trigger;
         public object ConditionalTriggerPredicate;
         public object NextStateRepresentationWrapper;
         public object OnTriggerAction;
         public AwaitableTransitionFlag AwaitableTransitionFlags;
-            
+
         internal AwaitableTriggerRepresentation(TTrigger trigger)
         {
             Contract.Requires(trigger != null);

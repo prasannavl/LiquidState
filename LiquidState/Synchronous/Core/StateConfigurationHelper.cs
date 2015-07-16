@@ -5,25 +5,27 @@ namespace LiquidState.Synchronous.Core
 {
     internal static class StateConfigurationHelper
     {
-        internal static StateRepresentation<TState, TTrigger> FindOrCreateStateRepresentation<TState, TTrigger>(TState state,
-            Dictionary<TState, StateRepresentation<TState, TTrigger>> config)
+        internal static StateRepresentation<TState, TTrigger> FindOrCreateStateRepresentation<TState, TTrigger>(
+            TState state,
+            Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
             Contract.Requires(state != null);
-            Contract.Requires(config != null);
+            Contract.Requires(representations != null);
 
             Contract.Ensures(Contract.Result<StateRepresentation<TState, TTrigger>>() != null);
 
             StateRepresentation<TState, TTrigger> rep;
-            if (config.TryGetValue(state, out rep))
+            if (representations.TryGetValue(state, out rep))
             {
                 return rep;
             }
 
-            rep = CreateStateRepresentation(state, config);
+            rep = CreateStateRepresentation(state, representations);
             return rep;
         }
 
-        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(TState initialState,
+        internal static StateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(
+            TState initialState,
             Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
             StateRepresentation<TState, TTrigger> rep;
@@ -31,37 +33,40 @@ namespace LiquidState.Synchronous.Core
         }
 
         internal static StateRepresentation<TState, TTrigger> CreateStateRepresentation<TState, TTrigger>(TState state,
-            Dictionary<TState, StateRepresentation<TState, TTrigger>> config)
+            Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
             var rep = new StateRepresentation<TState, TTrigger>(state);
-            config[state] = rep;
+            representations[state] = rep;
             return rep;
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> FindOrCreateTriggerRepresentation<TTrigger, TState>(TTrigger trigger,
-            StateRepresentation<TState, TTrigger> stateRepresentation)
+        internal static TriggerRepresentation<TTrigger, TState> FindOrCreateTriggerRepresentation<TTrigger, TState>(
+            TTrigger trigger,
+            StateRepresentation<TState, TTrigger> representation)
         {
-            Contract.Requires(stateRepresentation != null);
+            Contract.Requires(representation != null);
             Contract.Requires(trigger != null);
 
             Contract.Ensures(Contract.Result<TriggerRepresentation<TTrigger, TState>>() != null);
 
-            var rep = FindTriggerRepresentation(trigger, stateRepresentation);
-            return rep ?? CreateTriggerRepresentation(trigger, stateRepresentation);
+            var rep = FindTriggerRepresentation(trigger, representation);
+            return rep ?? CreateTriggerRepresentation(trigger, representation);
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> CreateTriggerRepresentation<TTrigger, TState>(TTrigger trigger,
-            StateRepresentation<TState, TTrigger> stateRepresentation)
+        internal static TriggerRepresentation<TTrigger, TState> CreateTriggerRepresentation<TTrigger, TState>(
+            TTrigger trigger,
+            StateRepresentation<TState, TTrigger> representation)
         {
             var rep = new TriggerRepresentation<TTrigger, TState>(trigger);
-            stateRepresentation.Triggers.Add(rep);
+            representation.Triggers.Add(rep);
             return rep;
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> FindTriggerRepresentation<TTrigger, TState>(TTrigger trigger,
-            StateRepresentation<TState, TTrigger> stateRepresentation)
+        internal static TriggerRepresentation<TTrigger, TState> FindTriggerRepresentation<TTrigger, TState>(
+            TTrigger trigger,
+            StateRepresentation<TState, TTrigger> representation)
         {
-            return stateRepresentation.Triggers.Find(x => x.Trigger.Equals(trigger));
+            return representation.Triggers.Find(x => x.Trigger.Equals(trigger));
         }
 
         internal static bool CheckFlag(TransitionFlag source, TransitionFlag flagToCheck)
