@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
+using LiquidState.Awaitable.Core;
 using LiquidState.Core;
 
 namespace LiquidState.Sample
@@ -86,7 +87,8 @@ namespace LiquidState.Sample
                 .OnEntry(async () => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(async () => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, async () => { Console.WriteLine("Turning off"); })
-                .PermitDynamic(Trigger.Ring, () => DynamicState.Create<State>(State.Ringing), async () => { Console.WriteLine("Attempting to ring"); });
+                .PermitDynamic(Trigger.Ring, () => DynamicState.Create(State.Ringing),
+                    async () => { Console.WriteLine("Attempting to ring"); });
 
             var machine = StateMachineFactory.Create(State.Ringing, config, queued: false);
 
