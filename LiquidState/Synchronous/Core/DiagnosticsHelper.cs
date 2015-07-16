@@ -69,7 +69,7 @@ namespace LiquidState.Synchronous.Core
             }
 
             if (!exactMatch) return true;
-            return res.OnTriggerAction.GetType() == typeof (Action);
+            return res.OnTriggerAction.GetType() == typeof(Action<Transition<TState, TTrigger>>);
         }
 
         internal static bool CanHandleTrigger<TState, TTrigger>(TTrigger trigger,
@@ -86,7 +86,7 @@ namespace LiquidState.Synchronous.Core
                     return false;
             }
 
-            var type = typeof (Action<>).MakeGenericType(argumentType);
+            var type = typeof(Action<,>).MakeGenericType(typeof(Transition <TState, TTrigger>), argumentType);
             return res.OnTriggerAction.GetType() == type;
         }
 
@@ -104,7 +104,7 @@ namespace LiquidState.Synchronous.Core
                     return false;
             }
 
-            return res.OnTriggerAction.GetType() == typeof (Action<TArgument>);
+            return res.OnTriggerAction.GetType() == typeof (Action<Transition<TState, TTrigger>, TArgument>);
         }
     }
 }

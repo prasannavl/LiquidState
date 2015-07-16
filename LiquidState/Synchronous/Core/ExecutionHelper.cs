@@ -14,9 +14,9 @@ namespace LiquidState.Synchronous.Core
                 "State cannot be changed while already in transition. Tip: Use an asynchronous state machine such as QueuedStateMachine that has these parallel semantics for these to work out of the box.");
         }
 
-        internal static void ExecuteAction(Action action)
+        internal static void ExecuteAction<TState, TTrigger>(Action<Transition<TState, TTrigger>> action, Transition<TState, TTrigger> transition)
         {
-            if (action != null) action.Invoke();
+            if (action != null) action.Invoke(transition);
         }
 
         internal static void MoveToStateCore<TState, TTrigger>(TState state, StateTransitionOption option,
@@ -30,15 +30,17 @@ namespace LiquidState.Synchronous.Core
                 var currentRep = machine.CurrentStateRepresentation;
                 machine.RaiseTransitionStarted(targetRep.State);
 
+                var transition = new Transition<TState, TTrigger>(currentRep.State, state);
+
                 if ((option & StateTransitionOption.CurrentStateExitTransition) ==
                     StateTransitionOption.CurrentStateExitTransition)
                 {
-                    ExecuteAction(currentRep.OnExitAction);
+                    ExecuteAction(currentRep.OnExitAction, transition);
                 }
                 if ((option & StateTransitionOption.NewStateEntryTransition) ==
                     StateTransitionOption.NewStateEntryTransition)
                 {
-                    ExecuteAction(targetRep.OnEntryAction);
+                    ExecuteAction(targetRep.OnEntryAction, transition);
                 }
 
                 var pastState = currentRep.State;
@@ -66,10 +68,10 @@ namespace LiquidState.Synchronous.Core
 
             // Catch invalid parameters before execution.
 
-            Action triggerAction = null;
+            Action<Transition<TState, TTrigger>> triggerAction = null;
             try
             {
-                triggerAction = (Action) triggerRep.OnTriggerAction;
+                triggerAction = (Action<Transition<TState, TTrigger>>)triggerRep.OnTriggerAction;
             }
             catch (InvalidCastException)
             {
@@ -104,18 +106,20 @@ namespace LiquidState.Synchronous.Core
                 nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
             }
 
+            var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State);
+
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit
             var currentExit = currentStateRepresentation.OnExitAction;
-            ExecuteAction(currentExit);
+            ExecuteAction(currentExit, transition);
 
             // Trigger entry
-            ExecuteAction(triggerAction);
+            ExecuteAction(triggerAction, transition);
 
             // Next entry
             var nextEntry = nextStateRep.OnEntryAction;
-            ExecuteAction(nextEntry);
+            ExecuteAction(nextEntry, transition);
 
             var pastState = machine.CurrentState;
             machine.CurrentStateRepresentation = nextStateRep;
@@ -138,10 +142,10 @@ namespace LiquidState.Synchronous.Core
 
             // Catch invalid parameters before execution.
 
-            Action<TArgument> triggerAction = null;
+            Action<Transition<TState, TTrigger>, TArgument> triggerAction = null;
             try
             {
-                triggerAction = (Action<TArgument>) triggerRep.OnTriggerAction;
+                triggerAction = (Action<Transition<TState, TTrigger>, TArgument>) triggerRep.OnTriggerAction;
             }
             catch (InvalidCastException)
             {
@@ -175,19 +179,21 @@ namespace LiquidState.Synchronous.Core
                 nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
             }
 
+            var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State);
+
             machine.RaiseTransitionStarted(nextStateRep.State);
 
             // Current exit
             var currentExit = currentStateRepresentation.OnExitAction;
-            ExecuteAction(currentExit);
-
+            ExecuteAction(currentExit, transition);
+            
             // Trigger entry
-            if (triggerAction != null) triggerAction.Invoke(argument);
+            if (triggerAction != null) triggerAction.Invoke(transition, argument);
 
 
             // Next entry
             var nextEntry = nextStateRep.OnEntryAction;
-            ExecuteAction(nextEntry);
+            ExecuteAction(nextEntry, transition);
 
             var pastState = machine.CurrentState;
             machine.CurrentStateRepresentation = nextStateRep;

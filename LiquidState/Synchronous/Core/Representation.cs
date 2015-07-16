@@ -6,6 +6,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
+using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core
 {
@@ -13,8 +14,8 @@ namespace LiquidState.Synchronous.Core
     {
         public readonly TState State;
         public readonly List<TriggerRepresentation<TTrigger, TState>> Triggers;
-        public Action OnEntryAction;
-        public Action OnExitAction;
+        public Action<Transition<TState, TTrigger>>  OnEntryAction;
+        public Action<Transition<TState, TTrigger>> OnExitAction;
 
         internal StateRepresentation(TState state)
         {
