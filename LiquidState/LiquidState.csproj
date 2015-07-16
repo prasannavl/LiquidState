@@ -131,7 +131,7 @@
     <Compile Include="Awaitable\RawAwaitableStateMachine.cs" />
     <Compile Include="Common\TaskHelpers.cs" />
     <Compile Include="Core\DynamicState.cs" />
-    <Compile Include="Core\TransitionEventArgs.cs" />
+    <Compile Include="Core\Transition.cs" />
     <Compile Include="Core\Exceptions.cs" />
     <Compile Include="Common\ImmutableCollections.cs" />
     <Compile Include="Common\InterlockedHelpers.cs" />
@@ -139,6 +139,7 @@
     <Compile Include="Core\StateTransitionOptions.cs" />
     <Compile Include="Common\Validation.cs" />
     <Compile Include="Awaitable\Core\AwaitableStateConfigurationHelper.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Synchronous\Core\DiagnosticsHelper.cs" />
     <Compile Include="Synchronous\Core\StateConfigurationHelper.cs" />
     <Compile Include="Core\AbstractStateMachineCore.cs" />
