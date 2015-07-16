@@ -28,6 +28,8 @@ namespace LiquidState.Synchronous.Core
             if (machine.Representations.TryGetValue(state, out targetRep))
             {
                 var currentRep = machine.CurrentStateRepresentation;
+                Contract.Assume(currentRep != null);
+
                 machine.RaiseTransitionStarted(targetRep.State);
 
                 var transition = new Transition<TState, TTrigger>(currentRep.State, state);
@@ -60,6 +62,9 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires(machine != null);
 
             var currentStateRepresentation = machine.CurrentStateRepresentation;
+            Contract.Assume(currentStateRepresentation != null);
+
+
             var triggerRep = DiagnosticsHelper.FindAndEvaluateTriggerRepresentation(trigger, machine,
                 raiseInvalidStateOrTrigger);
 
@@ -106,6 +111,8 @@ namespace LiquidState.Synchronous.Core
                 nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
             }
 
+            Contract.Assume(nextStateRep != null);
+
             var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State);
 
             machine.RaiseTransitionStarted(nextStateRep.State);
@@ -133,6 +140,8 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires(machine != null);
 
             var currentStateRepresentation = machine.CurrentStateRepresentation;
+            Contract.Assume(currentStateRepresentation != null);
+
             var trigger = parameterizedTrigger.Trigger;
 
             var triggerRep = DiagnosticsHelper.FindAndEvaluateTriggerRepresentation(trigger, machine,
@@ -178,6 +187,8 @@ namespace LiquidState.Synchronous.Core
             {
                 nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
             }
+
+            Contract.Assume(nextStateRep != null);
 
             var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State);
 

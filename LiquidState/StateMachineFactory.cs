@@ -57,7 +57,10 @@ namespace LiquidState
             Func<IAwaitableStateMachine<TState, TTrigger>> stateMachineFunc,
             bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
+            Contract.Requires<ArgumentNullException>(stateMachineFunc != null);
+
             var sm = stateMachineFunc();
+            if (sm == null) throw new InvalidOperationException("State machine must be initializable");
             Configure(sm, throwOnInvalidTriggers, throwOnInvalidState);
             return sm;
         }
@@ -66,7 +69,11 @@ namespace LiquidState
             Func<IStateMachine<TState, TTrigger>> stateMachineFunc,
             bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
+            Contract.Requires<ArgumentNullException>(stateMachineFunc != null);
+
             var sm = stateMachineFunc();
+            if (sm == null) throw new InvalidOperationException("State machine must be initializable");
+
             Configure(sm, throwOnInvalidTriggers, throwOnInvalidState);
             return sm;
         }
