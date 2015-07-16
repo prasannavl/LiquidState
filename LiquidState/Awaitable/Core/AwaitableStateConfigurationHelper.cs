@@ -541,7 +541,7 @@ namespace LiquidState.Awaitable.Core
             return awaitableStateRepresentation.Triggers.Find(x => x.Trigger.Equals(trigger));
         }
 
-        internal static AwaitableStateRepresentation<TState, TTrigger> FindStateRepresentation<TState, TTrigger>(
+        internal static AwaitableStateRepresentation<TState, TTrigger> FindStateRepresentation(
             TState initialState, Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> representations)
         {
             AwaitableStateRepresentation<TState, TTrigger> rep;

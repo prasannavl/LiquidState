@@ -1,0 +1,131 @@
+using System;
+using System.Diagnostics.Contracts;
+using LiquidState.Core;
+
+namespace LiquidState.Synchronous.Core
+{
+    internal static class StateConfigurationMethodHelper
+    {
+        internal static StateConfiguration<TState, TTrigger> OnEntry<TState, TTrigger>(
+            StateConfiguration<TState, TTrigger> config, Action<Transition<TState, TTrigger>> action)
+        {
+            config.CurrentStateRepresentation.OnEntryAction = action;
+            return config;
+        }
+
+        internal static StateConfiguration<TState, TTrigger> OnExit<TState, TTrigger>(
+            StateConfiguration<TState, TTrigger> config, Action<Transition<TState, TTrigger>> action)
+        {
+            config.CurrentStateRepresentation.OnExitAction = action;
+            return config;
+        }
+
+        internal static StateConfiguration<TState, TTrigger> Permit<TState, TTrigger>(
+            StateConfiguration<TState, TTrigger> config, Func<bool> predicate, TTrigger trigger,
+            TState resultingState, Action<Transition<TState, TTrigger>> onEntryAction)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(resultingState != null);
+
+            if (StateConfigurationHelper.FindTriggerRepresentation(trigger, config.CurrentStateRepresentation) !=
+                null)
+                ExceptionHelper.ThrowExclusiveOperation();
+
+            var rep = StateConfigurationHelper.CreateTriggerRepresentation(trigger,
+                config.CurrentStateRepresentation);
+            rep.NextStateRepresentationWrapper = StateConfigurationHelper.FindOrCreateStateRepresentation(
+                resultingState, config.Representations);
+            rep.OnTriggerAction = onEntryAction;
+            rep.ConditionalTriggerPredicate = predicate;
+
+            return config;
+        }
+
+        internal static StateConfiguration<TState, TTrigger> Permit<TArgument, TState, TTrigger>(
+            StateConfiguration<TState, TTrigger> config, Func<bool> predicate,
+            ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
+            Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(resultingState != null);
+
+            if (
+                StateConfigurationHelper.FindTriggerRepresentation(trigger.Trigger,
+                    config.CurrentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
+
+            var rep = StateConfigurationHelper.CreateTriggerRepresentation(trigger.Trigger,
+                config.CurrentStateRepresentation);
+            rep.NextStateRepresentationWrapper =
+                StateConfigurationHelper.FindOrCreateStateRepresentation(resultingState,
+                    config.Representations);
+            rep.OnTriggerAction = onEntryAction;
+            rep.ConditionalTriggerPredicate = predicate;
+
+            return config;
+        }
+
+        internal static StateConfiguration<TState, TTrigger> PermitDynamic<TState, TTrigger>(
+            StateConfiguration<TState, TTrigger> config, TTrigger trigger,
+            Func<DynamicState<TState>> targetStatePredicate, Action<Transition<TState, TTrigger>> onEntryAction)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(targetStatePredicate != null);
+
+            if (
+                StateConfigurationHelper.FindTriggerRepresentation<TTrigger, TState>(trigger,
+                    config.CurrentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
+
+            var rep = StateConfigurationHelper.CreateTriggerRepresentation<TTrigger, TState>(trigger,
+                config.CurrentStateRepresentation);
+            rep.NextStateRepresentationWrapper = targetStatePredicate;
+            rep.OnTriggerAction = onEntryAction;
+            rep.ConditionalTriggerPredicate = null;
+            rep.TransitionFlags |= TransitionFlag.DynamicState;
+
+            return config;
+        }
+
+        internal static StateConfiguration<TState, TTrigger> PermitDynamic<TArgument, TState, TTrigger>(
+            StateConfiguration<TState, TTrigger> config, ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<DynamicState<TState>> targetStatePredicate,
+            Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(targetStatePredicate != null);
+
+            if (
+                StateConfigurationHelper.FindTriggerRepresentation<TTrigger, TState>(trigger.Trigger,
+                    config.CurrentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
+
+            var rep = StateConfigurationHelper.CreateTriggerRepresentation<TTrigger, TState>(trigger.Trigger,
+                config.CurrentStateRepresentation);
+            rep.NextStateRepresentationWrapper = targetStatePredicate;
+            rep.OnTriggerAction = onEntryAction;
+            rep.ConditionalTriggerPredicate = null;
+            rep.TransitionFlags |= TransitionFlag.DynamicState;
+
+            return config;
+        }
+
+        internal static StateConfiguration<TState, TTrigger> Ignore<TState, TTrigger>(
+            StateConfiguration<TState, TTrigger> config, Func<bool> predicate, TTrigger trigger)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+
+            if (
+                StateConfigurationHelper.FindTriggerRepresentation<TTrigger, TState>(trigger,
+                    config.CurrentStateRepresentation) != null)
+                ExceptionHelper.ThrowExclusiveOperation();
+
+            var rep = StateConfigurationHelper.CreateTriggerRepresentation<TTrigger, TState>(trigger,
+                config.CurrentStateRepresentation);
+            rep.NextStateRepresentationWrapper = null;
+            rep.ConditionalTriggerPredicate = predicate;
+
+            return config;
+        }
+    }
+}

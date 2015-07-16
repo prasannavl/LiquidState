@@ -21,7 +21,7 @@ namespace LiquidState.Synchronous
 
             Representations = configuration.Representations;
 
-            CurrentStateRepresentation = StateConfigurationHelper<TState, TTrigger>.FindStateRepresentation(
+            CurrentStateRepresentation = StateConfigurationHelper.FindStateRepresentation(
                 initialState, Representations);
 
             if (CurrentStateRepresentation == null)

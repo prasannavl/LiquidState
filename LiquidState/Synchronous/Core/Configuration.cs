@@ -25,10 +25,10 @@ namespace LiquidState.Synchronous.Core
             Representations = representations;
         }
 
-        public StateConfigurationHelper<TState, TTrigger> ForState(TState state)
+        public StateConfiguration<TState, TTrigger> ForState(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
-            return new StateConfigurationHelper<TState, TTrigger>(Representations, state);
+            return new StateConfiguration<TState, TTrigger>(Representations, state);
         }
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)

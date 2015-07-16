@@ -24,7 +24,7 @@ namespace LiquidState.Synchronous.Core
         {
             Contract.Requires(machine != null);
 
-            var triggerRep = StateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+            var triggerRep = StateConfigurationHelper.FindTriggerRepresentation(trigger,
                 machine.CurrentStateRepresentation);
 
             if (triggerRep == null)
@@ -60,7 +60,7 @@ namespace LiquidState.Synchronous.Core
             var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
             if (res == null) return false;
 
-            if (StateConfigurationHelper<TState, TTrigger>.CheckFlag(res.TransitionFlags,
+            if (StateConfigurationHelper.CheckFlag(res.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
                 var dynamicState = ((Func<DynamicState<TState>>) res.NextStateRepresentationWrapper)();
@@ -78,7 +78,7 @@ namespace LiquidState.Synchronous.Core
             var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
             if (res == null) return false;
 
-            if (StateConfigurationHelper<TState, TTrigger>.CheckFlag(res.TransitionFlags,
+            if (StateConfigurationHelper.CheckFlag(res.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
                 var dynamicState = ((Func<DynamicState<TState>>) res.NextStateRepresentationWrapper)();
@@ -96,7 +96,7 @@ namespace LiquidState.Synchronous.Core
             var res = FindAndEvaluateTriggerRepresentation(trigger, machine, false);
             if (res == null) return false;
 
-            if (StateConfigurationHelper<TState, TTrigger>.CheckFlag(res.TransitionFlags,
+            if (StateConfigurationHelper.CheckFlag(res.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
                 var dynamicState = ((Func<DynamicState<TState>>) res.NextStateRepresentationWrapper)();

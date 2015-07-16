@@ -83,7 +83,7 @@ namespace LiquidState.Synchronous.Core
 
             StateRepresentation<TState, TTrigger> nextStateRep = null;
 
-            if (StateConfigurationHelper<TState, TTrigger>.CheckFlag(triggerRep.TransitionFlags,
+            if (StateConfigurationHelper.CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
                 var dynamicState = ((Func<DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)();
@@ -91,7 +91,7 @@ namespace LiquidState.Synchronous.Core
                     return;
 
                 var state = dynamicState.ResultingState;
-                nextStateRep = StateConfigurationHelper<TState, TTrigger>.FindStateRepresentation(state,
+                nextStateRep = StateConfigurationHelper.FindStateRepresentation(state,
                     machine.Representations);
 
                 if (nextStateRep == null)
@@ -156,7 +156,7 @@ namespace LiquidState.Synchronous.Core
 
             StateRepresentation<TState, TTrigger> nextStateRep = null;
 
-            if (StateConfigurationHelper<TState, TTrigger>.CheckFlag(triggerRep.TransitionFlags,
+            if (StateConfigurationHelper.CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
                 var dynamicState = ((Func<DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)();
@@ -164,7 +164,7 @@ namespace LiquidState.Synchronous.Core
                     return;
 
                 var state = dynamicState.ResultingState;
-                nextStateRep = StateConfigurationHelper<TState, TTrigger>.FindStateRepresentation(state,
+                nextStateRep = StateConfigurationHelper.FindStateRepresentation(state,
                     machine.Representations);
 
                 if (nextStateRep == null)
