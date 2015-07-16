@@ -31,11 +31,11 @@ namespace LiquidState.Awaitable.Core
             Representations = representations;
         }
 
-        public AwaitableStateConfigurationHelper<TState, TTrigger> ForState(TState state)
+        public AwaitableStateConfiguration<TState, TTrigger> ForState(TState state)
         {
             Contract.Requires<ArgumentNullException>(state != null);
 
-            return new AwaitableStateConfigurationHelper<TState, TTrigger>(Representations, state);
+            return new AwaitableStateConfiguration<TState, TTrigger>(Representations, state);
         }
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)

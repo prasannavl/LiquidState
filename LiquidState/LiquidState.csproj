@@ -126,6 +126,8 @@
     </Compile>
     <Compile Include="Awaitable\Core\AwaitableDiagnosticsHelper.cs" />
     <Compile Include="Awaitable\Core\AwaitableExecutionHelper.cs" />
+    <Compile Include="Awaitable\Core\AwaitableStateConfigurationHelper.cs" />
+    <Compile Include="Awaitable\Core\AwaitableStateConfigurationMethodHelper.cs" />
     <Compile Include="Awaitable\Core\IAwaitableStateMachine.cs" />
     <Compile Include="Awaitable\GuardedAwaitableStateMachine.cs" />
     <Compile Include="Awaitable\RawAwaitableStateMachine.cs" />
@@ -138,7 +140,7 @@
     <Compile Include="Core\ParameterizedTrigger.cs" />
     <Compile Include="Core\StateTransitionOptions.cs" />
     <Compile Include="Common\Validation.cs" />
-    <Compile Include="Awaitable\Core\AwaitableStateConfigurationHelper.cs" />
+    <Compile Include="Awaitable\Core\AwaitableStateConfiguration.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Synchronous\Core\DiagnosticsHelper.cs" />
     <Compile Include="Synchronous\Core\StateConfiguration.cs" />

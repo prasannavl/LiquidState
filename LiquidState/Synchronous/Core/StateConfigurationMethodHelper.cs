@@ -73,11 +73,11 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires<ArgumentNullException>(targetStatePredicate != null);
 
             if (
-                StateConfigurationHelper.FindTriggerRepresentation<TTrigger, TState>(trigger,
+                StateConfigurationHelper.FindTriggerRepresentation(trigger,
                     config.CurrentStateRepresentation) != null)
                 ExceptionHelper.ThrowExclusiveOperation();
 
-            var rep = StateConfigurationHelper.CreateTriggerRepresentation<TTrigger, TState>(trigger,
+            var rep = StateConfigurationHelper.CreateTriggerRepresentation(trigger,
                 config.CurrentStateRepresentation);
             rep.NextStateRepresentationWrapper = targetStatePredicate;
             rep.OnTriggerAction = onEntryAction;
@@ -96,11 +96,11 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires<ArgumentNullException>(targetStatePredicate != null);
 
             if (
-                StateConfigurationHelper.FindTriggerRepresentation<TTrigger, TState>(trigger.Trigger,
+                StateConfigurationHelper.FindTriggerRepresentation(trigger.Trigger,
                     config.CurrentStateRepresentation) != null)
                 ExceptionHelper.ThrowExclusiveOperation();
 
-            var rep = StateConfigurationHelper.CreateTriggerRepresentation<TTrigger, TState>(trigger.Trigger,
+            var rep = StateConfigurationHelper.CreateTriggerRepresentation(trigger.Trigger,
                 config.CurrentStateRepresentation);
             rep.NextStateRepresentationWrapper = targetStatePredicate;
             rep.OnTriggerAction = onEntryAction;
@@ -116,11 +116,11 @@ namespace LiquidState.Synchronous.Core
             Contract.Requires<ArgumentNullException>(trigger != null);
 
             if (
-                StateConfigurationHelper.FindTriggerRepresentation<TTrigger, TState>(trigger,
+                StateConfigurationHelper.FindTriggerRepresentation(trigger,
                     config.CurrentStateRepresentation) != null)
                 ExceptionHelper.ThrowExclusiveOperation();
 
-            var rep = StateConfigurationHelper.CreateTriggerRepresentation<TTrigger, TState>(trigger,
+            var rep = StateConfigurationHelper.CreateTriggerRepresentation(trigger,
                 config.CurrentStateRepresentation);
             rep.NextStateRepresentationWrapper = null;
             rep.ConditionalTriggerPredicate = predicate;

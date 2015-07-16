@@ -29,7 +29,7 @@ namespace LiquidState.Awaitable.Core
                     StateTransitionOption.CurrentStateExitTransition)
                 {
                     if (
-                        AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(
+                        AwaitableStateConfigurationHelper.CheckFlag(
                             currentRep.AwaitableTransitionFlags, AwaitableTransitionFlag.ExitReturnsTask))
                     {
                         var action = currentRep.OnExitAction as Func<Task>;
@@ -46,7 +46,7 @@ namespace LiquidState.Awaitable.Core
                 if ((option & StateTransitionOption.NewStateEntryTransition) ==
                     StateTransitionOption.NewStateEntryTransition)
                 {
-                    if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(
+                    if (AwaitableStateConfigurationHelper.CheckFlag(
                         targetRep.AwaitableTransitionFlags, AwaitableTransitionFlag.EntryReturnsTask))
                     {
                         var action = targetRep.OnEntryAction as Func<Task>;
@@ -89,7 +89,7 @@ namespace LiquidState.Awaitable.Core
 
             Action triggerAction = null;
             Func<Task> triggerFunc = null;
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(triggerRep.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(triggerRep.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.TriggerActionReturnsTask))
             {
                 try
@@ -119,7 +119,7 @@ namespace LiquidState.Awaitable.Core
 
             AwaitableStateRepresentation<TState, TTrigger> nextAwaitableStateRep = null;
 
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(triggerRep.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(triggerRep.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.DynamicState))
             {
                 var dynamicState = await AwaitableDiagnosticsHelper.GetValidatedDynamicTransition(triggerRep);
@@ -128,7 +128,7 @@ namespace LiquidState.Awaitable.Core
                 var state = dynamicState.Value.ResultingState;
 
                 nextAwaitableStateRep =
-                    AwaitableStateConfigurationHelper<TState, TTrigger>.FindStateRepresentation(state,
+                    AwaitableStateConfigurationHelper.FindStateRepresentation(state,
                         machine.Representations);
                 if (nextAwaitableStateRep == null)
                 {
@@ -148,7 +148,7 @@ namespace LiquidState.Awaitable.Core
             // Current exit
 
             if (
-                AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(
+                AwaitableStateConfigurationHelper.CheckFlag(
                     currentStateRepresentation.AwaitableTransitionFlags,
                     AwaitableTransitionFlag.ExitReturnsTask))
             {
@@ -176,7 +176,7 @@ namespace LiquidState.Awaitable.Core
             // Next entry
 
             if (
-                AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(
+                AwaitableStateConfigurationHelper.CheckFlag(
                     nextAwaitableStateRep.AwaitableTransitionFlags, AwaitableTransitionFlag.EntryReturnsTask))
             {
                 var entry = (Func<Task>) nextAwaitableStateRep.OnEntryAction;
@@ -214,7 +214,7 @@ namespace LiquidState.Awaitable.Core
 
             Action<TArgument> triggerAction = null;
             Func<TArgument, Task> triggerFunc = null;
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(triggerRep.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(triggerRep.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.TriggerActionReturnsTask))
             {
                 try
@@ -244,7 +244,7 @@ namespace LiquidState.Awaitable.Core
 
             AwaitableStateRepresentation<TState, TTrigger> nextAwaitableStateRep = null;
 
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(triggerRep.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(triggerRep.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.DynamicState))
             {
                 var dynamicState = await AwaitableDiagnosticsHelper.GetValidatedDynamicTransition(triggerRep);
@@ -253,7 +253,7 @@ namespace LiquidState.Awaitable.Core
                 var state = dynamicState.Value.ResultingState;
 
                 nextAwaitableStateRep =
-                    AwaitableStateConfigurationHelper<TState, TTrigger>.FindStateRepresentation(state,
+                    AwaitableStateConfigurationHelper.FindStateRepresentation(state,
                         machine.Representations);
                 if (nextAwaitableStateRep == null)
                 {
@@ -273,7 +273,7 @@ namespace LiquidState.Awaitable.Core
             // Current exit
 
             if (
-                AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(
+                AwaitableStateConfigurationHelper.CheckFlag(
                     currentStateRepresentation.AwaitableTransitionFlags,
                     AwaitableTransitionFlag.ExitReturnsTask))
             {
@@ -301,7 +301,7 @@ namespace LiquidState.Awaitable.Core
             // Next entry
 
             if (
-                AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(
+                AwaitableStateConfigurationHelper.CheckFlag(
                     nextAwaitableStateRep.AwaitableTransitionFlags, AwaitableTransitionFlag.EntryReturnsTask))
             {
                 var entry = (Func<Task>) nextAwaitableStateRep.OnEntryAction;

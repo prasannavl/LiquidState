@@ -23,7 +23,7 @@ namespace LiquidState.Awaitable.Core
             AwaitableTriggerRepresentation<TTrigger, TState> triggerRep)
         {
             DynamicState<TState> dynamicState;
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(triggerRep.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(triggerRep.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.DynamicStateReturnsTask))
             {
                 dynamicState = await ((Func<Task<DynamicState<TState>>>) triggerRep.NextStateRepresentationWrapper)();
@@ -43,7 +43,7 @@ namespace LiquidState.Awaitable.Core
         {
             Contract.Requires(machine != null);
 
-            var triggerRep = AwaitableStateConfigurationHelper<TState, TTrigger>.FindTriggerRepresentation(trigger,
+            var triggerRep = AwaitableStateConfigurationHelper.FindTriggerRepresentation(trigger,
                 machine.CurrentStateRepresentation);
 
             if (triggerRep == null)
@@ -52,7 +52,7 @@ namespace LiquidState.Awaitable.Core
                 return null;
             }
 
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(triggerRep.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(triggerRep.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.TriggerPredicateReturnsTask))
             {
                 var predicate = (Func<Task<bool>>) triggerRep.ConditionalTriggerPredicate;
@@ -92,7 +92,7 @@ namespace LiquidState.Awaitable.Core
 
             if (!exactMatch) return true;
 
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(res.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(res.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.DynamicState))
             {
                 if (await GetValidatedDynamicTransition(res) == null)
@@ -100,7 +100,7 @@ namespace LiquidState.Awaitable.Core
             }
 
             var currentType = res.OnTriggerAction.GetType();
-            return AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(res.AwaitableTransitionFlags,
+            return AwaitableStateConfigurationHelper.CheckFlag(res.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.TriggerActionReturnsTask)
                 ? currentType == typeof (Func<Task>)
                 : currentType == typeof (Action);
@@ -112,7 +112,7 @@ namespace LiquidState.Awaitable.Core
             var res = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, false);
             if (res == null) return false;
 
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(res.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(res.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.DynamicState))
             {
                 if (await GetValidatedDynamicTransition(res) == null)
@@ -120,7 +120,7 @@ namespace LiquidState.Awaitable.Core
             }
 
             var currentType = res.OnTriggerAction.GetType();
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(res.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(res.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.TriggerActionReturnsTask))
             {
                 var targetType = typeof (Func<>).MakeGenericType(argumentType, typeof (Task));
@@ -139,7 +139,7 @@ namespace LiquidState.Awaitable.Core
             var res = await FindAndEvaluateTriggerRepresentationAsync(trigger, machine, false);
             if (res == null) return false;
 
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(res.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(res.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.DynamicState))
             {
                 if (await GetValidatedDynamicTransition(res) == null)
@@ -147,7 +147,7 @@ namespace LiquidState.Awaitable.Core
             }
 
             var currentType = res.OnTriggerAction.GetType();
-            if (AwaitableStateConfigurationHelper<TState, TTrigger>.CheckFlag(res.AwaitableTransitionFlags,
+            if (AwaitableStateConfigurationHelper.CheckFlag(res.AwaitableTransitionFlags,
                 AwaitableTransitionFlag.TriggerActionReturnsTask))
             {
                 return currentType == typeof (Func<TArgument, Task>);
