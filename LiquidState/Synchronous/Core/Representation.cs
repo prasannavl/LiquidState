@@ -19,9 +19,6 @@ namespace LiquidState.Synchronous.Core
 
         internal StateRepresentation(TState state)
         {
-            Contract.Requires(state != null);
-            Contract.Ensures(State != null);
-
             State = state;
             // Allocate with capacity as 1 to avoid wastage of memory.
             Triggers = new List<TriggerRepresentation<TTrigger, TState>>(1);
@@ -38,9 +35,6 @@ namespace LiquidState.Synchronous.Core
 
         internal TriggerRepresentation(TTrigger trigger)
         {
-            Contract.Requires(trigger != null);
-            Contract.Ensures(Trigger != null);
-
             Trigger = trigger;
         }
     }

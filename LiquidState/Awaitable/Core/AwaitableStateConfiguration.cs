@@ -37,10 +37,6 @@ namespace LiquidState.Awaitable.Core
             return AwaitableStateConfigurationMethodHelper.OnEntry(this, action, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> OnEntry(Action action)
-        {
-            return OnEntry(t => action());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> OnEntry(Func<Transition<TState, TTrigger>, Task> action)
         {
@@ -48,29 +44,16 @@ namespace LiquidState.Awaitable.Core
                 AwaitableTransitionFlag.EntryReturnsTask);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> OnEntry(Func<Task> action)
-        {
-            return OnEntry(t => action());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> OnExit(Action<Transition<TState, TTrigger>> action)
         {
             return AwaitableStateConfigurationMethodHelper.OnExit(this, action, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> OnExit(Action action)
-        {
-            return OnExit(t => action());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> OnExit(Func<Transition<TState, TTrigger>, Task> action)
         {
             return AwaitableStateConfigurationMethodHelper.OnExit(this, action, AwaitableTransitionFlag.ExitReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> OnExit(Func<Task> action)
-        {
-            return OnExit(t => action());
         }
 
         #endregion
@@ -96,15 +79,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> Permit(TTrigger trigger, TState resultingState,
-            Action onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return Permit(trigger, resultingState, t => onTriggerAction());
-        }
-
 
         public AwaitableStateConfiguration<TState, TTrigger> Permit(TTrigger trigger, TState resultingState,
             Func<Transition<TState, TTrigger>, Task> onTriggerAction)
@@ -116,14 +90,6 @@ namespace LiquidState.Awaitable.Core
                 resultingState, onTriggerAction, AwaitableTransitionFlag.TriggerActionReturnsTask);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> Permit(TTrigger trigger, TState resultingState,
-            Func<Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return Permit(trigger, resultingState, t => onTriggerAction());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> Permit<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
@@ -136,15 +102,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> Permit<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
-            Action<TArgument> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return Permit(trigger, resultingState, (t, a) => onTriggerAction(a));
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> Permit<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
@@ -155,16 +112,6 @@ namespace LiquidState.Awaitable.Core
 
             return AwaitableStateConfigurationMethodHelper.Permit(this, null, trigger.Trigger,
                 resultingState, onTriggerAction, AwaitableTransitionFlag.TriggerActionReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> Permit<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
-            Func<TArgument, Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return Permit(trigger, resultingState, (t, a) => onTriggerAction(a));
         }
 
         #endregion
@@ -190,14 +137,6 @@ namespace LiquidState.Awaitable.Core
                 CurrentStateRepresentation.State, onTriggerAction, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger, Action onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return PermitReentry(trigger, t => onTriggerAction());
-        }
-
         public AwaitableStateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger,
             Func<Transition<TState, TTrigger>, Task> onTriggerAction)
         {
@@ -207,15 +146,6 @@ namespace LiquidState.Awaitable.Core
             return AwaitableStateConfigurationMethodHelper.Permit(this, null, trigger,
                 CurrentStateRepresentation.State,
                 onTriggerAction, AwaitableTransitionFlag.TriggerActionReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger,
-            Func<Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return PermitReentry(trigger, t => onTriggerAction());
         }
 
         #region Generic Variants
@@ -299,15 +229,6 @@ namespace LiquidState.Awaitable.Core
                 CurrentStateRepresentation.State, onTriggerAction, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate,
-            TTrigger trigger,
-            Action onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return PermitReentryIf(predicate, trigger, t => onTriggerAction());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitReentryIf<TArgument>(Func<bool> predicate,
             ParameterizedTrigger<TTrigger, TArgument> trigger,
@@ -320,15 +241,6 @@ namespace LiquidState.Awaitable.Core
                 CurrentStateRepresentation.State, onTriggerAction, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitReentryIf<TArgument>(Func<bool> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Action<TArgument> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return PermitReentryIf(predicate, trigger, (t, a) => onTriggerAction(a));
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitReentryIf(Func<Task<bool>> predicate,
             TTrigger trigger, Action<Transition<TState, TTrigger>> onTriggerAction)
@@ -341,14 +253,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction, AwaitableTransitionFlag.TriggerPredicateReturnsTask);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitReentryIf(Func<Task<bool>> predicate,
-            TTrigger trigger, Action onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return PermitReentryIf(predicate, trigger, (t) => onTriggerAction());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitReentryIf<TArgument>(
             Func<Task<bool>> predicate,
@@ -361,17 +265,6 @@ namespace LiquidState.Awaitable.Core
             return AwaitableStateConfigurationMethodHelper.Permit(this, predicate, trigger.Trigger,
                 CurrentStateRepresentation.State,
                 onTriggerAction, AwaitableTransitionFlag.TriggerPredicateReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> PermitReentryIf<TArgument>(
-            Func<Task<bool>> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Action<TArgument> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return PermitReentryIf(predicate, trigger, (t, a) => onTriggerAction(a));
         }
 
         #endregion
@@ -408,15 +301,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitIf(Func<bool> predicate, TTrigger trigger,
-            TState resultingState, Action onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return PermitIf(predicate, trigger, resultingState, t => onTriggerAction());
-        }
-
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitIf(Func<Task<bool>> predicate, TTrigger trigger,
             TState resultingState, Action<Transition<TState, TTrigger>> onTriggerAction)
@@ -428,15 +312,6 @@ namespace LiquidState.Awaitable.Core
                 resultingState, onTriggerAction, AwaitableTransitionFlag.TriggerPredicateReturnsTask);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitIf(Func<Task<bool>> predicate, TTrigger trigger,
-            TState resultingState, Action onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return PermitIf(predicate, trigger, resultingState, t => onTriggerAction());
-        }
-
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitIf(Func<bool> predicate, TTrigger trigger,
             TState resultingState, Func<Transition<TState, TTrigger>, Task> onTriggerAction)
@@ -446,15 +321,6 @@ namespace LiquidState.Awaitable.Core
 
             return AwaitableStateConfigurationMethodHelper.Permit(this, predicate, trigger,
                 resultingState, onTriggerAction, AwaitableTransitionFlag.TriggerActionReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> PermitIf(Func<bool> predicate, TTrigger trigger,
-            TState resultingState, Func<Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return PermitIf(predicate, trigger, resultingState, t => onTriggerAction());
         }
 
 
@@ -469,14 +335,6 @@ namespace LiquidState.Awaitable.Core
                 AwaitableTransitionFlag.TriggerPredicateReturnsTask | AwaitableTransitionFlag.TriggerActionReturnsTask);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitIf(Func<Task<bool>> predicate, TTrigger trigger,
-            TState resultingState, Func<Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return PermitIf(predicate, trigger, resultingState, t => onTriggerAction());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitIf<TArgument>(Func<bool> predicate,
             ParameterizedTrigger<TTrigger, TArgument> trigger,
@@ -489,15 +347,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction, AwaitableTransitionFlag.None);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitIf<TArgument>(Func<bool> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            TState resultingState, Action<TArgument> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return PermitIf(predicate, trigger, resultingState, (t, a) => onTriggerAction(a));
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitIf<TArgument>(Func<Task<bool>> predicate,
             ParameterizedTrigger<TTrigger, TArgument> trigger,
@@ -508,16 +357,6 @@ namespace LiquidState.Awaitable.Core
 
             return AwaitableStateConfigurationMethodHelper.Permit(this, predicate, trigger.Trigger,
                 resultingState, onTriggerAction, AwaitableTransitionFlag.TriggerPredicateReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> PermitIf<TArgument>(Func<Task<bool>> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            TState resultingState, Action<TArgument> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return PermitIf(predicate, trigger, resultingState, (t, a) => onTriggerAction(a));
         }
 
 
@@ -532,15 +371,6 @@ namespace LiquidState.Awaitable.Core
                 resultingState, onTriggerAction, AwaitableTransitionFlag.TriggerActionReturnsTask);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitIf<TArgument>(Func<bool> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            TState resultingState, Func<TArgument, Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return PermitIf(predicate, trigger, resultingState, (t, a) => onTriggerAction(a));
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitIf<TArgument>(Func<Task<bool>> predicate,
             ParameterizedTrigger<TTrigger, TArgument> trigger,
@@ -552,16 +382,6 @@ namespace LiquidState.Awaitable.Core
             return AwaitableStateConfigurationMethodHelper.Permit(this, predicate, trigger.Trigger, resultingState,
                 onTriggerAction,
                 AwaitableTransitionFlag.TriggerPredicateReturnsTask | AwaitableTransitionFlag.TriggerActionReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> PermitIf<TArgument>(Func<Task<bool>> predicate,
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            TState resultingState, Func<TArgument, Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return PermitIf(predicate, trigger, resultingState, (t, a) => onTriggerAction(a));
         }
 
         #endregion
@@ -606,16 +426,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction, AwaitableTransitionFlag.DynamicState);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic(
-            TTrigger trigger,
-            Func<DynamicState<TState>> targetStateFunc,
-            Action onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
-
-            return PermitDynamic(trigger, targetStateFunc, t => onTriggerAction());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic(
             TTrigger trigger,
@@ -631,16 +441,6 @@ namespace LiquidState.Awaitable.Core
                 AwaitableTransitionFlag.DynamicState);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic(
-            TTrigger trigger,
-            Func<DynamicState<TState>> targetStateFunc,
-            Func<Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
-
-            return PermitDynamic(trigger, targetStateFunc, t => onTriggerAction());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic(
             TTrigger trigger,
@@ -655,16 +455,6 @@ namespace LiquidState.Awaitable.Core
                 AwaitableTransitionFlag.DynamicStateReturnsTask);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic(
-            TTrigger trigger,
-            Func<Task<DynamicState<TState>>> targetStateFunc,
-            Action onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
-
-            return PermitDynamic(trigger, targetStateFunc, t => onTriggerAction());
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic(
             TTrigger trigger,
@@ -678,17 +468,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction,
                 AwaitableTransitionFlag.TriggerActionReturnsTask |
                 AwaitableTransitionFlag.DynamicStateReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic(
-            TTrigger trigger,
-            Func<Task<DynamicState<TState>>> targetStateFunc,
-            Func<Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
-
-            return PermitDynamic(trigger, targetStateFunc, t => onTriggerAction());
         }
 
         #region Generic Variants
@@ -705,16 +484,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction, AwaitableTransitionFlag.DynamicState);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Func<DynamicState<TState>> targetStateFunc,
-            Action<TArgument> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
-
-            return PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger,
@@ -729,16 +498,6 @@ namespace LiquidState.Awaitable.Core
                 AwaitableTransitionFlag.DynamicStateReturnsTask);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Func<Task<DynamicState<TState>>> targetStateFunc,
-            Action<TArgument> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
-
-            return PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger,
@@ -754,16 +513,6 @@ namespace LiquidState.Awaitable.Core
                 AwaitableTransitionFlag.DynamicState);
         }
 
-        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Func<DynamicState<TState>> targetStateFunc,
-            Func<TArgument, Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
-
-            return PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
-        }
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger,
@@ -777,17 +526,6 @@ namespace LiquidState.Awaitable.Core
                 onTriggerAction,
                 AwaitableTransitionFlag.TriggerActionReturnsTask |
                 AwaitableTransitionFlag.DynamicStateReturnsTask);
-        }
-
-        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
-            ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Func<Task<DynamicState<TState>>> targetStateFunc,
-            Func<TArgument, Task> onTriggerAction)
-        {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
-
-            return PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
         }
 
         #endregion
