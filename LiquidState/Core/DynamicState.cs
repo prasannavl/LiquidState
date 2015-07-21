@@ -1,4 +1,9 @@
-﻿namespace LiquidState.Core
+﻿// Author: Prasanna V. Loganathar
+// Created: 13:32 17-06-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+namespace LiquidState.Core
 {
     public static class DynamicState
     {

@@ -1,9 +1,11 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 09:55 16-07-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core
@@ -69,7 +71,7 @@ namespace LiquidState.Synchronous.Core
             }
 
             if (!exactMatch) return true;
-            return res.OnTriggerAction.GetType() == typeof(Action<Transition<TState, TTrigger>>);
+            return res.OnTriggerAction.GetType() == typeof (Action<Transition<TState, TTrigger>>);
         }
 
         internal static bool CanHandleTrigger<TState, TTrigger>(TTrigger trigger,
@@ -86,7 +88,7 @@ namespace LiquidState.Synchronous.Core
                     return false;
             }
 
-            var type = typeof(Action<,>).MakeGenericType(typeof(Transition <TState, TTrigger>), argumentType);
+            var type = typeof (Action<,>).MakeGenericType(typeof (Transition<TState, TTrigger>), argumentType);
             return res.OnTriggerAction.GetType() == type;
         }
 

@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿// Author: Prasanna V. Loganathar
+// Created: 22:55 17-07-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
 using LiquidState.Core;
 
 namespace LiquidState

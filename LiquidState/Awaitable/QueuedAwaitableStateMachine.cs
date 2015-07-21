@@ -1,14 +1,10 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 1:30 AM 05-12-2014
+// Created: 09:55 16-07-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
-using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;
 using LiquidState.Common;
@@ -16,7 +12,8 @@ using LiquidState.Core;
 
 namespace LiquidState.Awaitable
 {
-    public abstract class QueuedAwaitableStateMachineBase<TState, TTrigger> : RawAwaitableStateMachineBase<TState, TTrigger>
+    public abstract class QueuedAwaitableStateMachineBase<TState, TTrigger> :
+        RawAwaitableStateMachineBase<TState, TTrigger>
     {
         private IImmutableQueue<Func<Task>> actionsQueue;
         private int queueCount;
@@ -276,9 +273,11 @@ namespace LiquidState.Awaitable
         }
     }
 
-    public sealed class QueuedAwaitableStateMachine<TState, TTrigger> : QueuedAwaitableStateMachineBase<TState, TTrigger>
+    public sealed class QueuedAwaitableStateMachine<TState, TTrigger> :
+        QueuedAwaitableStateMachineBase<TState, TTrigger>
     {
-        public QueuedAwaitableStateMachine(TState initialState, AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
+        public QueuedAwaitableStateMachine(TState initialState,
+            AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
             : base(initialState, awaitableConfiguration)
         {
             Contract.Requires(awaitableConfiguration != null);

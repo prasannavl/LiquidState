@@ -45,7 +45,8 @@ namespace LiquidState.Sample
                 .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
                 .OnExit(() => Console.WriteLine("OnExit of Talking"))
                 .Permit(Trigger.TurnOff, State.Off, () => { Console.WriteLine("Turning off"); })
-                .PermitDynamic(Trigger.Ring, () => DynamicState.Create(State.Ringing), () => { Console.WriteLine("Attempting to ring"); });
+                .PermitDynamic(Trigger.Ring, () => DynamicState.Create(State.Ringing),
+                    () => { Console.WriteLine("Attempting to ring"); });
 
             var machine = StateMachineFactory.Create(State.Ringing, config);
 

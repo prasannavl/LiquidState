@@ -1,12 +1,11 @@
 // Author: Prasanna V. Loganathar
-// Created: 1:33 AM 05-12-2014
+// Created: 12:32 18-06-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using LiquidState.Common;
 using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core

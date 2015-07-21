@@ -1,5 +1,5 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 2:12 AM 27-11-2014
+// Created: 02:20 12-05-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
@@ -11,11 +11,13 @@ using LiquidState.Core;
 
 namespace LiquidState.Awaitable
 {
-    public abstract class GuardedAwaitableStateMachineBase<TState, TTrigger> : RawAwaitableStateMachineBase<TState, TTrigger>
+    public abstract class GuardedAwaitableStateMachineBase<TState, TTrigger> :
+        RawAwaitableStateMachineBase<TState, TTrigger>
     {
         private InterlockedMonitor monitor = new InterlockedMonitor();
 
-        protected GuardedAwaitableStateMachineBase(TState initialState, AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
+        protected GuardedAwaitableStateMachineBase(TState initialState,
+            AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
             : base(initialState, awaitableConfiguration)
         {
             Contract.Requires(awaitableConfiguration != null);
@@ -85,9 +87,11 @@ namespace LiquidState.Awaitable
         }
     }
 
-    public sealed class GuardedAwaitableStateMachine<TState, TTrigger> : GuardedAwaitableStateMachineBase<TState, TTrigger>
+    public sealed class GuardedAwaitableStateMachine<TState, TTrigger> :
+        GuardedAwaitableStateMachineBase<TState, TTrigger>
     {
-        public GuardedAwaitableStateMachine(TState initialState, AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
+        public GuardedAwaitableStateMachine(TState initialState,
+            AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
             : base(initialState, awaitableConfiguration)
         {
             Contract.Requires(awaitableConfiguration != null);

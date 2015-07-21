@@ -1,12 +1,11 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 2:12 AM 27-11-2014
+// Created: 12:32 18-06-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;
 using LiquidState.Common;
@@ -57,7 +56,10 @@ namespace LiquidState.Awaitable
             return !IsEnabled ? TaskHelpers.CompletedTask : AwaitableExecutionHelper.FireCoreAsync(trigger, this);
         }
 
-        public IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics { get { return diagnostics; } }
+        public IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics
+        {
+            get { return diagnostics; }
+        }
 
         public override TState CurrentState
         {
@@ -65,18 +67,14 @@ namespace LiquidState.Awaitable
         }
     }
 
-    public class RawAwaitableStateMachineDiagnostics<TState, TTrigger> : IAwaitableStateMachineDiagnostics<TState, TTrigger>
+    public class RawAwaitableStateMachineDiagnostics<TState, TTrigger> :
+        IAwaitableStateMachineDiagnostics<TState, TTrigger>
     {
         private readonly RawAwaitableStateMachineBase<TState, TTrigger> machine;
 
         public RawAwaitableStateMachineDiagnostics(RawAwaitableStateMachineBase<TState, TTrigger> machine)
         {
             this.machine = machine;
-        }
-
-        public IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get { return AwaitableDiagnosticsHelper.EnumeratePermittedTriggers(machine); }
         }
 
         public Task<bool> CanHandleTriggerAsync(TTrigger trigger, bool exactMatch = false)
@@ -92,6 +90,11 @@ namespace LiquidState.Awaitable
         public Task<bool> CanHandleTriggerAsync<TArgument>(TTrigger trigger)
         {
             return AwaitableDiagnosticsHelper.CanHandleTriggerAsync<TState, TTrigger, TArgument>(trigger, machine);
+        }
+
+        public IEnumerable<TTrigger> CurrentPermittedTriggers
+        {
+            get { return AwaitableDiagnosticsHelper.EnumeratePermittedTriggers(machine); }
         }
     }
 

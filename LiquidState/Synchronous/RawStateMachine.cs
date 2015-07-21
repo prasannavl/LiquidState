@@ -1,7 +1,11 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 09:55 16-07-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using LiquidState.Common;
 using LiquidState.Core;
 using LiquidState.Synchronous.Core;
 
@@ -65,6 +69,7 @@ namespace LiquidState.Synchronous
     public class RawStateMachineDiagnostics<TState, TTrigger> : IStateMachineDiagnostics<TState, TTrigger>
     {
         private readonly RawStateMachineBase<TState, TTrigger> machine;
+
         public RawStateMachineDiagnostics(RawStateMachineBase<TState, TTrigger> machine)
         {
             this.machine = machine;

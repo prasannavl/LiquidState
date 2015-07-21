@@ -1,10 +1,9 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 1:30 AM 05-12-2014
+// Created: 04:13 11-05-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,7 +12,8 @@ using LiquidState.Core;
 
 namespace LiquidState.Awaitable
 {
-    public abstract class ScheduledAwaitableStateMachineBase<TState, TTrigger> : RawAwaitableStateMachineBase<TState, TTrigger>
+    public abstract class ScheduledAwaitableStateMachineBase<TState, TTrigger> :
+        RawAwaitableStateMachineBase<TState, TTrigger>
     {
         protected ScheduledAwaitableStateMachineBase(TState initialState,
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration, TaskScheduler scheduler)
@@ -26,7 +26,7 @@ namespace LiquidState.Awaitable
             Scheduler = scheduler;
         }
 
-        public TaskScheduler Scheduler { get; private set; }
+        public TaskScheduler Scheduler { get; }
 
         public override Task MoveToStateAsync(TState state, StateTransitionOption option = StateTransitionOption.Default)
         {
@@ -48,12 +48,14 @@ namespace LiquidState.Awaitable
         {
             return Task.Factory.StartNew(func, CancellationToken.None,
                 TaskCreationOptions.None, Scheduler).Unwrap();
-        } 
+        }
     }
 
-    public sealed class ScheduledAwaitableStateMachine<TState, TTrigger> : ScheduledAwaitableStateMachineBase<TState, TTrigger>
+    public sealed class ScheduledAwaitableStateMachine<TState, TTrigger> :
+        ScheduledAwaitableStateMachineBase<TState, TTrigger>
     {
-        public ScheduledAwaitableStateMachine(TState initialState, AwaitableConfiguration<TState, TTrigger> awaitableConfiguration,
+        public ScheduledAwaitableStateMachine(TState initialState,
+            AwaitableConfiguration<TState, TTrigger> awaitableConfiguration,
             TaskScheduler scheduler)
             : base(initialState, awaitableConfiguration, scheduler)
         {

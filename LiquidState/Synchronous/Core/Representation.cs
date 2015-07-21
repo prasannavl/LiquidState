@@ -1,11 +1,10 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 2:12 AM 27-11-2014
+// Created: 09:55 16-07-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core
@@ -14,7 +13,7 @@ namespace LiquidState.Synchronous.Core
     {
         public readonly TState State;
         public readonly List<TriggerRepresentation<TTrigger, TState>> Triggers;
-        public Action<Transition<TState, TTrigger>>  OnEntryAction;
+        public Action<Transition<TState, TTrigger>> OnEntryAction;
         public Action<Transition<TState, TTrigger>> OnExitAction;
 
         internal StateRepresentation(TState state)

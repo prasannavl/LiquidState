@@ -1,49 +1,34 @@
-﻿using System;
+﻿// Author: Prasanna V. Loganathar
+// Created: 04:18 11-05-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
+using System;
 
 namespace LiquidState.Core
 {
     public struct Transition<TState, TTrigger>
     {
-        private readonly TState source;
-        private readonly TState destination;
-        private readonly TTrigger trigger;
-        private readonly bool hasTrigger;
-
         public Transition(TState source, TState destination)
         {
-            this.source = source;
-            this.destination = destination;
-            trigger = default(TTrigger);
-            hasTrigger = false;
+            this.Source = source;
+            this.Destination = destination;
+            Trigger = default(TTrigger);
+            HasTrigger = false;
         }
 
         public Transition(TState source, TState destination, TTrigger trigger)
         {
-            this.source = source;
-            this.destination = destination;
-            this.trigger = trigger;
-            hasTrigger = true;
+            this.Source = source;
+            this.Destination = destination;
+            this.Trigger = trigger;
+            HasTrigger = true;
         }
 
-        public TState Source
-        {
-            get { return source; }
-        }
-
-        public TState Destination
-        {
-            get { return destination; }
-        }
-
-        public TTrigger Trigger
-        {
-            get { return trigger; }
-        }
-
-        public bool HasTrigger
-        {
-            get { return hasTrigger; }
-        }
+        public TState Source { get; }
+        public TState Destination { get; }
+        public TTrigger Trigger { get; }
+        public bool HasTrigger { get; }
     }
 
     public class TriggerStateEventArgs<TState, TTrigger> : EventArgs

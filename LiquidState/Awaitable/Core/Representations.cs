@@ -1,5 +1,5 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 3:31 PM 07-12-2014
+// Created: 09:55 16-07-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
@@ -37,7 +37,6 @@ namespace LiquidState.Awaitable.Core
 
         internal AwaitableTriggerRepresentation(TTrigger trigger)
         {
-
             Trigger = trigger;
         }
     }

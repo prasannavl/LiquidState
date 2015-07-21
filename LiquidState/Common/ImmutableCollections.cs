@@ -1,5 +1,5 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 5:07 PM 22-02-2015
+// Created: 09:55 16-07-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
@@ -72,9 +72,6 @@ namespace LiquidState.Common
     [DebuggerDisplay("IsEmpty = {IsEmpty}")]
     internal sealed class ImmutableQueue<T> : IImmutableQueue<T>
     {
-        private static readonly ImmutableQueue<T> EmptyField = new ImmutableQueue<T>(ImmutableStack<T>.Empty,
-            ImmutableStack<T>.Empty);
-
         private readonly ImmutableStack<T> backwards;
         private readonly ImmutableStack<T> forwards;
         private ImmutableStack<T> backwardsReversed;
@@ -89,10 +86,8 @@ namespace LiquidState.Common
             backwardsReversed = null;
         }
 
-        public static ImmutableQueue<T> Empty
-        {
-            get { return EmptyField; }
-        }
+        public static ImmutableQueue<T> Empty { get; } = new ImmutableQueue<T>(ImmutableStack<T>.Empty,
+            ImmutableStack<T>.Empty);
 
         private ImmutableStack<T> BackwardsReversed
         {
@@ -299,7 +294,6 @@ namespace LiquidState.Common
     [DebuggerDisplay("IsEmpty = {IsEmpty}; Top = {head}")]
     internal sealed class ImmutableStack<T> : IImmutableStack<T>
     {
-        private static readonly ImmutableStack<T> EmptyField = new ImmutableStack<T>();
         private readonly T head;
         private readonly ImmutableStack<T> tail;
         private ImmutableStack() { }
@@ -311,10 +305,7 @@ namespace LiquidState.Common
             this.tail = tail;
         }
 
-        public static ImmutableStack<T> Empty
-        {
-            get { return EmptyField; }
-        }
+        public static ImmutableStack<T> Empty { get; } = new ImmutableStack<T>();
 
         IEnumerator IEnumerable.GetEnumerator()
         {

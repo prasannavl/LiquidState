@@ -1,3 +1,8 @@
+// Author: Prasanna V. Loganathar
+// Created: 22:55 17-07-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
 using System;
 using System.Diagnostics.Contracts;
 using LiquidState.Core;

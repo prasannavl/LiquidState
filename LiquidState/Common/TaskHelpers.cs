@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.ExceptionServices;
-using System.Security;
-using System.Text;
-using System.Threading;
+﻿// Author: Prasanna V. Loganathar
+// Created: 03:14 12-05-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
 using System.Threading.Tasks;
 
 namespace LiquidState.Common

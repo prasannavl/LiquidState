@@ -1,7 +1,10 @@
+// Author: Prasanna V. Loganathar
+// Created: 09:55 16-07-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
 using System;
 using System.Diagnostics.Contracts;
-using System.Collections.Generic;
-using LiquidState.Common;
 using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core
@@ -14,7 +17,8 @@ namespace LiquidState.Synchronous.Core
                 "State cannot be changed while already in transition. Tip: Use an asynchronous state machine such as QueuedStateMachine that has these parallel semantics for these to work out of the box.");
         }
 
-        internal static void ExecuteAction<TState, TTrigger>(Action<Transition<TState, TTrigger>> action, Transition<TState, TTrigger> transition)
+        internal static void ExecuteAction<TState, TTrigger>(Action<Transition<TState, TTrigger>> action,
+            Transition<TState, TTrigger> transition)
         {
             if (action != null) action.Invoke(transition);
         }
@@ -76,7 +80,7 @@ namespace LiquidState.Synchronous.Core
             Action<Transition<TState, TTrigger>> triggerAction = null;
             try
             {
-                triggerAction = (Action<Transition<TState, TTrigger>>)triggerRep.OnTriggerAction;
+                triggerAction = (Action<Transition<TState, TTrigger>>) triggerRep.OnTriggerAction;
             }
             catch (InvalidCastException)
             {
@@ -197,7 +201,7 @@ namespace LiquidState.Synchronous.Core
             // Current exit
             var currentExit = currentStateRepresentation.OnExitAction;
             ExecuteAction(currentExit, transition);
-            
+
             // Trigger entry
             if (triggerAction != null) triggerAction.Invoke(transition, argument);
 

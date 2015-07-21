@@ -1,12 +1,16 @@
+// Author: Prasanna V. Loganathar
+// Created: 12:20 18-06-2015
+// Project: LiquidState
+// License: http://www.apache.org/licenses/LICENSE-2.0
+
 using System;
-using System.Collections.Generic;
 using System.Threading;
-using LiquidState.Common;
 
 namespace LiquidState.Core
 {
     public abstract class AbstractStateMachineCore<TState, TTrigger> : IStateMachineCore<TState, TTrigger>
     {
+        private int isEnabled = 1;
         public event Action<TriggerStateEventArgs<TState, TTrigger>> UnhandledTrigger;
         public event Action<TransitionEventArgs<TState, TTrigger>> InvalidState;
         public event Action<TransitionEventArgs<TState, TTrigger>> TransitionStarted;
@@ -21,8 +25,6 @@ namespace LiquidState.Core
         {
             Interlocked.Exchange(ref isEnabled, 1);
         }
-
-        private int isEnabled = 1;
 
         public abstract TState CurrentState { get; }
 
@@ -58,7 +60,6 @@ namespace LiquidState.Core
                 handler.Invoke(new TransitionEventArgs<TState, TTrigger>(CurrentState, targetState));
         }
 
-
         public void RaiseTransitionStarted(TState targetState, TTrigger trigger)
         {
             var handler = TransitionStarted;
@@ -72,7 +73,6 @@ namespace LiquidState.Core
             if (handler != null)
                 handler.Invoke(new TransitionExecutedEventArgs<TState, TTrigger>(CurrentState, pastState));
         }
-
 
         public void RaiseTransitionExecuted(TState pastState, TTrigger trigger)
         {

@@ -1,5 +1,5 @@
 ﻿// Author: Prasanna V. Loganathar
-// Created: 2:11 AM 27-11-2014
+// Created: 02:11 27-11-2014
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
@@ -20,7 +20,8 @@ namespace LiquidState
             Configuration<TState, TTrigger> config, bool blocking = false,
             bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
-            return Create(() => CreateDefault(initialState, config, blocking), throwOnInvalidTriggers,
+            return Create(new {InitialState = initialState, Config = config, IsBlocking = blocking},
+                opt => CreateDefault(opt.InitialState, opt.Config, opt.IsBlocking), throwOnInvalidTriggers,
                 throwOnInvalidState);
         }
 
@@ -28,7 +29,8 @@ namespace LiquidState
             TState initialState, AwaitableConfiguration<TState, TTrigger> config, bool queued = true,
             bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
-            return Create(() => CreateDefault(initialState, config, queued, null), throwOnInvalidTriggers,
+            return Create(new {InitialState = initialState, Config = config, IsQueued = queued},
+                opt => CreateDefault(opt.InitialState, opt.Config, opt.IsQueued, null), throwOnInvalidTriggers,
                 throwOnInvalidState);
         }
 
@@ -38,7 +40,8 @@ namespace LiquidState
         {
             Contract.Requires<ArgumentNullException>(scheduler != null);
 
-            return Create(() => CreateDefault(initialState, config, false, scheduler), throwOnInvalidTriggers,
+            return Create(new {InitialState = initialState, Config = config, Scheduler = scheduler},
+                opt => CreateDefault(opt.InitialState, opt.Config, false, opt.Scheduler), throwOnInvalidTriggers,
                 throwOnInvalidState);
         }
 
@@ -53,7 +56,7 @@ namespace LiquidState
             return new AwaitableConfiguration<TState, TTrigger>();
         }
 
-        public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger>(
+        public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger, TOptions>(
             Func<IAwaitableStateMachine<TState, TTrigger>> stateMachineFunc,
             bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
@@ -65,13 +68,38 @@ namespace LiquidState
             return sm;
         }
 
-        public static IStateMachine<TState, TTrigger> Create<TState, TTrigger>(
+        public static IStateMachine<TState, TTrigger> Create<TState, TTrigger, TOptions>(
             Func<IStateMachine<TState, TTrigger>> stateMachineFunc,
             bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
         {
             Contract.Requires<ArgumentNullException>(stateMachineFunc != null);
 
             var sm = stateMachineFunc();
+            if (sm == null) throw new InvalidOperationException("State machine must be initializable");
+
+            Configure(sm, throwOnInvalidTriggers, throwOnInvalidState);
+            return sm;
+        }
+
+        public static IAwaitableStateMachine<TState, TTrigger> Create<TState, TTrigger, TOptions>(TOptions options,
+            Func<TOptions, IAwaitableStateMachine<TState, TTrigger>> stateMachineFunc,
+            bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
+        {
+            Contract.Requires<ArgumentNullException>(stateMachineFunc != null);
+
+            var sm = stateMachineFunc(options);
+            if (sm == null) throw new InvalidOperationException("State machine must be initializable");
+            Configure(sm, throwOnInvalidTriggers, throwOnInvalidState);
+            return sm;
+        }
+
+        public static IStateMachine<TState, TTrigger> Create<TState, TTrigger, TOptions>(TOptions options,
+            Func<TOptions, IStateMachine<TState, TTrigger>> stateMachineFunc,
+            bool throwOnInvalidTriggers = true, bool throwOnInvalidState = true)
+        {
+            Contract.Requires<ArgumentNullException>(stateMachineFunc != null);
+
+            var sm = stateMachineFunc(options);
             if (sm == null) throw new InvalidOperationException("State machine must be initializable");
 
             Configure(sm, throwOnInvalidTriggers, throwOnInvalidState);

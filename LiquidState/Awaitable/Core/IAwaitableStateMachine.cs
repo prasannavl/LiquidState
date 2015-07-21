@@ -1,5 +1,5 @@
 // Author: Prasanna V. Loganathar
-// Created: 1:33 AM 05-12-2014
+// Created: 12:32 18-06-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
@@ -23,15 +23,16 @@ namespace LiquidState.Awaitable.Core
         Task MoveToStateAsync(TState state, StateTransitionOption option = StateTransitionOption.Default);
     }
 
-    [ContractClass(typeof(AwaitableStateMachineDiagnosticsContract<,>))]
-    public interface IAwaitableStateMachineDiagnostics<TState, TTrigger> : IStateMachineDiagnosticsCore<TState, TTrigger>
+    [ContractClass(typeof (AwaitableStateMachineDiagnosticsContract<,>))]
+    public interface IAwaitableStateMachineDiagnostics<TState, TTrigger> :
+        IStateMachineDiagnosticsCore<TState, TTrigger>
     {
         Task<bool> CanHandleTriggerAsync(TTrigger trigger, bool exactMatch = false);
         Task<bool> CanHandleTriggerAsync(TTrigger trigger, Type argumentType);
         Task<bool> CanHandleTriggerAsync<TArgument>(TTrigger trigger);
     }
 
-    [ContractClassFor(typeof(IAwaitableStateMachine<,>))]
+    [ContractClassFor(typeof (IAwaitableStateMachine<,>))]
     public abstract class AwaitableStateMachineContract<TState, TTrigger> : IAwaitableStateMachine<TState, TTrigger>
     {
         public abstract Task MoveToStateAsync(TState state, StateTransitionOption option = StateTransitionOption.Default);
@@ -45,7 +46,6 @@ namespace LiquidState.Awaitable.Core
 
         public abstract Task FireAsync(TTrigger trigger);
         public abstract IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics { get; }
-
         public abstract event Action<TransitionExecutedEventArgs<TState, TTrigger>> TransitionExecuted;
         public abstract event Action<TriggerStateEventArgs<TState, TTrigger>> UnhandledTrigger;
         public abstract event Action<TransitionEventArgs<TState, TTrigger>> InvalidState;
@@ -56,7 +56,7 @@ namespace LiquidState.Awaitable.Core
         public abstract bool IsEnabled { get; }
     }
 
-    [ContractClassFor(typeof(IAwaitableStateMachineDiagnostics<,>))]
+    [ContractClassFor(typeof (IAwaitableStateMachineDiagnostics<,>))]
     public abstract class AwaitableStateMachineDiagnosticsContract<TState, TTrigger> :
         IAwaitableStateMachineDiagnostics<TState, TTrigger>
     {

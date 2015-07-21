@@ -1,13 +1,11 @@
 // Author: Prasanna V. Loganathar
-// Created: 3:36 PM 07-12-2014
+// Created: 09:55 16-07-2015
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using System.Reflection;
-using LiquidState.Common;
 using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core
@@ -33,8 +31,6 @@ namespace LiquidState.Synchronous.Core
         }
 
         #region Entry and Exit
-
-
 
         public StateConfiguration<TState, TTrigger> OnEntry(Action<Transition<TState, TTrigger>> action)
         {
@@ -99,7 +95,6 @@ namespace LiquidState.Synchronous.Core
 
             return StateConfigurationMethodHelper.Permit(this, predicate, trigger, resultingState, onEntryAction);
         }
-
 
 
         public StateConfiguration<TState, TTrigger> PermitIf<TArgument>(Func<bool> predicate,
