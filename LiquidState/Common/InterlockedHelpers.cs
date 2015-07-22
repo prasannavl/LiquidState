@@ -30,11 +30,7 @@ namespace LiquidState.Common
     internal struct InterlockedBlockingMonitor
     {
         private int busy;
-
-        public bool IsBusy
-        {
-            get { return Interlocked.CompareExchange(ref busy, -1, -1) > 0; }
-        }
+        public bool IsBusy => Interlocked.CompareExchange(ref busy, -1, -1) > 0;
 
         /// <summary>
         ///     WARNING: This method has to be not be used with awaits in-between Entry and Exit.
@@ -62,10 +58,7 @@ namespace LiquidState.Common
     {
         private int busy;
 
-        public bool IsBusy
-        {
-            get { return Interlocked.CompareExchange(ref busy, -1, -1) > 0; }
-        }
+        public bool IsBusy => Interlocked.CompareExchange(ref busy, -1, -1) > 0;
 
         public bool TryEnter()
         {

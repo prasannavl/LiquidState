@@ -4,6 +4,7 @@
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
+using System.Collections.Immutable;
 using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;

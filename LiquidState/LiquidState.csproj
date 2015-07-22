@@ -136,11 +136,9 @@
     <Compile Include="Core\DynamicState.cs" />
     <Compile Include="Core\Transition.cs" />
     <Compile Include="Core\Exceptions.cs" />
-    <Compile Include="Common\ImmutableCollections.cs" />
     <Compile Include="Common\InterlockedHelpers.cs" />
     <Compile Include="Core\ParameterizedTrigger.cs" />
     <Compile Include="Core\StateTransitionOptions.cs" />
-    <Compile Include="Common\Validation.cs" />
     <Compile Include="Awaitable\Core\AwaitableStateConfiguration.cs" />
     <Compile Include="Extensions\TransitionExtensions.cs" />
     <Compile Include="Extensions\StateConfigurationExtensions.cs" />
@@ -163,6 +161,15 @@
     <Compile Include="Synchronous\GuardedStateMachine.cs" />
     <Compile Include="Synchronous\Core\Configuration.cs" />
     <Compile Include="StateMachineFactory.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
