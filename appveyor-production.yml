@@ -1,5 +1,5 @@
 -
-    version: '8.0.0.{build}'
+    version: '8.0.{build}'
 
     ## -- Git --
 
@@ -7,7 +7,7 @@
       only:
       - master
     clone_depth: 1
-    skip_tags: true
+    skip_non_tags: true
     skip_commits:
       message: '(?i)Update README(\.md)?(\s*)$'
 
@@ -26,7 +26,7 @@
       file: '**\VersionInfo.*'
       assembly_version: '{version}'
       assembly_file_version: '{version}'
-      assembly_informational_version: '{version}-pre'
+      assembly_informational_version: '{version}'
 
     nuget:
       account_feed: true
