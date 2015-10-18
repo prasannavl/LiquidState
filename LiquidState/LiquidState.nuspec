@@ -13,5 +13,8 @@
         <description>$description$</description>
         <copyright>Copyright Prasanna V. Loganathar</copyright>
         <tags>State machine async</tags>
+      <dependencies>
+        <dependency id="System.Collections.Immutable" version="[1.0,]" />
+      </dependencies>
     </metadata>
 </package> 
