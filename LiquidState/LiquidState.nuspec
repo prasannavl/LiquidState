@@ -16,8 +16,5 @@
       <dependencies>
         <dependency id="System.Collections.Immutable" version="[1.0,]" />
       </dependencies>
-      <references>
-        <reference file="System.Collections.Immutable.dll"/>
-      </references>
     </metadata>
-</package> 
+</package>
