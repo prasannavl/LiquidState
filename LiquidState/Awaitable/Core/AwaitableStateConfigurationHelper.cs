@@ -4,7 +4,6 @@
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 
 namespace LiquidState.Awaitable.Core
 {
@@ -14,11 +13,6 @@ namespace LiquidState.Awaitable.Core
             (TState state,
                 Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> representations)
         {
-            Contract.Requires(state != null);
-            Contract.Requires(representations != null);
-
-            Contract.Ensures(Contract.Result<AwaitableStateRepresentation<TState, TTrigger>>() != null);
-
             AwaitableStateRepresentation<TState, TTrigger> rep;
             if (representations.TryGetValue(state, out rep))
             {
@@ -45,30 +39,25 @@ namespace LiquidState.Awaitable.Core
             return rep;
         }
 
-        internal static AwaitableTriggerRepresentation<TTrigger, TState> FindOrCreateTriggerRepresentation
+        internal static AwaitableTriggerRepresentation<TTrigger> FindOrCreateTriggerRepresentation
             <TTrigger, TState>(
             TTrigger trigger,
             AwaitableStateRepresentation<TState, TTrigger> representation)
         {
-            Contract.Requires(representation != null);
-            Contract.Requires(trigger != null);
-
-            Contract.Ensures(Contract.Result<AwaitableTriggerRepresentation<TTrigger, TState>>() != null);
-
             var rep = FindTriggerRepresentation(trigger, representation);
             return rep ?? CreateTriggerRepresentation(trigger, representation);
         }
 
-        internal static AwaitableTriggerRepresentation<TTrigger, TState> CreateTriggerRepresentation<TTrigger, TState>(
+        internal static AwaitableTriggerRepresentation<TTrigger> CreateTriggerRepresentation<TState, TTrigger>(
             TTrigger trigger,
             AwaitableStateRepresentation<TState, TTrigger> representation)
         {
-            var rep = new AwaitableTriggerRepresentation<TTrigger, TState>(trigger);
+            var rep = new AwaitableTriggerRepresentation<TTrigger>(trigger);
             representation.Triggers.Add(rep);
             return rep;
         }
 
-        internal static AwaitableTriggerRepresentation<TTrigger, TState> FindTriggerRepresentation<TTrigger, TState>(
+        internal static AwaitableTriggerRepresentation<TTrigger> FindTriggerRepresentation<TState, TTrigger>(
             TTrigger trigger,
             AwaitableStateRepresentation<TState, TTrigger> representation)
         {

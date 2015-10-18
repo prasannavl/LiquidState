@@ -4,7 +4,6 @@
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
-using System.Diagnostics.Contracts;
 using System.Threading;
 using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;
@@ -19,10 +18,6 @@ namespace LiquidState.Awaitable
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration, TaskScheduler scheduler)
             : base(initialState, awaitableConfiguration)
         {
-            Contract.Requires(initialState != null);
-            Contract.Requires(awaitableConfiguration != null);
-            Contract.Requires(scheduler != null);
-
             Scheduler = scheduler;
         }
 
@@ -59,8 +54,6 @@ namespace LiquidState.Awaitable
             TaskScheduler scheduler)
             : base(initialState, awaitableConfiguration, scheduler)
         {
-            Contract.Requires(awaitableConfiguration != null);
-            Contract.Requires(initialState != null);
         }
     }
 }

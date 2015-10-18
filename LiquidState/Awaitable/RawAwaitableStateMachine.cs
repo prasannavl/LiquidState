@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;
 using LiquidState.Common;
@@ -23,13 +22,10 @@ namespace LiquidState.Awaitable
         protected RawAwaitableStateMachineBase(TState initialState,
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
         {
-            Contract.Requires(awaitableConfiguration != null);
-            Contract.Requires(initialState != null);
-
             CurrentStateRepresentation = awaitableConfiguration.GetInitialStateRepresentation(initialState);
             if (CurrentStateRepresentation == null)
             {
-                InvalidStateException<TState>.Throw(initialState);
+                ExceptionHelper.ThrowInvalidState(initialState);
             }
 
             Representations = awaitableConfiguration.Representations;
@@ -56,15 +52,9 @@ namespace LiquidState.Awaitable
             return !IsEnabled ? TaskHelpers.CompletedTask : AwaitableExecutionHelper.FireCoreAsync(trigger, this);
         }
 
-        public IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics
-        {
-            get { return diagnostics; }
-        }
+        public IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics => diagnostics;
 
-        public override TState CurrentState
-        {
-            get { return CurrentStateRepresentation.State; }
-        }
+        public override TState CurrentState => CurrentStateRepresentation.State;
     }
 
     public class RawAwaitableStateMachineDiagnostics<TState, TTrigger> :
@@ -93,9 +83,7 @@ namespace LiquidState.Awaitable
         }
 
         public IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get { return AwaitableDiagnosticsHelper.EnumeratePermittedTriggers(machine); }
-        }
+            => AwaitableDiagnosticsHelper.EnumeratePermittedTriggers(machine);
     }
 
 
@@ -105,8 +93,6 @@ namespace LiquidState.Awaitable
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
             : base(initialState, awaitableConfiguration)
         {
-            Contract.Requires(awaitableConfiguration != null);
-            Contract.Requires(initialState != null);
         }
     }
 }

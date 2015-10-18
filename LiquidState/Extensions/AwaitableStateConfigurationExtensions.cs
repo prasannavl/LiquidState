@@ -18,24 +18,32 @@ namespace LiquidState
         public static AwaitableStateConfiguration<TState, TTrigger> OnExit<TState, TTrigger>(this
             AwaitableStateConfiguration<TState, TTrigger> config, Action action)
         {
+            Contract.Requires<ArgumentNullException>(action != null, nameof(action));
+
             return config.OnExit(t => action());
         }
 
         public static AwaitableStateConfiguration<TState, TTrigger> OnExit<TState, TTrigger>(this
             AwaitableStateConfiguration<TState, TTrigger> config, Func<Task> action)
         {
+            Contract.Requires<ArgumentNullException>(action != null, nameof(action));
+
             return config.OnExit(t => action());
         }
 
         public static AwaitableStateConfiguration<TState, TTrigger> OnEntry<TState, TTrigger>(this
             AwaitableStateConfiguration<TState, TTrigger> config, Action action)
         {
+            Contract.Requires<ArgumentNullException>(action != null, nameof(action));
+
             return config.OnEntry(t => action());
         }
 
         public static AwaitableStateConfiguration<TState, TTrigger> OnEntry<TState, TTrigger>(this
             AwaitableStateConfiguration<TState, TTrigger> config, Func<Task> action)
         {
+            Contract.Requires<ArgumentNullException>(action != null, nameof(action));
+
             return config.OnEntry(t => action());
         }
 
@@ -48,8 +56,7 @@ namespace LiquidState
             TState resultingState,
             Action onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.Permit(trigger, resultingState, t => onTriggerAction());
         }
@@ -59,8 +66,7 @@ namespace LiquidState
             TState resultingState,
             Func<Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.Permit(trigger, resultingState, t => onTriggerAction());
         }
@@ -70,8 +76,7 @@ namespace LiquidState
             ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
             Action<TArgument> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.Permit(trigger, resultingState, (t, a) => onTriggerAction(a));
         }
@@ -81,8 +86,7 @@ namespace LiquidState
             ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
             Func<TArgument, Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.Permit(trigger, resultingState, (t, a) => onTriggerAction(a));
         }
@@ -95,8 +99,7 @@ namespace LiquidState
             AwaitableStateConfiguration<TState, TTrigger> config, TTrigger trigger,
             Action onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(config.CurrentStateRepresentation.State != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitReentry(trigger, t => onTriggerAction());
         }
@@ -105,8 +108,7 @@ namespace LiquidState
             AwaitableStateConfiguration<TState, TTrigger> config, TTrigger trigger,
             Func<Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(config.CurrentStateRepresentation.State != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitReentry(trigger, t => onTriggerAction());
         }
@@ -120,8 +122,7 @@ namespace LiquidState
             TTrigger trigger,
             Action onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(config.CurrentStateRepresentation.State != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitReentryIf(predicate, trigger, t => onTriggerAction());
         }
@@ -131,8 +132,7 @@ namespace LiquidState
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             Action<TArgument> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(config.CurrentStateRepresentation.State != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitReentryIf(predicate, trigger, (t, a) => onTriggerAction(a));
         }
@@ -141,8 +141,7 @@ namespace LiquidState
             this AwaitableStateConfiguration<TState, TTrigger> config, Func<Task<bool>> predicate,
             TTrigger trigger, Action onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(config.CurrentStateRepresentation.State != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitReentryIf(predicate, trigger, (t) => onTriggerAction());
         }
@@ -152,8 +151,7 @@ namespace LiquidState
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             Action<TArgument> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(config.CurrentStateRepresentation.State != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitReentryIf(predicate, trigger, (t, a) => onTriggerAction(a));
         }
@@ -167,8 +165,7 @@ namespace LiquidState
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Action<TArgument> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitIf(predicate, trigger, resultingState, (t, a) => onTriggerAction(a));
         }
@@ -178,8 +175,7 @@ namespace LiquidState
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Func<TArgument, Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitIf(predicate, trigger, resultingState, (t, a) => onTriggerAction(a));
         }
@@ -189,8 +185,7 @@ namespace LiquidState
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Func<TArgument, Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitIf(predicate, trigger, resultingState, (t, a) => onTriggerAction(a));
         }
@@ -199,8 +194,7 @@ namespace LiquidState
             this AwaitableStateConfiguration<TState, TTrigger> config, Func<bool> predicate, TTrigger trigger,
             TState resultingState, Func<Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitIf(predicate, trigger, resultingState, t => onTriggerAction());
         }
@@ -209,8 +203,7 @@ namespace LiquidState
             this AwaitableStateConfiguration<TState, TTrigger> config, Func<Task<bool>> predicate, TTrigger trigger,
             TState resultingState, Func<Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitIf(predicate, trigger, resultingState, t => onTriggerAction());
         }
@@ -220,8 +213,7 @@ namespace LiquidState
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Action<TArgument> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitIf(predicate, trigger, resultingState, (t, a) => onTriggerAction(a));
         }
@@ -230,8 +222,7 @@ namespace LiquidState
             this AwaitableStateConfiguration<TState, TTrigger> config, Func<bool> predicate, TTrigger trigger,
             TState resultingState, Action onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitIf(predicate, trigger, resultingState, t => onTriggerAction());
         }
@@ -240,8 +231,7 @@ namespace LiquidState
             this AwaitableStateConfiguration<TState, TTrigger> config, Func<Task<bool>> predicate, TTrigger trigger,
             TState resultingState, Action onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitIf(predicate, trigger, resultingState, t => onTriggerAction());
         }
@@ -255,8 +245,7 @@ namespace LiquidState
             Func<DynamicState<TState>> targetStateFunc,
             Action onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitDynamic(trigger, targetStateFunc, t => onTriggerAction());
         }
@@ -266,8 +255,7 @@ namespace LiquidState
             Func<DynamicState<TState>> targetStateFunc,
             Func<Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitDynamic(trigger, targetStateFunc, t => onTriggerAction());
         }
@@ -277,8 +265,7 @@ namespace LiquidState
             Func<Task<DynamicState<TState>>> targetStateFunc,
             Action onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitDynamic(trigger, targetStateFunc, t => onTriggerAction());
         }
@@ -288,8 +275,7 @@ namespace LiquidState
             Func<Task<DynamicState<TState>>> targetStateFunc,
             Func<Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitDynamic(trigger, targetStateFunc, t => onTriggerAction());
         }
@@ -300,8 +286,7 @@ namespace LiquidState
             Func<Task<DynamicState<TState>>> targetStateFunc,
             Func<TArgument, Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
         }
@@ -311,8 +296,7 @@ namespace LiquidState
             Func<DynamicState<TState>> targetStateFunc,
             Action<TArgument> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
         }
@@ -322,8 +306,7 @@ namespace LiquidState
             Func<Task<DynamicState<TState>>> targetStateFunc,
             Action<TArgument> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
         }
@@ -333,8 +316,7 @@ namespace LiquidState
             Func<DynamicState<TState>> targetStateFunc,
             Func<TArgument, Task> onTriggerAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStateFunc != null);
+            Contract.Requires<ArgumentNullException>(onTriggerAction != null, nameof(onTriggerAction));
 
             return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
         }

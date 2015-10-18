@@ -3,7 +3,6 @@
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
-using System.Diagnostics.Contracts;
 using LiquidState.Common;
 using LiquidState.Core;
 using LiquidState.Synchronous.Core;
@@ -17,8 +16,6 @@ namespace LiquidState.Synchronous
         protected GuardedStateMachineBase(TState initialState, Configuration<TState, TTrigger> configuration)
             : base(initialState, configuration)
         {
-            Contract.Requires(configuration != null);
-            Contract.Requires(initialState != null);
         }
 
         public override void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
@@ -88,8 +85,6 @@ namespace LiquidState.Synchronous
         public GuardedStateMachine(TState initialState, Configuration<TState, TTrigger> configuration)
             : base(initialState, configuration)
         {
-            Contract.Requires(configuration != null);
-            Contract.Requires(initialState != null);
         }
     }
 }

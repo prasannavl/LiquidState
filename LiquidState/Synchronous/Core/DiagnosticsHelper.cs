@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core
@@ -21,11 +20,9 @@ namespace LiquidState.Synchronous.Core
             }
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> FindAndEvaluateTriggerRepresentation<TState, TTrigger>(
+        internal static TriggerRepresentation<TTrigger> FindAndEvaluateTriggerRepresentation<TState, TTrigger>(
             TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine, bool raiseInvalidTriggers = true)
         {
-            Contract.Requires(machine != null);
-
             var triggerRep = StateConfigurationHelper.FindTriggerRepresentation(trigger,
                 machine.CurrentStateRepresentation);
 

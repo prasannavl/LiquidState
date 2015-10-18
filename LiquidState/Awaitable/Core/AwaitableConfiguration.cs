@@ -17,8 +17,6 @@ namespace LiquidState.Awaitable.Core
 
         internal AwaitableConfiguration(int statesConfigStoreInitalCapacity = 4)
         {
-            Contract.Ensures(Representations != null);
-
             Representations =
                 new Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>>(statesConfigStoreInitalCapacity);
         }
@@ -26,28 +24,23 @@ namespace LiquidState.Awaitable.Core
         internal AwaitableConfiguration(
             Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> representations)
         {
-            Contract.Ensures(representations != null);
-
             Representations = representations;
         }
 
         public AwaitableStateConfiguration<TState, TTrigger> ForState(TState state)
         {
-            Contract.Requires<ArgumentNullException>(state != null);
-
             return new AwaitableStateConfiguration<TState, TTrigger>(Representations, state);
         }
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)
         {
             Contract.Requires<ArgumentNullException>(trigger != null);
+
             return new ParameterizedTrigger<TTrigger, TArgument>(trigger);
         }
 
         internal AwaitableStateRepresentation<TState, TTrigger> GetInitialStateRepresentation(TState initialState)
         {
-            Contract.Requires(initialState != null);
-
             AwaitableStateRepresentation<TState, TTrigger> rep;
             return Representations.TryGetValue(initialState, out rep) ? rep : Representations.Values.FirstOrDefault();
         }

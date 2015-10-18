@@ -4,7 +4,6 @@
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 
 namespace LiquidState.Synchronous.Core
 {
@@ -14,11 +13,6 @@ namespace LiquidState.Synchronous.Core
             TState state,
             Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
-            Contract.Requires(state != null);
-            Contract.Requires(representations != null);
-
-            Contract.Ensures(Contract.Result<StateRepresentation<TState, TTrigger>>() != null);
-
             StateRepresentation<TState, TTrigger> rep;
             if (representations.TryGetValue(state, out rep))
             {
@@ -45,29 +39,24 @@ namespace LiquidState.Synchronous.Core
             return rep;
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> FindOrCreateTriggerRepresentation<TTrigger, TState>(
+        internal static TriggerRepresentation<TTrigger> FindOrCreateTriggerRepresentation<TState, TTrigger>(
             TTrigger trigger,
             StateRepresentation<TState, TTrigger> representation)
         {
-            Contract.Requires(representation != null);
-            Contract.Requires(trigger != null);
-
-            Contract.Ensures(Contract.Result<TriggerRepresentation<TTrigger, TState>>() != null);
-
             var rep = FindTriggerRepresentation(trigger, representation);
             return rep ?? CreateTriggerRepresentation(trigger, representation);
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> CreateTriggerRepresentation<TTrigger, TState>(
+        internal static TriggerRepresentation<TTrigger> CreateTriggerRepresentation<TState, TTrigger>(
             TTrigger trigger,
             StateRepresentation<TState, TTrigger> representation)
         {
-            var rep = new TriggerRepresentation<TTrigger, TState>(trigger);
+            var rep = new TriggerRepresentation<TTrigger>(trigger);
             representation.Triggers.Add(rep);
             return rep;
         }
 
-        internal static TriggerRepresentation<TTrigger, TState> FindTriggerRepresentation<TTrigger, TState>(
+        internal static TriggerRepresentation<TTrigger> FindTriggerRepresentation<TState, TTrigger>(
             TTrigger trigger,
             StateRepresentation<TState, TTrigger> representation)
         {

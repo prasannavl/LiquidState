@@ -4,7 +4,6 @@
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
-using System.Diagnostics.Contracts;
 using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core
@@ -17,22 +16,14 @@ namespace LiquidState.Synchronous.Core
                 "State cannot be changed while already in transition. Tip: Use an asynchronous state machine such as QueuedStateMachine that has these parallel semantics for these to work out of the box.");
         }
 
-        internal static void ExecuteAction<TState, TTrigger>(Action<Transition<TState, TTrigger>> action,
-            Transition<TState, TTrigger> transition)
-        {
-            if (action != null) action.Invoke(transition);
-        }
-
         internal static void MoveToStateCore<TState, TTrigger>(TState state, StateTransitionOption option,
             RawStateMachineBase<TState, TTrigger> machine, bool ignoreInvalidStates = false)
         {
-            Contract.Requires(machine != null);
-
             StateRepresentation<TState, TTrigger> targetRep;
             if (machine.Representations.TryGetValue(state, out targetRep))
             {
                 var currentRep = machine.CurrentStateRepresentation;
-                Contract.Assume(currentRep != null);
+
 
                 machine.RaiseTransitionStarted(targetRep.State);
 
@@ -41,12 +32,12 @@ namespace LiquidState.Synchronous.Core
                 if ((option & StateTransitionOption.CurrentStateExitTransition) ==
                     StateTransitionOption.CurrentStateExitTransition)
                 {
-                    ExecuteAction(currentRep.OnExitAction, transition);
+                    currentRep.OnExitAction?.Invoke(transition);
                 }
                 if ((option & StateTransitionOption.NewStateEntryTransition) ==
                     StateTransitionOption.NewStateEntryTransition)
                 {
-                    ExecuteAction(targetRep.OnEntryAction, transition);
+                    targetRep.OnEntryAction?.Invoke(transition);
                 }
 
                 var pastState = currentRep.State;
@@ -63,10 +54,7 @@ namespace LiquidState.Synchronous.Core
         internal static void FireCore<TState, TTrigger>(TTrigger trigger, RawStateMachineBase<TState, TTrigger> machine,
             bool raiseInvalidStateOrTrigger = true)
         {
-            Contract.Requires(machine != null);
-
             var currentStateRepresentation = machine.CurrentStateRepresentation;
-            Contract.Assume(currentStateRepresentation != null);
 
 
             var triggerRep = DiagnosticsHelper.FindAndEvaluateTriggerRepresentation(trigger, machine,
@@ -80,7 +68,7 @@ namespace LiquidState.Synchronous.Core
             Action<Transition<TState, TTrigger>> triggerAction = null;
             try
             {
-                triggerAction = (Action<Transition<TState, TTrigger>>) triggerRep.OnTriggerAction;
+                triggerAction = (Action<Transition<TState, TTrigger>>)triggerRep.OnTriggerAction;
             }
             catch (InvalidCastException)
             {
@@ -95,7 +83,7 @@ namespace LiquidState.Synchronous.Core
             if (StateConfigurationHelper.CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
-                var dynamicState = ((Func<DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)();
+                var dynamicState = ((Func<DynamicState<TState>>)triggerRep.NextStateRepresentationWrapper)();
                 if (!dynamicState.CanTransition)
                     return;
 
@@ -112,10 +100,9 @@ namespace LiquidState.Synchronous.Core
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
+                nextStateRep = (StateRepresentation<TState, TTrigger>)triggerRep.NextStateRepresentationWrapper;
             }
 
-            Contract.Assume(nextStateRep != null);
 
             var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State);
 
@@ -123,14 +110,14 @@ namespace LiquidState.Synchronous.Core
 
             // Current exit
             var currentExit = currentStateRepresentation.OnExitAction;
-            ExecuteAction(currentExit, transition);
+            currentExit?.Invoke(transition);
 
             // Trigger entry
-            ExecuteAction(triggerAction, transition);
+            triggerAction?.Invoke(transition);
 
             // Next entry
             var nextEntry = nextStateRep.OnEntryAction;
-            ExecuteAction(nextEntry, transition);
+            nextEntry?.Invoke(transition);
 
             var pastState = machine.CurrentState;
             machine.CurrentStateRepresentation = nextStateRep;
@@ -141,10 +128,8 @@ namespace LiquidState.Synchronous.Core
             ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, TArgument argument,
             RawStateMachineBase<TState, TTrigger> machine, bool raiseInvalidStateOrTrigger = true)
         {
-            Contract.Requires(machine != null);
-
             var currentStateRepresentation = machine.CurrentStateRepresentation;
-            Contract.Assume(currentStateRepresentation != null);
+
 
             var trigger = parameterizedTrigger.Trigger;
 
@@ -158,7 +143,7 @@ namespace LiquidState.Synchronous.Core
             Action<Transition<TState, TTrigger>, TArgument> triggerAction = null;
             try
             {
-                triggerAction = (Action<Transition<TState, TTrigger>, TArgument>) triggerRep.OnTriggerAction;
+                triggerAction = (Action<Transition<TState, TTrigger>, TArgument>)triggerRep.OnTriggerAction;
             }
             catch (InvalidCastException)
             {
@@ -172,7 +157,7 @@ namespace LiquidState.Synchronous.Core
             if (StateConfigurationHelper.CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
-                var dynamicState = ((Func<DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)();
+                var dynamicState = ((Func<DynamicState<TState>>)triggerRep.NextStateRepresentationWrapper)();
                 if (!dynamicState.CanTransition)
                     return;
 
@@ -189,10 +174,9 @@ namespace LiquidState.Synchronous.Core
             }
             else
             {
-                nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper;
+                nextStateRep = (StateRepresentation<TState, TTrigger>)triggerRep.NextStateRepresentationWrapper;
             }
 
-            Contract.Assume(nextStateRep != null);
 
             var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State);
 
@@ -200,15 +184,14 @@ namespace LiquidState.Synchronous.Core
 
             // Current exit
             var currentExit = currentStateRepresentation.OnExitAction;
-            ExecuteAction(currentExit, transition);
+            currentExit?.Invoke(transition);
 
             // Trigger entry
-            if (triggerAction != null) triggerAction.Invoke(transition, argument);
-
+            triggerAction?.Invoke(transition, argument);
 
             // Next entry
             var nextEntry = nextStateRep.OnEntryAction;
-            ExecuteAction(nextEntry, transition);
+            nextEntry?.Invoke(transition);
 
             var pastState = machine.CurrentState;
             machine.CurrentStateRepresentation = nextStateRep;

@@ -12,7 +12,7 @@ namespace LiquidState.Synchronous.Core
     internal class StateRepresentation<TState, TTrigger>
     {
         public readonly TState State;
-        public readonly List<TriggerRepresentation<TTrigger, TState>> Triggers;
+        public readonly List<TriggerRepresentation<TTrigger>> Triggers;
         public Action<Transition<TState, TTrigger>> OnEntryAction;
         public Action<Transition<TState, TTrigger>> OnExitAction;
 
@@ -20,11 +20,11 @@ namespace LiquidState.Synchronous.Core
         {
             State = state;
             // Allocate with capacity as 1 to avoid wastage of memory.
-            Triggers = new List<TriggerRepresentation<TTrigger, TState>>(1);
+            Triggers = new List<TriggerRepresentation<TTrigger>>(1);
         }
     }
 
-    internal class TriggerRepresentation<TTrigger, TState>
+    internal class TriggerRepresentation<TTrigger>
     {
         public readonly TTrigger Trigger;
         public Func<bool> ConditionalTriggerPredicate;

@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using LiquidState.Core;
 using LiquidState.Synchronous.Core;
 
@@ -20,9 +19,6 @@ namespace LiquidState.Synchronous
 
         protected RawStateMachineBase(TState initialState, Configuration<TState, TTrigger> configuration)
         {
-            Contract.Requires(configuration != null);
-            Contract.Requires(initialState != null);
-
             Representations = configuration.Representations;
 
             CurrentStateRepresentation = StateConfigurationHelper.FindStateRepresentation(
@@ -30,7 +26,7 @@ namespace LiquidState.Synchronous
 
             if (CurrentStateRepresentation == null)
             {
-                InvalidStateException<TState>.Throw(initialState);
+                ExceptionHelper.ThrowInvalidState(initialState);
             }
 
             diagnostics = new RawStateMachineDiagnostics<TState, TTrigger>(this);
@@ -55,15 +51,8 @@ namespace LiquidState.Synchronous
             ExecutionHelper.FireCore(trigger, this);
         }
 
-        public IStateMachineDiagnostics<TState, TTrigger> Diagnostics
-        {
-            get { return diagnostics; }
-        }
-
-        public override TState CurrentState
-        {
-            get { return CurrentStateRepresentation.State; }
-        }
+        public IStateMachineDiagnostics<TState, TTrigger> Diagnostics => diagnostics;
+        public override TState CurrentState => CurrentStateRepresentation.State;
     }
 
     public class RawStateMachineDiagnostics<TState, TTrigger> : IStateMachineDiagnostics<TState, TTrigger>
@@ -90,10 +79,7 @@ namespace LiquidState.Synchronous
             return DiagnosticsHelper.CanHandleTrigger<TState, TTrigger, TArgument>(trigger, machine);
         }
 
-        public IEnumerable<TTrigger> CurrentPermittedTriggers
-        {
-            get { return DiagnosticsHelper.EnumeratePermittedTriggers(machine); }
-        }
+        public IEnumerable<TTrigger> CurrentPermittedTriggers => DiagnosticsHelper.EnumeratePermittedTriggers(machine);
     }
 
     public sealed class RawStateMachine<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
@@ -101,8 +87,6 @@ namespace LiquidState.Synchronous
         public RawStateMachine(TState initialState, Configuration<TState, TTrigger> configuration)
             : base(initialState, configuration)
         {
-            Contract.Requires(configuration != null);
-            Contract.Requires(initialState != null);
         }
     }
 }

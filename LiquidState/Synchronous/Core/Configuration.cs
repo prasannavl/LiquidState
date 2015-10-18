@@ -27,13 +27,13 @@ namespace LiquidState.Synchronous.Core
 
         public StateConfiguration<TState, TTrigger> ForState(TState state)
         {
-            Contract.Requires<ArgumentNullException>(state != null);
             return new StateConfiguration<TState, TTrigger>(Representations, state);
         }
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(trigger != null, nameof(trigger));
+
             return new ParameterizedTrigger<TTrigger, TArgument>(trigger);
         }
     }

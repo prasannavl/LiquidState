@@ -14,7 +14,36 @@ namespace LiquidState.Core
             throw new InvalidOperationException(
                 "Permit* and Ignore* methods are exclusive to each other for a given resulting state.");
         }
+
+        public static void ThrowInvalidState<TState>(TState state)
+        {
+            throw new InvalidStateException<TState>(state);
+        }
+
+        public static void ThrowInvalidState<TState, TTrigger>(TransitionEventArgs<TState, TTrigger> eventArgs)
+        {
+            throw new InvalidStateException<TState>(eventArgs.TargetState);
+        }
+
+        public static void ThrowInvalidTrigger<TState, TTrigger>(
+            TriggerStateEventArgs<TState, TTrigger> eventArgs)
+        {
+            throw new InvalidTriggerException<TState, TTrigger>(eventArgs.Trigger,
+                eventArgs.CurrentState);
+        }
+
+        public static void ThrowInvalidTrigger<TState, TTrigger>(TTrigger trigger, TState state)
+        {
+            throw new InvalidTriggerException<TState, TTrigger>(trigger, state);
+        }
+
+        public static void ThrowInvalidParameter<TTrigger>(
+            TTrigger trigger)
+        {
+            throw new InvalidTriggerParameterException<TTrigger>(trigger);
+        }
     }
+
 
     public class InvalidStateException<TState> : Exception
     {
@@ -31,19 +60,9 @@ namespace LiquidState.Core
         }
 
         public TState InvalidState { get; private set; }
-
-        public static void Throw<TExceptionState>(TExceptionState state)
-        {
-            throw new InvalidStateException<TExceptionState>(state);
-        }
-
-        public static void Throw<TTrigger>(TransitionEventArgs<TState, TTrigger> eventArgs)
-        {
-            throw new InvalidStateException<TState>(eventArgs.TargetState);
-        }
     }
 
-    public class InvalidTriggerException<TTrigger, TState> : Exception
+    public class InvalidTriggerException<TState, TTrigger> : Exception
     {
         public InvalidTriggerException(TTrigger trigger, TState state)
             : base("Trigger is not allowed. Consider using Ignore in the configuration.")
@@ -60,18 +79,6 @@ namespace LiquidState.Core
 
         public TTrigger Trigger { get; private set; }
         public TState CurrentState { get; private set; }
-
-        public static void Throw<TExceptionTrigger, TExceptionState>(
-            TriggerStateEventArgs<TExceptionState, TExceptionTrigger> eventArgs)
-        {
-            throw new InvalidTriggerException<TExceptionTrigger, TExceptionState>(eventArgs.Trigger,
-                eventArgs.CurrentState);
-        }
-
-        public static void Throw<TExceptionTrigger, TExceptionState>(TExceptionTrigger trigger, TExceptionState state)
-        {
-            throw new InvalidTriggerException<TExceptionTrigger, TExceptionState>(trigger, state);
-        }
     }
 
     public class InvalidTriggerParameterException<TTrigger> : Exception
@@ -91,11 +98,5 @@ namespace LiquidState.Core
         }
 
         public TTrigger Trigger { get; private set; }
-
-        public static void Throw<TExceptionTrigger>(
-            TExceptionTrigger trigger)
-        {
-            throw new InvalidTriggerParameterException<TExceptionTrigger>(trigger);
-        }
     }
 }

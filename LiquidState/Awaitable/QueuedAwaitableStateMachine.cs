@@ -5,7 +5,6 @@
 
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;
 using LiquidState.Common;
@@ -24,9 +23,6 @@ namespace LiquidState.Awaitable
         protected QueuedAwaitableStateMachineBase(TState initialState, AwaitableConfiguration<TState, TTrigger> config)
             : base(initialState, config)
         {
-            Contract.Requires(initialState != null);
-            Contract.Requires(config != null);
-
             actionsQueue = ImmutableQueue.Create<Func<Task>>();
         }
 
@@ -281,8 +277,6 @@ namespace LiquidState.Awaitable
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
             : base(initialState, awaitableConfiguration)
         {
-            Contract.Requires(awaitableConfiguration != null);
-            Contract.Requires(initialState != null);
         }
     }
 }

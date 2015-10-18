@@ -11,28 +11,6 @@ namespace LiquidState.Awaitable.Core
 {
     internal static class AwaitableStateConfigurationMethodHelper
     {
-        internal static AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TState, TTrigger>(
-            AwaitableStateConfiguration<TState, TTrigger> config, TTrigger trigger,
-            object targetStateFunc,
-            object onTriggerAction, AwaitableTransitionFlag flags)
-        {
-            Contract.Requires<ArgumentNullException>(trigger != null);
-            Contract.Requires<ArgumentNullException>(targetStateFunc != null);
-
-            if (
-                AwaitableStateConfigurationHelper.FindTriggerRepresentation(trigger, config.CurrentStateRepresentation) !=
-                null)
-                ExceptionHelper.ThrowExclusiveOperation();
-            var rep = AwaitableStateConfigurationHelper.CreateTriggerRepresentation(trigger,
-                config.CurrentStateRepresentation);
-            rep.NextStateRepresentationWrapper = targetStateFunc;
-            rep.OnTriggerAction = onTriggerAction;
-            rep.ConditionalTriggerPredicate = null;
-            rep.AwaitableTransitionFlags |= flags;
-
-            return config;
-        }
-
         internal static AwaitableStateConfiguration<TState, TTrigger> OnEntry<TState, TTrigger>(
             AwaitableStateConfiguration<TState, TTrigger> config, object action, AwaitableTransitionFlag flags)
         {
@@ -91,6 +69,28 @@ namespace LiquidState.Awaitable.Core
                 config.CurrentStateRepresentation);
             rep.NextStateRepresentationWrapper = null;
             rep.ConditionalTriggerPredicate = predicate;
+            rep.AwaitableTransitionFlags |= flags;
+
+            return config;
+        }
+
+        internal static AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TState, TTrigger>(
+            AwaitableStateConfiguration<TState, TTrigger> config, TTrigger trigger,
+            object targetStateFunc,
+            object onTriggerAction, AwaitableTransitionFlag flags)
+        {
+            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.Requires<ArgumentNullException>(targetStateFunc != null);
+
+            if (
+                AwaitableStateConfigurationHelper.FindTriggerRepresentation(trigger, config.CurrentStateRepresentation) !=
+                null)
+                ExceptionHelper.ThrowExclusiveOperation();
+            var rep = AwaitableStateConfigurationHelper.CreateTriggerRepresentation(trigger,
+                config.CurrentStateRepresentation);
+            rep.NextStateRepresentationWrapper = targetStateFunc;
+            rep.OnTriggerAction = onTriggerAction;
+            rep.ConditionalTriggerPredicate = null;
             rep.AwaitableTransitionFlags |= flags;
 
             return config;

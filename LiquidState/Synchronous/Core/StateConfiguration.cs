@@ -5,8 +5,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using LiquidState.Core;
+using Helper = LiquidState.Synchronous.Core.StateConfigurationMethodHelper;
 
 namespace LiquidState.Synchronous.Core
 {
@@ -18,13 +18,6 @@ namespace LiquidState.Synchronous.Core
         internal StateConfiguration(Dictionary<TState, StateRepresentation<TState, TTrigger>> representations,
             TState currentState)
         {
-            Contract.Requires(representations != null);
-            Contract.Requires(currentState != null);
-
-            Contract.Ensures(Representations != null);
-            Contract.Ensures(CurrentStateRepresentation != null);
-
-
             Representations = representations;
             CurrentStateRepresentation = StateConfigurationHelper.FindOrCreateStateRepresentation(currentState,
                 representations);
@@ -34,12 +27,12 @@ namespace LiquidState.Synchronous.Core
 
         public StateConfiguration<TState, TTrigger> OnEntry(Action<Transition<TState, TTrigger>> action)
         {
-            return StateConfigurationMethodHelper.OnEntry(this, action);
+            return Helper.OnEntry(this, action);
         }
 
         public StateConfiguration<TState, TTrigger> OnExit(Action<Transition<TState, TTrigger>> action)
         {
-            return StateConfigurationMethodHelper.OnExit(this, action);
+            return Helper.OnExit(this, action);
         }
 
         #endregion
@@ -48,30 +41,21 @@ namespace LiquidState.Synchronous.Core
 
         public StateConfiguration<TState, TTrigger> Permit(TTrigger trigger, TState resultingState)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, resultingState, null);
+            return Helper.Permit(this, null, trigger, resultingState, null);
         }
 
 
         public StateConfiguration<TState, TTrigger> Permit(TTrigger trigger, TState resultingState,
             Action<Transition<TState, TTrigger>> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, resultingState, onEntryAction);
+            return Helper.Permit(this, null, trigger, resultingState, onEntryAction);
         }
 
         public StateConfiguration<TState, TTrigger> Permit<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger, TState resultingState,
             Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, resultingState, onEntryAction);
+            return Helper.Permit(this, null, trigger, resultingState, onEntryAction);
         }
 
         #endregion
@@ -81,19 +65,13 @@ namespace LiquidState.Synchronous.Core
         public StateConfiguration<TState, TTrigger> PermitIf(Func<bool> predicate, TTrigger trigger,
             TState resultingState)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, resultingState, null);
+            return Helper.Permit(this, predicate, trigger, resultingState, null);
         }
 
         public StateConfiguration<TState, TTrigger> PermitIf(Func<bool> predicate, TTrigger trigger,
             TState resultingState, Action<Transition<TState, TTrigger>> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, resultingState, onEntryAction);
+            return Helper.Permit(this, predicate, trigger, resultingState, onEntryAction);
         }
 
 
@@ -101,10 +79,7 @@ namespace LiquidState.Synchronous.Core
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             TState resultingState, Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(resultingState != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, resultingState, onEntryAction);
+            return Helper.Permit(this, predicate, trigger, resultingState, onEntryAction);
         }
 
         #endregion
@@ -113,19 +88,13 @@ namespace LiquidState.Synchronous.Core
 
         public StateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State, null);
+            return Helper.Permit(this, null, trigger, CurrentStateRepresentation.State, null);
         }
 
         public StateConfiguration<TState, TTrigger> PermitReentry(TTrigger trigger,
             Action<Transition<TState, TTrigger>> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
+            return Helper.Permit(this, null, trigger, CurrentStateRepresentation.State,
                 onEntryAction);
         }
 
@@ -133,10 +102,7 @@ namespace LiquidState.Synchronous.Core
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, null, trigger, CurrentStateRepresentation.State,
+            return Helper.Permit(this, null, trigger, CurrentStateRepresentation.State,
                 onEntryAction);
         }
 
@@ -146,10 +112,7 @@ namespace LiquidState.Synchronous.Core
 
         public StateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
+            return Helper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
                 null);
         }
 
@@ -157,10 +120,7 @@ namespace LiquidState.Synchronous.Core
         public StateConfiguration<TState, TTrigger> PermitReentryIf(Func<bool> predicate, TTrigger trigger,
             Action<Transition<TState, TTrigger>> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
+            return Helper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
                 onEntryAction);
         }
 
@@ -168,10 +128,7 @@ namespace LiquidState.Synchronous.Core
             ParameterizedTrigger<TTrigger, TArgument> trigger,
             Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Assume(CurrentStateRepresentation.State != null);
-
-            return StateConfigurationMethodHelper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
+            return Helper.Permit(this, predicate, trigger, CurrentStateRepresentation.State,
                 onEntryAction);
         }
 
@@ -181,16 +138,12 @@ namespace LiquidState.Synchronous.Core
 
         public StateConfiguration<TState, TTrigger> Ignore(TTrigger trigger)
         {
-            Contract.Requires(trigger != null);
-
-            return StateConfigurationMethodHelper.Ignore(this, null, trigger);
+            return Helper.Ignore(this, null, trigger);
         }
 
         public StateConfiguration<TState, TTrigger> IgnoreIf(Func<bool> predicate, TTrigger trigger)
         {
-            Contract.Requires(trigger != null);
-
-            return StateConfigurationMethodHelper.Ignore(this, predicate, trigger);
+            return Helper.Ignore(this, predicate, trigger);
         }
 
         #endregion
@@ -201,10 +154,7 @@ namespace LiquidState.Synchronous.Core
             Func<DynamicState<TState>> targetStatePredicate,
             Action<Transition<TState, TTrigger>> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStatePredicate != null);
-
-            return StateConfigurationMethodHelper.PermitDynamic(this, trigger, targetStatePredicate, onEntryAction);
+            return Helper.PermitDynamic(this, trigger, targetStatePredicate, onEntryAction);
         }
 
         public StateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
@@ -212,10 +162,7 @@ namespace LiquidState.Synchronous.Core
             Func<DynamicState<TState>> targetStatePredicate,
             Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
         {
-            Contract.Requires(trigger != null);
-            Contract.Requires(targetStatePredicate != null);
-
-            return StateConfigurationMethodHelper.PermitDynamic(this, trigger, targetStatePredicate, onEntryAction);
+            return Helper.PermitDynamic(this, trigger, targetStatePredicate, onEntryAction);
         }
 
         #endregion

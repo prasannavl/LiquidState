@@ -20,7 +20,7 @@ namespace LiquidState.Core
         void Resume();
     }
 
-    public interface IStateMachineDiagnosticsCore<TState, TTrigger>
+    public interface IStateMachineDiagnosticsCore<TState, out TTrigger>
     {
         IEnumerable<TTrigger> CurrentPermittedTriggers { get; }
     }

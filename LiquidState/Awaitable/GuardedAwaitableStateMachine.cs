@@ -3,7 +3,6 @@
 // Project: LiquidState
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
-using System.Diagnostics.Contracts;
 using System.Threading.Tasks;
 using LiquidState.Awaitable.Core;
 using LiquidState.Common;
@@ -20,8 +19,6 @@ namespace LiquidState.Awaitable
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
             : base(initialState, awaitableConfiguration)
         {
-            Contract.Requires(awaitableConfiguration != null);
-            Contract.Requires(initialState != null);
         }
 
         public override async Task MoveToStateAsync(TState state,
@@ -94,8 +91,6 @@ namespace LiquidState.Awaitable
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
             : base(initialState, awaitableConfiguration)
         {
-            Contract.Requires(awaitableConfiguration != null);
-            Contract.Requires(initialState != null);
         }
     }
 }
