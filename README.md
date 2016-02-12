@@ -16,7 +16,7 @@ Installation
 > Install-Package LiquidState
 
 **Supported Platforms:**
-> .NETCore, .NETDesktop, Mono, Xamarin
+> .NETPlatform 1.0 (Formerly PCL259 profile - Supports .NETCore, .NETDesktop, Xamarin and Mono) 
 
 Highlights
 ----
