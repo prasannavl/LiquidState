@@ -16,7 +16,7 @@ Installation
 > Install-Package LiquidState
 
 **Supported Platforms:**
-> PCL profile 259: Supports all platforms including Xamarin.iOS and Xamarin.Android.
+> .NETCore, .NETDesktop, Mono, Xamarin
 
 Highlights
 ----
@@ -158,7 +158,7 @@ Now, let's take the same dumb, and terrible example, but now do it **asynchronou
 (Mix and match synchronous code when you don't need asynchrony to avoid the costs.)
 
 ```c#
-// Note the "CreateAsyncConfiguration"
+// Note the "CreateAwaitableConfiguration"
 var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 
 config.ForState(State.Off)
@@ -449,7 +449,7 @@ Breaking changes:
 ######v7.2.0
 
 - Introduce `Transition<TState, TTrigger>` object
-- All state machine configurations now take the transition object. (Extensions methods provide act as overloads without the transition objects for convenience)
+- All state machine configurations now take the transition object. (Extensions methods act as overloads without the transition objects for convenience)
 - New factory methods to be able to create custom state machines through the factory.
 
 ######v8.0

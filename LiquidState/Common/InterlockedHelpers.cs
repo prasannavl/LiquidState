@@ -33,7 +33,7 @@ namespace LiquidState.Common
         public bool IsBusy => Interlocked.CompareExchange(ref busy, -1, -1) > 0;
 
         /// <summary>
-        ///     WARNING: This method has to be not be used with awaits in-between Entry and Exit.
+        ///     WARNING: This method should NOT be used when there are awaits in-between Entry and Exit.
         ///     Task continuations expected to be run on the same thread (eg: UI context) will result in a deadlock.
         ///     This is also the reason why this functionality is not a part of the InterlockedMonitor itself, and is
         ///     isolated.
@@ -52,7 +52,7 @@ namespace LiquidState.Common
     /// <summary>
     ///     A struct is used for lesser over-head. But be very cautious about where its used.
     ///     And it should never be marked readonly, since the compiler will start reacting by creating copies
-    ///     of mutation.
+    ///     for any inner mutation.
     /// </summary>
     internal struct InterlockedMonitor
     {
