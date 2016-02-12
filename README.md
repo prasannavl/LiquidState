@@ -21,6 +21,8 @@ Installation
 Highlights
 ----
 
+- Zero heap allocations during the machine execution - GC friendly and high-performance. (Awaitable machines still incur the async/await
+costs).
 - Fully supports async/await methods everywhere => `OnEntry`, `OnExit`, during trigger, and even trigger conditions.
 - Builds a linked object graph internally during configuration making it a much faster and more efficient implementation than regular dictionary based implementations.
 - Both synchronous, and asynchronous machines with full support for `async-await`.
