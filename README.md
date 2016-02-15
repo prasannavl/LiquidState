@@ -297,6 +297,14 @@ Support
 Please use the GitHub issue tracker [here](https://github.com/prasannavl/LiquidState/issues) if you'd like to report problems or discuss features. As always, do a preliminary search in the issue tracker before opening new ones - (*Tip:* include pull requests, closed, and open issues: *[Exhaustive search](https://github.com/prasannavl/LiquidState/issues?q=)* ).
 
 
+Credits
+---
+Thanks to [JetBrains](http://www.jetbrains.com) for the OSS license of Resharper Ultimate.
+Proudly developed using:
+
+<img src="http://blog.jetbrains.com/wp-content/uploads/2014/04/logo_resharper.gif" width="80">
+
+
 Contributions
 ----
 
