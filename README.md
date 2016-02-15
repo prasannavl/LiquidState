@@ -299,10 +299,12 @@ Please use the GitHub issue tracker [here](https://github.com/prasannavl/LiquidS
 
 Credits
 ---
-Thanks to [JetBrains](http://www.jetbrains.com) for the OSS license of Resharper Ultimate.
+Thanks to [JetBrains](https://www.jetbrains.com) for the OSS license of Resharper Ultimate.
+
 Proudly developed using:
 
-<img src="http://blog.jetbrains.com/wp-content/uploads/2014/04/logo_resharper.gif" width="100">
+<a href="https://www.jetbrains.com/resharper/
+"><img src="https://blog.jetbrains.com/wp-content/uploads/2014/04/logo_resharper.gif" alt="Resharper logo" width="100" /></a>
 
 
 Contributions
