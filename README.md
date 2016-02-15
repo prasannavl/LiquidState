@@ -302,7 +302,7 @@ Credits
 Thanks to [JetBrains](http://www.jetbrains.com) for the OSS license of Resharper Ultimate.
 Proudly developed using:
 
-<img src="http://blog.jetbrains.com/wp-content/uploads/2014/04/logo_resharper.gif" width="80">
+<img src="http://blog.jetbrains.com/wp-content/uploads/2014/04/logo_resharper.gif" width="100">
 
 
 Contributions
