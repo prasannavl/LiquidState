@@ -6,7 +6,7 @@ Heavily inspired by the excellent state machine library [**Stateless**](https://
 **Nicholas Blumhardt.**
 
 [![Build status](https://ci.appveyor.com/api/projects/status/6a1pmx2o3jaje60m/branch/master?svg=true)](https://ci.appveyor.com/project/prasannavl/liquidstate/branch/master)
-[![NuGet badge](https://buildstats.info/nuget/LiquidState)
+[![NuGet badge](https://buildstats.info/nuget/LiquidState)](https://www.nuget.org/packages/LiquidState)
 
 Installation
 ----
