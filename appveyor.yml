@@ -9,7 +9,7 @@
     clone_depth: 1
     skip_tags: true
     skip_commits:
-      message: '(?i)Update README(\.md)?(\s*)$'
+      message: /((?i)Update README(\.md)?)|(^config:.*)/
 
     ## -- Environment --
 
