@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>LiquidState</id>
+        <version>8.2.0.0</version>
+        <title>LiquidState</title>
+        <authors>Prasanna V. Loganathar</authors>
+        <owners>Prasanna V. Loganathar</owners>
+        <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
+        <projectUrl>https://github.com/prasannavl/LiquidState</projectUrl>
+        <iconUrl>https://raw.githubusercontent.com/prasannavl/LiquidState/master/Misc/Logo.png</iconUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Efficient state machines for .NET with both synchronous and asynchronous support</description>
+        <copyright>Copyright Prasanna V. Loganathar</copyright>
+        <tags>state machine async high-performance</tags>
+        <dependencies>
+            <group targetFramework=".NETStandard1.0">
+                <dependency id="Microsoft.NETCore.Portable.Compatibility" version="1.0.1" exclude="Build,Analyzers" />
+                <dependency id="NETStandard.Library" version="1.6.0" exclude="Build,Analyzers" />
+                <dependency id="System.Collections.Immutable" version="1.2.0" exclude="Build,Analyzers" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\LiquidState\bin\Release\LiquidState.dll" target="lib\netstandard1.0\LiquidState.dll" />
+    </files>
+</package>
