@@ -5,7 +5,6 @@ Efficient state machines for .NET with both synchronous and asynchronous support
 Heavily inspired by the excellent state machine library [**Stateless**](https://github.com/nblumhardt/stateless) by
 **Nicholas Blumhardt.**
 
-[![Build status](https://ci.appveyor.com/api/projects/status/6a1pmx2o3jaje60m/branch/master?svg=true)](https://ci.appveyor.com/project/prasannavl/liquidstate/branch/master)
 [![NuGet badge](https://buildstats.info/nuget/LiquidState)](https://www.nuget.org/packages/LiquidState)
 
 Installation
@@ -469,3 +468,8 @@ Breaking changes:
 - Enable usage of `null` as a value for a reference based `TState`.
 - All internal APIs that take both `TState` and `TTrigger` as generic parameters are now consistent, and always take them in that order. Generally shouldn't be any breaking change unless you ended up using internal or obscure APIs.
 
+######v8.1
+
+- Refactor project structure to move to NETCore: NetStandard 1.0
+- Revamp the nuget build process
+- Update coding conventions and cleanup
