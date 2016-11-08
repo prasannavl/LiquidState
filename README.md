@@ -29,6 +29,8 @@ costs).
 - `PermitDynamic` to support selection of states dynamically on-the-fly.
 - `Diagnostics` in-built to check for validity of triggers, and currently available triggers.
 
+[**Release Notes**](https://github.com/prasannavl/LiquidState/blob/master/ReleaseNotes.md)
+
 How To Use
 ---
 
