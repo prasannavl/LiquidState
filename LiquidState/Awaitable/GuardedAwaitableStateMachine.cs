@@ -13,73 +13,50 @@ namespace LiquidState.Awaitable
     public abstract class GuardedAwaitableStateMachineBase<TState, TTrigger> :
         RawAwaitableStateMachineBase<TState, TTrigger>
     {
-        private InterlockedMonitor monitor = new InterlockedMonitor();
+        private InterlockedMonitor m_monitor = new InterlockedMonitor();
 
         protected GuardedAwaitableStateMachineBase(TState initialState,
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
-            : base(initialState, awaitableConfiguration)
-        {
-        }
+            : base(initialState, awaitableConfiguration) {}
 
         public override async Task MoveToStateAsync(TState state,
             StateTransitionOption option = StateTransitionOption.Default)
         {
-            if (monitor.TryEnter())
+            if (m_monitor.TryEnter())
             {
-                try
-                {
-                    await base.MoveToStateAsync(state, option).ConfigureAwait(false);
-                }
-                finally
-                {
-                    monitor.Exit();
-                }
+                try { await base.MoveToStateAsync(state, option).ConfigureAwait(false); }
+                finally { m_monitor.Exit(); }
             }
             else
             {
-                if (IsEnabled)
-                    AwaitableExecutionHelper.ThrowInTransition();
+                if (IsEnabled) AwaitableExecutionHelper.ThrowInTransition();
             }
         }
 
         public override async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
-            if (monitor.TryEnter())
+            if (m_monitor.TryEnter())
             {
-                try
-                {
-                    await base.FireAsync(parameterizedTrigger, argument).ConfigureAwait(false);
-                }
-                finally
-                {
-                    monitor.Exit();
-                }
+                try { await base.FireAsync(parameterizedTrigger, argument).ConfigureAwait(false); }
+                finally { m_monitor.Exit(); }
             }
             else
             {
-                if (IsEnabled)
-                    AwaitableExecutionHelper.ThrowInTransition();
+                if (IsEnabled) AwaitableExecutionHelper.ThrowInTransition();
             }
         }
 
         public override async Task FireAsync(TTrigger trigger)
         {
-            if (monitor.TryEnter())
+            if (m_monitor.TryEnter())
             {
-                try
-                {
-                    await base.FireAsync(trigger).ConfigureAwait(false);
-                }
-                finally
-                {
-                    monitor.Exit();
-                }
+                try { await base.FireAsync(trigger).ConfigureAwait(false); }
+                finally { m_monitor.Exit(); }
             }
             else
             {
-                if (IsEnabled)
-                    AwaitableExecutionHelper.ThrowInTransition();
+                if (IsEnabled) AwaitableExecutionHelper.ThrowInTransition();
             }
         }
     }
@@ -89,8 +66,6 @@ namespace LiquidState.Awaitable
     {
         public GuardedAwaitableStateMachine(TState initialState,
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
-            : base(initialState, awaitableConfiguration)
-        {
-        }
+            : base(initialState, awaitableConfiguration) {}
     }
 }

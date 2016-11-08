@@ -15,15 +15,15 @@ namespace LiquidState.Awaitable
     public abstract class QueuedAwaitableStateMachineBase<TState, TTrigger> :
         RawAwaitableStateMachineBase<TState, TTrigger>
     {
-        private IImmutableQueue<Func<Task>> actionsQueue;
-        private int queueCount;
-        private InterlockedBlockingMonitor queueMonitor = new InterlockedBlockingMonitor();
-        private InterlockedMonitor monitor = new InterlockedMonitor();
+        private IImmutableQueue<Func<Task>> m_actionsQueue;
+        private InterlockedMonitor m_monitor = new InterlockedMonitor();
+        private int m_queueCount;
+        private InterlockedYieldableSpinMonitor m_queueMonitor = new InterlockedYieldableSpinMonitor();
 
         protected QueuedAwaitableStateMachineBase(TState initialState, AwaitableConfiguration<TState, TTrigger> config)
             : base(initialState, config)
         {
-            actionsQueue = ImmutableQueue.Create<Func<Task>>();
+            m_actionsQueue = ImmutableQueue.Create<Func<Task>>();
         }
 
         public override async Task MoveToStateAsync(TState state,
@@ -31,31 +31,28 @@ namespace LiquidState.Awaitable
         {
             var flag = true;
 
-            queueMonitor.Enter();
-            if (monitor.TryEnter())
+            m_queueMonitor.Enter();
+            if (m_monitor.TryEnter())
             {
-                if (queueCount == 0)
+                if (m_queueCount == 0)
                 {
-                    queueMonitor.Exit();
+                    m_queueMonitor.Exit();
                     flag = false;
 
-                    try
-                    {
-                        await base.MoveToStateAsync(state, option);
-                    }
+                    try { await base.MoveToStateAsync(state, option); }
                     finally
                     {
-                        queueMonitor.Enter();
-                        if (queueCount > 0)
+                        m_queueMonitor.Enter();
+                        if (m_queueCount > 0)
                         {
-                            queueMonitor.Exit();
+                            m_queueMonitor.Exit();
                             var _ = StartQueueIfNecessaryAsync(true);
                             // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
                         {
-                            queueMonitor.Exit();
-                            monitor.Exit();
+                            m_queueMonitor.Exit();
+                            m_monitor.Exit();
                         }
                     }
                 }
@@ -65,21 +62,20 @@ namespace LiquidState.Awaitable
             {
                 var tcs = new TaskCompletionSource<bool>();
 
-                actionsQueue = actionsQueue.Enqueue(async () =>
+                m_actionsQueue = m_actionsQueue.Enqueue(async () =>
                 {
                     try
                     {
                         await base.MoveToStateAsync(state, option);
                         tcs.TrySetResult(true);
                     }
-                    catch (Exception ex)
-                    {
+                    catch (Exception ex) {
                         tcs.SetException(ex);
                     }
                 });
 
-                queueCount++;
-                queueMonitor.Exit();
+                m_queueCount++;
+                m_queueMonitor.Exit();
                 var _ = StartQueueIfNecessaryAsync();
                 await tcs.Task;
             }
@@ -94,37 +90,33 @@ namespace LiquidState.Awaitable
         public override async Task FireAsync<TArgument>(ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
             TArgument argument)
         {
-            if (!IsEnabled)
-                return;
+            if (!IsEnabled) return;
 
             var flag = true;
 
-            queueMonitor.Enter();
-            if (monitor.TryEnter())
+            m_queueMonitor.Enter();
+            if (m_monitor.TryEnter())
             {
                 // Try to execute inline if the process queue is empty.
-                if (queueCount == 0)
+                if (m_queueCount == 0)
                 {
-                    queueMonitor.Exit();
+                    m_queueMonitor.Exit();
                     flag = false;
 
-                    try
-                    {
-                        await base.FireAsync(parameterizedTrigger, argument);
-                    }
+                    try { await base.FireAsync(parameterizedTrigger, argument); }
                     finally
                     {
-                        queueMonitor.Enter();
-                        if (queueCount > 0)
+                        m_queueMonitor.Enter();
+                        if (m_queueCount > 0)
                         {
-                            queueMonitor.Exit();
+                            m_queueMonitor.Exit();
                             var _ = StartQueueIfNecessaryAsync(true);
                             // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
                         {
-                            queueMonitor.Exit();
-                            monitor.Exit();
+                            m_queueMonitor.Exit();
+                            m_monitor.Exit();
                         }
                     }
                 }
@@ -135,20 +127,19 @@ namespace LiquidState.Awaitable
                 // Fast path was not taken. Queue up the delgates.
 
                 var tcs = new TaskCompletionSource<bool>();
-                actionsQueue = actionsQueue.Enqueue(async () =>
+                m_actionsQueue = m_actionsQueue.Enqueue(async () =>
                 {
                     try
                     {
                         await base.FireAsync(parameterizedTrigger, argument);
                         tcs.TrySetResult(true);
                     }
-                    catch (Exception ex)
-                    {
+                    catch (Exception ex) {
                         tcs.TrySetException(ex);
                     }
                 });
-                queueCount++;
-                queueMonitor.Exit();
+                m_queueCount++;
+                m_queueMonitor.Exit();
                 var _ = StartQueueIfNecessaryAsync();
                 await tcs.Task;
             }
@@ -156,37 +147,33 @@ namespace LiquidState.Awaitable
 
         public override async Task FireAsync(TTrigger trigger)
         {
-            if (!IsEnabled)
-                return;
+            if (!IsEnabled) return;
 
             var flag = true;
 
-            queueMonitor.Enter();
-            if (monitor.TryEnter())
+            m_queueMonitor.Enter();
+            if (m_monitor.TryEnter())
             {
                 // Try to execute inline if the process queue is empty.
-                if (queueCount == 0)
+                if (m_queueCount == 0)
                 {
-                    queueMonitor.Exit();
+                    m_queueMonitor.Exit();
                     flag = false;
 
-                    try
-                    {
-                        await base.FireAsync(trigger);
-                    }
+                    try { await base.FireAsync(trigger); }
                     finally
                     {
-                        queueMonitor.Enter();
-                        if (queueCount > 0)
+                        m_queueMonitor.Enter();
+                        if (m_queueCount > 0)
                         {
-                            queueMonitor.Exit();
+                            m_queueMonitor.Exit();
                             var _ = StartQueueIfNecessaryAsync(true);
                             // Should not exit monitor here. Its handled by the process queue.
                         }
                         else
                         {
-                            queueMonitor.Exit();
-                            monitor.Exit();
+                            m_queueMonitor.Exit();
+                            m_monitor.Exit();
                         }
                     }
                 }
@@ -198,20 +185,19 @@ namespace LiquidState.Awaitable
                 // Fast path was not taken. Queue up the delgates.
 
                 var tcs = new TaskCompletionSource<bool>();
-                actionsQueue = actionsQueue.Enqueue(async () =>
+                m_actionsQueue = m_actionsQueue.Enqueue(async () =>
                 {
                     try
                     {
                         await base.FireAsync(trigger);
                         tcs.TrySetResult(true);
                     }
-                    catch (Exception ex)
-                    {
+                    catch (Exception ex) {
                         tcs.TrySetException(ex);
                     }
                 });
-                queueCount++;
-                queueMonitor.Exit();
+                m_queueCount++;
+                m_queueMonitor.Exit();
                 var _ = StartQueueIfNecessaryAsync();
                 await tcs.Task;
             }
@@ -219,18 +205,15 @@ namespace LiquidState.Awaitable
 
         public void SkipPending()
         {
-            queueMonitor.Enter();
-            actionsQueue = ImmutableQueue<Func<Task>>.Empty;
-            queueCount = 0;
-            queueMonitor.Exit();
+            m_queueMonitor.Enter();
+            m_actionsQueue = ImmutableQueue<Func<Task>>.Empty;
+            m_queueCount = 0;
+            m_queueMonitor.Exit();
         }
 
         private Task StartQueueIfNecessaryAsync(bool lockTaken = false)
         {
-            if (lockTaken || monitor.TryEnter())
-            {
-                return ProcessQueueInternal();
-            }
+            if (lockTaken || m_monitor.TryEnter()) { return ProcessQueueInternal(); }
 
             return TaskHelpers.CompletedTask;
         }
@@ -240,32 +223,28 @@ namespace LiquidState.Awaitable
             // Always yield if the task was queued.
             await Task.Yield();
 
-            queueMonitor.Enter();
+            m_queueMonitor.Enter();
             try
             {
-                while (queueCount > 0)
+                while (m_queueCount > 0)
                 {
-                    var current = actionsQueue.Peek();
-                    actionsQueue = actionsQueue.Dequeue();
-                    queueCount--;
-                    queueMonitor.Exit();
+                    var current = m_actionsQueue.Peek();
+                    m_actionsQueue = m_actionsQueue.Dequeue();
+                    m_queueCount--;
+                    m_queueMonitor.Exit();
 
                     try
                     {
-                        if (current != null)
-                            await current();
+                        if (current != null) await current();
                     }
-                    finally
-                    {
-                        queueMonitor.Enter();
-                    }
+                    finally { m_queueMonitor.Enter(); }
                 }
             }
             finally
             {
                 // Exit monitor regardless of this method entering the monitor.
-                monitor.Exit();
-                queueMonitor.Exit();
+                m_monitor.Exit();
+                m_queueMonitor.Exit();
             }
         }
     }
@@ -275,8 +254,6 @@ namespace LiquidState.Awaitable
     {
         public QueuedAwaitableStateMachine(TState initialState,
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
-            : base(initialState, awaitableConfiguration)
-        {
-        }
+            : base(initialState, awaitableConfiguration) {}
     }
 }

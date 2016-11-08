@@ -5,9 +5,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 using LiquidState.Core;
+using LiquidState.Common;
 
 namespace LiquidState.Awaitable.Core
 {
@@ -34,7 +34,7 @@ namespace LiquidState.Awaitable.Core
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.NotNull(trigger != null, nameof(trigger));
 
             return new ParameterizedTrigger<TTrigger, TArgument>(trigger);
         }

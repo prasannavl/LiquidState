@@ -4,8 +4,8 @@
 // License: http://www.apache.org/licenses/LICENSE-2.0
 
 using System;
-using System.Diagnostics.Contracts;
 using LiquidState.Core;
+using LiquidState.Common;
 
 namespace LiquidState.Awaitable.Core
 {
@@ -33,13 +33,12 @@ namespace LiquidState.Awaitable.Core
             AwaitableStateConfiguration<TState, TTrigger> config, object predicate, TTrigger trigger,
             TState resultingState, object onTriggerAction, AwaitableTransitionFlag flags)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null);
-            Contract.Requires<ArgumentNullException>(resultingState != null);
+            Contract.NotNull(trigger != null, nameof(trigger));
+            Contract.NotNull(resultingState != null, nameof(resultingState));
 
             if (
                 AwaitableStateConfigurationHelper.FindTriggerRepresentation(trigger,
-                    config.CurrentStateRepresentation) != null)
-                ExceptionHelper.ThrowExclusiveOperation();
+                    config.CurrentStateRepresentation) != null) ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = AwaitableStateConfigurationHelper.CreateTriggerRepresentation(trigger,
                 config.CurrentStateRepresentation);
@@ -58,12 +57,11 @@ namespace LiquidState.Awaitable.Core
             AwaitableStateConfiguration<TState, TTrigger> config, object predicate, TTrigger trigger,
             AwaitableTransitionFlag flags)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.NotNull(trigger != null, nameof(trigger));
 
             if (
                 AwaitableStateConfigurationHelper.FindTriggerRepresentation(trigger, config.CurrentStateRepresentation) !=
-                null)
-                ExceptionHelper.ThrowExclusiveOperation();
+                null) ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = AwaitableStateConfigurationHelper.CreateTriggerRepresentation(trigger,
                 config.CurrentStateRepresentation);
@@ -79,13 +77,12 @@ namespace LiquidState.Awaitable.Core
             object targetStateFunc,
             object onTriggerAction, AwaitableTransitionFlag flags)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null);
-            Contract.Requires<ArgumentNullException>(targetStateFunc != null);
+            Contract.NotNull(trigger != null, nameof(trigger));
+            Contract.NotNull(targetStateFunc != null, nameof(targetStateFunc));
 
             if (
                 AwaitableStateConfigurationHelper.FindTriggerRepresentation(trigger, config.CurrentStateRepresentation) !=
-                null)
-                ExceptionHelper.ThrowExclusiveOperation();
+                null) ExceptionHelper.ThrowExclusiveOperation();
             var rep = AwaitableStateConfigurationHelper.CreateTriggerRepresentation(trigger,
                 config.CurrentStateRepresentation);
             rep.NextStateRepresentationWrapper = targetStateFunc;

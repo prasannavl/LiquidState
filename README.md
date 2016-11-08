@@ -312,8 +312,6 @@ Contributions
 
 If this project has helped you, the best way to `say thanks` is to contribute back :)
 
-Any commits into the `master` branch will be automatically built and deployed as `pre-release` nuget packages.
-
 **Note:** If your contribution introduces new API surface, features, or includes either conceptual or implementational changes, it is **highly recommended** that an issue is opened first (which will be labelled accordingly), so that design notes or at-least a quick review on the direction is discussed, before any large effort is made. There's nothing I hate more than good contributions that go unmerged. :)
 
 

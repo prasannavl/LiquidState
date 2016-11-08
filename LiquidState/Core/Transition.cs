@@ -11,17 +11,17 @@ namespace LiquidState.Core
     {
         public Transition(TState source, TState destination)
         {
-            this.Source = source;
-            this.Destination = destination;
+            Source = source;
+            Destination = destination;
             Trigger = default(TTrigger);
             HasTrigger = false;
         }
 
         public Transition(TState source, TState destination, TTrigger trigger)
         {
-            this.Source = source;
-            this.Destination = destination;
-            this.Trigger = trigger;
+            Source = source;
+            Destination = destination;
+            Trigger = trigger;
             HasTrigger = true;
         }
 

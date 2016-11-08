@@ -48,7 +48,7 @@ namespace LiquidState.Core
     public class InvalidStateException<TState> : Exception
     {
         public InvalidStateException(TState state)
-            : base("Invalid state: " + state.ToString())
+            : base("Invalid state: " + state)
         {
             InvalidState = state;
         }
@@ -86,7 +86,7 @@ namespace LiquidState.Core
         public InvalidTriggerParameterException(TTrigger trigger)
             : base(
                 "Invalid trigger parameters. Appropriate ParamterizedTrigger has to be passed when, and only when the trigger is parameterized."
-                )
+            )
         {
             Trigger = trigger;
         }

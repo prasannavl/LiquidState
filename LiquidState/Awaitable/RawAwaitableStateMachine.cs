@@ -15,21 +15,18 @@ namespace LiquidState.Awaitable
     public abstract class RawAwaitableStateMachineBase<TState, TTrigger> : AbstractStateMachineCore<TState, TTrigger>,
         IAwaitableStateMachine<TState, TTrigger>
     {
+        private readonly RawAwaitableStateMachineDiagnostics<TState, TTrigger> m_diagnostics;
         internal AwaitableStateRepresentation<TState, TTrigger> CurrentStateRepresentation;
         internal Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> Representations;
-        private readonly RawAwaitableStateMachineDiagnostics<TState, TTrigger> diagnostics;
 
         protected RawAwaitableStateMachineBase(TState initialState,
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
         {
             CurrentStateRepresentation = awaitableConfiguration.GetInitialStateRepresentation(initialState);
-            if (CurrentStateRepresentation == null)
-            {
-                ExceptionHelper.ThrowInvalidState(initialState);
-            }
+            if (CurrentStateRepresentation == null) { ExceptionHelper.ThrowInvalidState(initialState); }
 
             Representations = awaitableConfiguration.Representations;
-            diagnostics = new RawAwaitableStateMachineDiagnostics<TState, TTrigger>(this);
+            m_diagnostics = new RawAwaitableStateMachineDiagnostics<TState, TTrigger>(this);
         }
 
         public virtual Task MoveToStateAsync(TState state, StateTransitionOption option = StateTransitionOption.Default)
@@ -52,7 +49,7 @@ namespace LiquidState.Awaitable
             return !IsEnabled ? TaskHelpers.CompletedTask : AwaitableExecutionHelper.FireCoreAsync(trigger, this);
         }
 
-        public IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics => diagnostics;
+        public IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics => m_diagnostics;
 
         public override TState CurrentState => CurrentStateRepresentation.State;
     }
@@ -91,8 +88,6 @@ namespace LiquidState.Awaitable
     {
         public RawAwaitableStateMachine(TState initialState,
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration)
-            : base(initialState, awaitableConfiguration)
-        {
-        }
+            : base(initialState, awaitableConfiguration) {}
     }
 }

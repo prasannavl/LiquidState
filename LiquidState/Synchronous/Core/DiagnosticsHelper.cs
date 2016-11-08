@@ -14,8 +14,7 @@ namespace LiquidState.Synchronous.Core
         internal static IEnumerable<TTrigger> EnumeratePermittedTriggers<TState, TTrigger>(
             RawStateMachineBase<TState, TTrigger> machine)
         {
-            foreach (var triggerRepresentation in machine.CurrentStateRepresentation.Triggers)
-            {
+            foreach (var triggerRepresentation in machine.CurrentStateRepresentation.Triggers) {
                 yield return triggerRepresentation.Trigger;
             }
         }
@@ -45,10 +44,7 @@ namespace LiquidState.Synchronous.Core
 
             // Handle ignored trigger
 
-            if (triggerRep.NextStateRepresentationWrapper == null)
-            {
-                return null;
-            }
+            if (triggerRep.NextStateRepresentationWrapper == null) { return null; }
 
             return triggerRep;
         }
@@ -63,12 +59,11 @@ namespace LiquidState.Synchronous.Core
                 TransitionFlag.DynamicState))
             {
                 var dynamicState = ((Func<DynamicState<TState>>) res.NextStateRepresentationWrapper)();
-                if (!dynamicState.CanTransition)
-                    return false;
+                if (!dynamicState.CanTransition) return false;
             }
 
             if (!exactMatch) return true;
-            return res.OnTriggerAction.GetType() == typeof (Action<Transition<TState, TTrigger>>);
+            return res.OnTriggerAction.GetType() == typeof(Action<Transition<TState, TTrigger>>);
         }
 
         internal static bool CanHandleTrigger<TState, TTrigger>(TTrigger trigger,
@@ -81,11 +76,10 @@ namespace LiquidState.Synchronous.Core
                 TransitionFlag.DynamicState))
             {
                 var dynamicState = ((Func<DynamicState<TState>>) res.NextStateRepresentationWrapper)();
-                if (!dynamicState.CanTransition)
-                    return false;
+                if (!dynamicState.CanTransition) return false;
             }
 
-            var type = typeof (Action<,>).MakeGenericType(typeof (Transition<TState, TTrigger>), argumentType);
+            var type = typeof(Action<,>).MakeGenericType(typeof(Transition<TState, TTrigger>), argumentType);
             return res.OnTriggerAction.GetType() == type;
         }
 
@@ -99,11 +93,10 @@ namespace LiquidState.Synchronous.Core
                 TransitionFlag.DynamicState))
             {
                 var dynamicState = ((Func<DynamicState<TState>>) res.NextStateRepresentationWrapper)();
-                if (!dynamicState.CanTransition)
-                    return false;
+                if (!dynamicState.CanTransition) return false;
             }
 
-            return res.OnTriggerAction.GetType() == typeof (Action<Transition<TState, TTrigger>, TArgument>);
+            return res.OnTriggerAction.GetType() == typeof(Action<Transition<TState, TTrigger>, TArgument>);
         }
     }
 }

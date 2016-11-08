@@ -52,8 +52,6 @@ namespace LiquidState.Awaitable
         public ScheduledAwaitableStateMachine(TState initialState,
             AwaitableConfiguration<TState, TTrigger> awaitableConfiguration,
             TaskScheduler scheduler)
-            : base(initialState, awaitableConfiguration, scheduler)
-        {
-        }
+            : base(initialState, awaitableConfiguration, scheduler) {}
     }
 }

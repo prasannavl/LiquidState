@@ -12,8 +12,8 @@ namespace LiquidState.Synchronous.Core
 {
     public class StateConfiguration<TState, TTrigger>
     {
-        internal readonly Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
         internal readonly StateRepresentation<TState, TTrigger> CurrentStateRepresentation;
+        internal readonly Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
 
         internal StateConfiguration(Dictionary<TState, StateRepresentation<TState, TTrigger>> representations,
             TState currentState)

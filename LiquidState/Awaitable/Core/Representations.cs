@@ -12,9 +12,9 @@ namespace LiquidState.Awaitable.Core
     {
         public readonly TState State;
         public readonly List<AwaitableTriggerRepresentation<TTrigger>> Triggers;
+        public AwaitableTransitionFlag AwaitableTransitionFlags;
         public object OnEntryAction;
         public object OnExitAction;
-        public AwaitableTransitionFlag AwaitableTransitionFlags;
 
         internal AwaitableStateRepresentation(TState state)
         {
@@ -27,10 +27,10 @@ namespace LiquidState.Awaitable.Core
     internal class AwaitableTriggerRepresentation<TTrigger>
     {
         public readonly TTrigger Trigger;
+        public AwaitableTransitionFlag AwaitableTransitionFlags;
         public object ConditionalTriggerPredicate;
         public object NextStateRepresentationWrapper;
         public object OnTriggerAction;
-        public AwaitableTransitionFlag AwaitableTransitionFlags;
 
         internal AwaitableTriggerRepresentation(TTrigger trigger)
         {
@@ -47,6 +47,6 @@ namespace LiquidState.Awaitable.Core
         TriggerActionReturnsTask = 1 << 2,
         TriggerPredicateReturnsTask = 1 << 3,
         DynamicState = 1 << 4,
-        DynamicStateReturnsTask = DynamicState | 1 << 5,
+        DynamicStateReturnsTask = DynamicState | (1 << 5)
     }
 }

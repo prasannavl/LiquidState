@@ -42,6 +42,6 @@ namespace LiquidState.Synchronous.Core
     internal enum TransitionFlag
     {
         None = 0,
-        DynamicState = 1,
+        DynamicState = 1
     }
 }

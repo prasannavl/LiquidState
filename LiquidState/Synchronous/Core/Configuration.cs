@@ -5,7 +5,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
+using LiquidState.Common;
 using LiquidState.Core;
 
 namespace LiquidState.Synchronous.Core
@@ -32,7 +32,7 @@ namespace LiquidState.Synchronous.Core
 
         public ParameterizedTrigger<TTrigger, TArgument> SetTriggerParameter<TArgument>(TTrigger trigger)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null, nameof(trigger));
+            Contract.NotNull(trigger != null, nameof(trigger));
 
             return new ParameterizedTrigger<TTrigger, TArgument>(trigger);
         }

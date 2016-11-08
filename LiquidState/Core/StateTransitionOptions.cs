@@ -10,6 +10,6 @@ namespace LiquidState.Core
         SkipAllTransitions = 0,
         CurrentStateExitTransition = 1,
         NewStateEntryTransition = 2,
-        Default = 3,
+        Default = 3
     }
 }

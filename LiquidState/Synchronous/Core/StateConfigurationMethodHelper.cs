@@ -6,6 +6,7 @@
 using System;
 using System.Diagnostics.Contracts;
 using LiquidState.Core;
+using LiquidState.Common;
 
 namespace LiquidState.Synchronous.Core
 {
@@ -58,12 +59,11 @@ namespace LiquidState.Synchronous.Core
         internal static StateConfiguration<TState, TTrigger> Ignore<TState, TTrigger>(
             StateConfiguration<TState, TTrigger> config, Func<bool> predicate, TTrigger trigger)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null);
+            Contract.NotNull(trigger != null, nameof(trigger));
 
             if (
                 StateConfigurationHelper.FindTriggerRepresentation(trigger,
-                    config.CurrentStateRepresentation) != null)
-                ExceptionHelper.ThrowExclusiveOperation();
+                    config.CurrentStateRepresentation) != null) ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = StateConfigurationHelper.CreateTriggerRepresentation(trigger,
                 config.CurrentStateRepresentation);
@@ -77,12 +77,11 @@ namespace LiquidState.Synchronous.Core
             StateConfiguration<TState, TTrigger> config, Func<bool> predicate, TTrigger trigger,
             TState resultingState, object onTriggerAction)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null);
-            Contract.Requires<ArgumentNullException>(resultingState != null);
+            Contract.NotNull(trigger != null, nameof(trigger));
+            Contract.NotNull(resultingState != null, nameof(resultingState));
 
             if (StateConfigurationHelper.FindTriggerRepresentation(trigger, config.CurrentStateRepresentation) !=
-                null)
-                ExceptionHelper.ThrowExclusiveOperation();
+                null) ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = StateConfigurationHelper.CreateTriggerRepresentation(trigger,
                 config.CurrentStateRepresentation);
@@ -98,13 +97,12 @@ namespace LiquidState.Synchronous.Core
             StateConfiguration<TState, TTrigger> config, TTrigger trigger,
             Func<DynamicState<TState>> targetStatePredicate, object onTriggerAction)
         {
-            Contract.Requires<ArgumentNullException>(trigger != null);
-            Contract.Requires<ArgumentNullException>(targetStatePredicate != null);
+            Contract.NotNull(trigger != null, nameof(trigger));
+            Contract.NotNull(targetStatePredicate != null, nameof(targetStatePredicate));
 
             if (
                 StateConfigurationHelper.FindTriggerRepresentation(trigger,
-                    config.CurrentStateRepresentation) != null)
-                ExceptionHelper.ThrowExclusiveOperation();
+                    config.CurrentStateRepresentation) != null) ExceptionHelper.ThrowExclusiveOperation();
 
             var rep = StateConfigurationHelper.CreateTriggerRepresentation(trigger,
                 config.CurrentStateRepresentation);

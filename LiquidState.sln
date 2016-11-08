@@ -1,21 +1,22 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiquidState", "LiquidState\LiquidState.csproj", "{A8B9EEE4-FBB7-4CB7-8B61-8CB13519E506}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiquidState", "LiquidState\LiquidState.csproj", "{5D587BD8-F87A-484C-A0CD-13BAAC81167F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiquidState.Sample", "LiquidState.Sample\LiquidState.Sample.csproj", "{F55E623D-4AEB-4C4E-9A97-2E575C4B86AD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LiquidState.Sample", "LiquidState.Sample\LiquidState.Sample.csproj", "{92DD1A6B-D252-4B92-AE54-D4716959638C}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{F654A99E-F9FF-418E-8A2D-6CAD0406788E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{5E17B2EC-0B3E-41B2-934B-EF1978973448}"
 	ProjectSection(SolutionItems) = preProject
-		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		appveyor.yml = appveyor.yml
 		LICENSE.txt = LICENSE.txt
-		LiquidState\LiquidState.nuspec = LiquidState\LiquidState.nuspec
 		README.md = README.md
-		VersionInfo.cs = VersionInfo.cs
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Misc", "Misc", "{74A81566-F625-4B6B-BA8F-AF8E603E5328}"
+	ProjectSection(SolutionItems) = preProject
+		Misc\Logo.png = Misc\Logo.png
 	EndProjectSection
 EndProject
 Global
@@ -24,14 +25,14 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A8B9EEE4-FBB7-4CB7-8B61-8CB13519E506}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A8B9EEE4-FBB7-4CB7-8B61-8CB13519E506}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A8B9EEE4-FBB7-4CB7-8B61-8CB13519E506}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A8B9EEE4-FBB7-4CB7-8B61-8CB13519E506}.Release|Any CPU.Build.0 = Release|Any CPU
-		{F55E623D-4AEB-4C4E-9A97-2E575C4B86AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{F55E623D-4AEB-4C4E-9A97-2E575C4B86AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{F55E623D-4AEB-4C4E-9A97-2E575C4B86AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{F55E623D-4AEB-4C4E-9A97-2E575C4B86AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5D587BD8-F87A-484C-A0CD-13BAAC81167F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5D587BD8-F87A-484C-A0CD-13BAAC81167F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5D587BD8-F87A-484C-A0CD-13BAAC81167F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5D587BD8-F87A-484C-A0CD-13BAAC81167F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{92DD1A6B-D252-4B92-AE54-D4716959638C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92DD1A6B-D252-4B92-AE54-D4716959638C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92DD1A6B-D252-4B92-AE54-D4716959638C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92DD1A6B-D252-4B92-AE54-D4716959638C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

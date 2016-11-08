@@ -11,14 +11,8 @@ namespace LiquidState.Common
     {
         public static void SpinWaitUntilCompareExchangeSucceeds(ref int location, int value, int comparand)
         {
-            // Take fast path if possible.
-            if (Interlocked.CompareExchange(ref location, value, comparand) == comparand) return;
-
             var spinWait = new SpinWait();
-            do
-            {
-                spinWait.SpinOnce();
-            } while (Interlocked.CompareExchange(ref location, value, comparand) != comparand);
+            while (Interlocked.CompareExchange(ref location, value, comparand) != comparand) spinWait.SpinOnce();
         }
     }
 
@@ -27,10 +21,10 @@ namespace LiquidState.Common
     ///     And it should never be marked readonly, since the compiler will start reacting by creating copies
     ///     of mutation.
     /// </summary>
-    internal struct InterlockedBlockingMonitor
+    internal struct InterlockedYieldableSpinMonitor
     {
-        private int busy;
-        public bool IsBusy => Interlocked.CompareExchange(ref busy, -1, -1) > 0;
+        private int m_busy;
+        public bool IsBusy => Interlocked.CompareExchange(ref m_busy, -1, -1) > 0;
 
         /// <summary>
         ///     WARNING: This method should NOT be used when there are awaits in-between Entry and Exit.
@@ -40,12 +34,12 @@ namespace LiquidState.Common
         /// </summary>
         public void Enter()
         {
-            InterlockedHelpers.SpinWaitUntilCompareExchangeSucceeds(ref busy, 1, 0);
+            InterlockedHelpers.SpinWaitUntilCompareExchangeSucceeds(ref m_busy, 1, 0);
         }
 
         public void Exit()
         {
-            Interlocked.Exchange(ref busy, 0);
+            Interlocked.Exchange(ref m_busy, 0);
         }
     }
 
@@ -56,18 +50,18 @@ namespace LiquidState.Common
     /// </summary>
     internal struct InterlockedMonitor
     {
-        private int busy;
+        private int m_busy;
 
-        public bool IsBusy => Interlocked.CompareExchange(ref busy, -1, -1) > 0;
+        public bool IsBusy => Interlocked.CompareExchange(ref m_busy, -1, -1) > 0;
 
         public bool TryEnter()
         {
-            return Interlocked.CompareExchange(ref busy, 1, 0) == 0;
+            return Interlocked.CompareExchange(ref m_busy, 1, 0) == 0;
         }
 
         public void Exit()
         {
-            Interlocked.Exchange(ref busy, 0);
+            Interlocked.Exchange(ref m_busy, 0);
         }
     }
 }

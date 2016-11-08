@@ -10,8 +10,8 @@ namespace LiquidState.Awaitable.Core
     internal static class AwaitableStateConfigurationHelper
     {
         internal static AwaitableStateRepresentation<TState, TTrigger> FindOrCreateStateRepresentation<TState, TTrigger>
-            (TState state,
-                Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> representations)
+        (TState state,
+            Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> representations)
         {
             AwaitableStateRepresentation<TState, TTrigger> rep;
             if (representations.TryGetValue(state, out rep))
@@ -41,8 +41,8 @@ namespace LiquidState.Awaitable.Core
 
         internal static AwaitableTriggerRepresentation<TTrigger> FindOrCreateTriggerRepresentation
             <TTrigger, TState>(
-            TTrigger trigger,
-            AwaitableStateRepresentation<TState, TTrigger> representation)
+                TTrigger trigger,
+                AwaitableStateRepresentation<TState, TTrigger> representation)
         {
             var rep = FindTriggerRepresentation(trigger, representation);
             return rep ?? CreateTriggerRepresentation(trigger, representation);

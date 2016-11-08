@@ -10,7 +10,7 @@ namespace LiquidState.Core
 {
     public abstract class AbstractStateMachineCore<TState, TTrigger> : IStateMachineCore<TState, TTrigger>
     {
-        private int isEnabled = 1;
+        private int m_isEnabled = 1;
         public event Action<TriggerStateEventArgs<TState, TTrigger>> UnhandledTrigger;
         public event Action<TransitionEventArgs<TState, TTrigger>> InvalidState;
         public event Action<TransitionEventArgs<TState, TTrigger>> TransitionStarted;
@@ -18,17 +18,17 @@ namespace LiquidState.Core
 
         public virtual void Pause()
         {
-            Interlocked.Exchange(ref isEnabled, 0);
+            Interlocked.Exchange(ref m_isEnabled, 0);
         }
 
         public virtual void Resume()
         {
-            Interlocked.Exchange(ref isEnabled, 1);
+            Interlocked.Exchange(ref m_isEnabled, 1);
         }
 
         public abstract TState CurrentState { get; }
 
-        public bool IsEnabled => Interlocked.CompareExchange(ref isEnabled, -1, -1) == 1;
+        public bool IsEnabled => Interlocked.CompareExchange(ref m_isEnabled, -1, -1) == 1;
 
         public void RaiseInvalidTrigger(TTrigger trigger)
         {
@@ -62,7 +62,8 @@ namespace LiquidState.Core
 
         public void RaiseTransitionExecuted(TState pastState, TTrigger trigger)
         {
-            TransitionExecuted?.Invoke(new TransitionExecutedEventArgs<TState, TTrigger>(CurrentState, pastState, trigger));
+            TransitionExecuted?.Invoke(new TransitionExecutedEventArgs<TState, TTrigger>(CurrentState, pastState,
+                trigger));
         }
     }
 }

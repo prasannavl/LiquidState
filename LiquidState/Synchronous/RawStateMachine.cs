@@ -13,9 +13,9 @@ namespace LiquidState.Synchronous
     public abstract class RawStateMachineBase<TState, TTrigger> : AbstractStateMachineCore<TState, TTrigger>,
         IStateMachine<TState, TTrigger>
     {
+        private readonly RawStateMachineDiagnostics<TState, TTrigger> m_diagnostics;
         internal StateRepresentation<TState, TTrigger> CurrentStateRepresentation;
         internal Dictionary<TState, StateRepresentation<TState, TTrigger>> Representations;
-        private readonly RawStateMachineDiagnostics<TState, TTrigger> diagnostics;
 
         protected RawStateMachineBase(TState initialState, Configuration<TState, TTrigger> configuration)
         {
@@ -24,12 +24,9 @@ namespace LiquidState.Synchronous
             CurrentStateRepresentation = StateConfigurationHelper.FindStateRepresentation(
                 initialState, Representations);
 
-            if (CurrentStateRepresentation == null)
-            {
-                ExceptionHelper.ThrowInvalidState(initialState);
-            }
+            if (CurrentStateRepresentation == null) { ExceptionHelper.ThrowInvalidState(initialState); }
 
-            diagnostics = new RawStateMachineDiagnostics<TState, TTrigger>(this);
+            m_diagnostics = new RawStateMachineDiagnostics<TState, TTrigger>(this);
         }
 
         public virtual void MoveToState(TState state, StateTransitionOption option = StateTransitionOption.Default)
@@ -51,42 +48,41 @@ namespace LiquidState.Synchronous
             ExecutionHelper.FireCore(trigger, this);
         }
 
-        public IStateMachineDiagnostics<TState, TTrigger> Diagnostics => diagnostics;
+        public IStateMachineDiagnostics<TState, TTrigger> Diagnostics => m_diagnostics;
         public override TState CurrentState => CurrentStateRepresentation.State;
     }
 
     public class RawStateMachineDiagnostics<TState, TTrigger> : IStateMachineDiagnostics<TState, TTrigger>
     {
-        private readonly RawStateMachineBase<TState, TTrigger> machine;
+        private readonly RawStateMachineBase<TState, TTrigger> m_machine;
 
         public RawStateMachineDiagnostics(RawStateMachineBase<TState, TTrigger> machine)
         {
-            this.machine = machine;
+            m_machine = machine;
         }
 
         public bool CanHandleTrigger(TTrigger trigger, bool exactMatch = false)
         {
-            return DiagnosticsHelper.CanHandleTrigger(trigger, machine, exactMatch);
+            return DiagnosticsHelper.CanHandleTrigger(trigger, m_machine, exactMatch);
         }
 
         public bool CanHandleTrigger(TTrigger trigger, Type argumentType)
         {
-            return DiagnosticsHelper.CanHandleTrigger(trigger, machine, argumentType);
+            return DiagnosticsHelper.CanHandleTrigger(trigger, m_machine, argumentType);
         }
 
         public bool CanHandleTrigger<TArgument>(TTrigger trigger)
         {
-            return DiagnosticsHelper.CanHandleTrigger<TState, TTrigger, TArgument>(trigger, machine);
+            return DiagnosticsHelper.CanHandleTrigger<TState, TTrigger, TArgument>(trigger, m_machine);
         }
 
-        public IEnumerable<TTrigger> CurrentPermittedTriggers => DiagnosticsHelper.EnumeratePermittedTriggers(machine);
+        public IEnumerable<TTrigger> CurrentPermittedTriggers => DiagnosticsHelper.EnumeratePermittedTriggers(m_machine)
+            ;
     }
 
     public sealed class RawStateMachine<TState, TTrigger> : RawStateMachineBase<TState, TTrigger>
     {
         public RawStateMachine(TState initialState, Configuration<TState, TTrigger> configuration)
-            : base(initialState, configuration)
-        {
-        }
+            : base(initialState, configuration) {}
     }
 }

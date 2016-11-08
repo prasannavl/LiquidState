@@ -14,10 +14,7 @@ namespace LiquidState.Synchronous.Core
             Dictionary<TState, StateRepresentation<TState, TTrigger>> representations)
         {
             StateRepresentation<TState, TTrigger> rep;
-            if (representations.TryGetValue(state, out rep))
-            {
-                return rep;
-            }
+            if (representations.TryGetValue(state, out rep)) { return rep; }
 
             rep = CreateStateRepresentation(state, representations);
             return rep;

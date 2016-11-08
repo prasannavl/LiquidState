@@ -13,8 +13,8 @@ namespace LiquidState.Awaitable.Core
 {
     public class AwaitableStateConfiguration<TState, TTrigger>
     {
-        internal readonly Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> Representations;
         internal readonly AwaitableStateRepresentation<TState, TTrigger> CurrentStateRepresentation;
+        internal readonly Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> Representations;
 
         internal AwaitableStateConfiguration(
             Dictionary<TState, AwaitableStateRepresentation<TState, TTrigger>> representations,
