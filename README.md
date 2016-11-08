@@ -110,108 +110,109 @@ Examples
 A synchronous machine example:
 
 ```c#
-var config = StateMachineFactory.CreateConfiguration<State, Trigger>();
+    var config = StateMachineFactory.CreateConfiguration<State, Trigger>();
 
-config.ForState(State.Off)
-    .OnEntry(() => Console.WriteLine("OnEntry of Off"))
-    .OnExit(() => Console.WriteLine("OnExit of Off"))
-    .PermitReentry(Trigger.TurnOn)
-    .Permit(Trigger.Ring, State.Ringing,
-            () => { Console.WriteLine("Attempting to ring"); })
-    .Permit(Trigger.Connect, State.Connected,
-            () => { Console.WriteLine("Connecting"); });
+    config.ForState(State.Off)
+        .OnEntry(() => Console.WriteLine("OnEntry of Off"))
+        .OnExit(() => Console.WriteLine("OnExit of Off"))
+        .PermitReentry(Trigger.TurnOn)
+        .Permit(Trigger.Ring, State.Ringing,
+                () => { Console.WriteLine("Attempting to ring"); })
+        .Permit(Trigger.Connect, State.Connected,
+                () => { Console.WriteLine("Connecting"); });
 
-var connectTriggerWithParameter =
-            config.SetTriggerParameter<string>(Trigger.Connect);
+    var connectTriggerWithParameter =
+                config.SetTriggerParameter<string>(Trigger.Connect);
 
-config.ForState(State.Ringing)
-    .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
-    .OnExit(() => Console.WriteLine("OnExit of Ringing"))
-    .Permit(connectTriggerWithParameter, State.Connected,
-            name => { Console.WriteLine("Attempting to connect to {0}", name); })
-    .Permit(Trigger.Talk, State.Talking,
-            () => { Console.WriteLine("Attempting to talk"); });
+    config.ForState(State.Ringing)
+        .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
+        .OnExit(() => Console.WriteLine("OnExit of Ringing"))
+        .Permit(connectTriggerWithParameter, State.Connected,
+                name => { Console.WriteLine("Attempting to connect to {0}", name); })
+        .Permit(Trigger.Talk, State.Talking,
+                () => { Console.WriteLine("Attempting to talk"); });
 
-config.ForState(State.Connected)
-    .OnEntry(() => Console.WriteLine("AOnEntry of Connected"))
-    .OnExit(() => Console.WriteLine("AOnExit of Connected"))
-    .PermitReentry(Trigger.Connect)
-    .Permit(Trigger.Talk, State.Talking,
-          () => { Console.WriteLine("Attempting to talk"); })
-    .Permit(Trigger.TurnOn, State.Off,
-          () => { Console.WriteLine("Turning off"); });
+    config.ForState(State.Connected)
+        .OnEntry(() => Console.WriteLine("AOnEntry of Connected"))
+        .OnExit(() => Console.WriteLine("AOnExit of Connected"))
+        .PermitReentry(Trigger.Connect)
+        .Permit(Trigger.Talk, State.Talking,
+            () => { Console.WriteLine("Attempting to talk"); })
+        .Permit(Trigger.TurnOn, State.Off,
+            () => { Console.WriteLine("Turning off"); });
 
 
-config.ForState(State.Talking)
-    .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
-    .OnExit(() => Console.WriteLine("OnExit of Talking"))
-    .Permit(Trigger.TurnOn, State.Off,
-          () => { Console.WriteLine("Turning off"); })
-    .Permit(Trigger.Ring, State.Ringing,
-          () => { Console.WriteLine("Attempting to ring"); });
+    config.ForState(State.Talking)
+        .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
+        .OnExit(() => Console.WriteLine("OnExit of Talking"))
+        .Permit(Trigger.TurnOn, State.Off,
+            () => { Console.WriteLine("Turning off"); })
+        .Permit(Trigger.Ring, State.Ringing,
+            () => { Console.WriteLine("Attempting to ring"); });
 
-var machine = StateMachineFactory.Create(State.Ringing, config);
+    var machine = StateMachineFactory.Create(State.Ringing, config);
 
-machine.Fire(Trigger.Talk);
-machine.Fire(Trigger.Ring);
-machine.Fire(connectTriggerWithParameter, "John Doe");
+    machine.Fire(Trigger.Talk);
+    machine.Fire(Trigger.Ring);
+    machine.Fire(connectTriggerWithParameter, "John Doe");
 ```
 
 Now, let's take the same dumb, and terrible example, but now do it **asynchronously**!
 (Mix and match synchronous code when you don't need asynchrony to avoid the costs.)
 
 ```c#
-// Note the "CreateAwaitableConfiguration"
-var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
+    // Note the "CreateAwaitableConfiguration"
+    var config = StateMachineFactory.CreateAwaitableConfiguration<State, Trigger>();
 
-config.ForState(State.Off)
-    .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
-    .OnExit(async () => Console.WriteLine("OnExit of Off"))
-    .PermitReentry(Trigger.TurnOn)
-    .Permit(Trigger.Ring, State.Ringing,
-          async () => { Console.WriteLine("Attempting to ring"); })
-    .Permit(Trigger.Connect, State.Connected,
-          async () => { Console.WriteLine("Connecting"); });
+    config.ForState(State.Off)
+        .OnEntry(async () => Console.WriteLine("OnEntry of Off"))
+        .OnExit(async () => Console.WriteLine("OnExit of Off"))
+        .PermitReentry(Trigger.TurnOn)
+        .Permit(Trigger.Ring, State.Ringing,
+            async () => { Console.WriteLine("Attempting to ring"); })
+        .Permit(Trigger.Connect, State.Connected,
+            async () => { Console.WriteLine("Connecting"); });
 
-var connectTriggerWithParameter =
-            config.SetTriggerParameter<string>(Trigger.Connect);
+    var connectTriggerWithParameter =
+                config.SetTriggerParameter<string>(Trigger.Connect);
 
-config.ForState(State.Ringing)
-    .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
-    .OnExit(() => Console.WriteLine("OnExit of Ringing"))
-    .Permit(connectTriggerWithParameter, State.Connected,
-            name => { Console.WriteLine("Attempting to connect to {0}", name); })
-    .Permit(Trigger.Talk, State.Talking,
-            () => { Console.WriteLine("Attempting to talk"); });
+    config.ForState(State.Ringing)
+        .OnEntry(() => Console.WriteLine("OnEntry of Ringing"))
+        .OnExit(() => Console.WriteLine("OnExit of Ringing"))
+        .Permit(connectTriggerWithParameter, State.Connected,
+                name => { Console.WriteLine("Attempting to connect to {0}", name); })
+        .Permit(Trigger.Talk, State.Talking,
+                () => { Console.WriteLine("Attempting to talk"); });
 
-config.ForState(State.Connected)
-    .OnEntry(async () => Console.WriteLine("AOnEntry of Connected"))
-    .OnExit(async () => Console.WriteLine("AOnExit of Connected"))
-    .PermitReentry(Trigger.Connect)
-    .Permit(Trigger.Talk, State.Talking,
-          async () => { Console.WriteLine("Attempting to talk"); })
-    .Permit(Trigger.TurnOn, State.Off,
-          async () => { Console.WriteLine("Turning off"); });
+    config.ForState(State.Connected)
+        .OnEntry(async () => Console.WriteLine("AOnEntry of Connected"))
+        .OnExit(async () => Console.WriteLine("AOnExit of Connected"))
+        .PermitReentry(Trigger.Connect)
+        .Permit(Trigger.Talk, State.Talking,
+            async () => { Console.WriteLine("Attempting to talk"); })
+        .Permit(Trigger.TurnOn, State.Off,
+            async () => { Console.WriteLine("Turning off"); });
 
-config.ForState(State.Talking)
-    .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
-    .OnExit(() => Console.WriteLine("OnExit of Talking"))
-    .Permit(Trigger.TurnOn, State.Off,
-          () => { Console.WriteLine("Turning off"); })
-    .Permit(Trigger.Ring, State.Ringing,
-          () => { Console.WriteLine("Attempting to ring"); });
+    config.ForState(State.Talking)
+        .OnEntry(() => Console.WriteLine("OnEntry of Talking"))
+        .OnExit(() => Console.WriteLine("OnExit of Talking"))
+        .Permit(Trigger.TurnOn, State.Off,
+            () => { Console.WriteLine("Turning off"); })
+        .Permit(Trigger.Ring, State.Ringing,
+            () => { Console.WriteLine("Attempting to ring"); });
 
-var machine = StateMachineFactory.Create(State.Ringing, config);
+    var machine = StateMachineFactory.Create(State.Ringing, config);
 
-await machine.FireAsync(Trigger.Talk);
-await machine.FireAsync(Trigger.Ring);
-await machine.FireAsync(connectTriggerWithParameter, "John Doe");
+    await machine.FireAsync(Trigger.Talk);
+    await machine.FireAsync(Trigger.Ring);
+    await machine.FireAsync(connectTriggerWithParameter, "John Doe");
 ```
 
 Core APIs
 ---
 
 **IStateMachineCore:**
+
 ```c#
 public interface IStateMachineCore<TState, TTrigger>
 {
@@ -228,39 +229,38 @@ public interface IStateMachineCore<TState, TTrigger>
 }
 ```
 
-
 **Synchronous:**
 
 ```c#
-    public interface IStateMachine<TState, TTrigger> 
-           : IStateMachineCore<TState, TTrigger>
-    {
-        IStateMachineDiagnostics<TState, TTrigger> Diagnostics { get; }
+public interface IStateMachine<TState, TTrigger> 
+        : IStateMachineCore<TState, TTrigger>
+{
+    IStateMachineDiagnostics<TState, TTrigger> Diagnostics { get; }
 
-        void Fire<TArgument>(
-                ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, 
-                TArgument argument);
-        void Fire(TTrigger trigger);
-        void MoveToState(TState state, 
-                StateTransitionOption option = StateTransitionOption.Default);
-    }
+    void Fire<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger, 
+            TArgument argument);
+    void Fire(TTrigger trigger);
+    void MoveToState(TState state, 
+            StateTransitionOption option = StateTransitionOption.Default);
+}
 ```
 
 **Awaitable:**
 
 ```c#
-    public interface IAwaitableStateMachine<TState, TTrigger> 
-           : IStateMachineCore<TState, TTrigger>
-    {
-        IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics { get; }
+public interface IAwaitableStateMachine<TState, TTrigger> 
+        : IStateMachineCore<TState, TTrigger>
+{
+    IAwaitableStateMachineDiagnostics<TState, TTrigger> Diagnostics { get; }
 
-        Task FireAsync<TArgument>(
-                ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
-                TArgument argument);
-        Task FireAsync(TTrigger trigger);
-        Task MoveToStateAsync(TState state, 
-                StateTransitionOption option = StateTransitionOption.Default);
-    }
+    Task FireAsync<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> parameterizedTrigger,
+            TArgument argument);
+    Task FireAsync(TTrigger trigger);
+    Task MoveToStateAsync(TState state, 
+            StateTransitionOption option = StateTransitionOption.Default);
+}
 ```
 
 In-built Machines
