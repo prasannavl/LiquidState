@@ -1,4 +1,4 @@
-#v8.1
+#v8.2
 
 - Refactor project structure to move to NETCore: NetStandard 1.0
 - Revamp the nuget build process
