@@ -321,6 +321,46 @@ namespace LiquidState
             return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
         }
 
+        public static AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument, TState, TTrigger>(
+            this AwaitableStateConfiguration<TState, TTrigger> config, ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<TArgument, Task<DynamicState<TState>>> targetStateFunc,
+            Func<TArgument, Task> onTriggerAction)
+        {
+            Contract.NotNull(onTriggerAction != null, nameof(onTriggerAction));
+
+            return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
+        }
+
+        public static AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument, TState, TTrigger>(
+            this AwaitableStateConfiguration<TState, TTrigger> config, ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<TArgument, DynamicState<TState>> targetStateFunc,
+            Action<TArgument> onTriggerAction)
+        {
+            Contract.NotNull(onTriggerAction != null, nameof(onTriggerAction));
+
+            return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
+        }
+
+        public static AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument, TState, TTrigger>(
+            this AwaitableStateConfiguration<TState, TTrigger> config, ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<TArgument, Task<DynamicState<TState>>> targetStateFunc,
+            Action<TArgument> onTriggerAction)
+        {
+            Contract.NotNull(onTriggerAction != null, nameof(onTriggerAction));
+
+            return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
+        }
+
+        public static AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument, TState, TTrigger>(
+            this AwaitableStateConfiguration<TState, TTrigger> config, ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<TArgument, DynamicState<TState>> targetStateFunc,
+            Func<TArgument, Task> onTriggerAction)
+        {
+            Contract.NotNull(onTriggerAction != null, nameof(onTriggerAction));
+
+            return config.PermitDynamic(trigger, targetStateFunc, (t, a) => onTriggerAction(a));
+        }
+
         #endregion
     }
 }

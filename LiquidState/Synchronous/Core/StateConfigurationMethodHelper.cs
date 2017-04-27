@@ -50,7 +50,7 @@ namespace LiquidState.Synchronous.Core
 
         internal static StateConfiguration<TState, TTrigger> PermitDynamic<TArgument, TState, TTrigger>(
             StateConfiguration<TState, TTrigger> config, ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Func<DynamicState<TState>> targetStatePredicate,
+            Func<TArgument, DynamicState<TState>> targetStatePredicate,
             Action<Transition<TState, TTrigger>, TArgument> onTriggerAction)
         {
             return PermitDynamicCore(config, trigger.Trigger, targetStatePredicate, onTriggerAction);
@@ -95,7 +95,7 @@ namespace LiquidState.Synchronous.Core
 
         private static StateConfiguration<TState, TTrigger> PermitDynamicCore<TState, TTrigger>(
             StateConfiguration<TState, TTrigger> config, TTrigger trigger,
-            Func<DynamicState<TState>> targetStatePredicate, object onTriggerAction)
+            object targetStatePredicate, object onTriggerAction)
         {
             Contract.NotNull(trigger != null, nameof(trigger));
             Contract.NotNull(targetStatePredicate != null, nameof(targetStatePredicate));
