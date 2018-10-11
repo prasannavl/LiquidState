@@ -314,3 +314,10 @@ Contributions
 If this project has helped you, the best way to `say thanks` is to contribute back :)
 
 **Note:** If your contribution introduces new API surface, features, or includes either conceptual or implementational changes, it is **highly recommended** that an issue is opened first (which will be labelled accordingly), so that design notes or at-least a quick review on the direction is discussed, before any large effort is made. There's nothing I hate more than good contributions that go unmerged. :)
+
+Say thanks!
+---
+
+If this project helped you save time, headaches, or push the boundaries of earth, I do appreciate a coffee as thanks! :smiley:. You may buy me one here, should you wish:
+
+[![PayPalDonate](https://www.paypalobjects.com/webstatic/i/logo/rebrand/ppcom.svg)](https://www.paypal.me/prasannavl)
