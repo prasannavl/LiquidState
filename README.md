@@ -322,11 +322,12 @@ Say thanks!
 
 If this project helped you save time, headaches, or push the boundaries of earth, I do appreciate a coffee as thanks! :smiley:. You may buy me one here, should you wish:
 
-[![PayPalDonate](https://www.paypalobjects.com/webstatic/i/logo/rebrand/ppcom.svg)](https://www.paypal.me/prasannavl)
+[![Donate-PayPal](https://www.paypalobjects.com/webstatic/i/logo/rebrand/ppcom.svg)](https://www.paypal.me/prasannavl)
+
 
 
 Code of Conduct
 ---
 
-Contribution to the LiquidState project is organized under the terms of the Contributor Covenant, and such the maintainer @prasannavl  promises to intervene to uphold that code of conduct.
+Contribution to the LiquidState project is organized under the terms of the Contributor Covenant, and as such the maintainer [@prasannavl](https://github.com/prasannavl) promises to intervene to uphold that code of conduct.
 
