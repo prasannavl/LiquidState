@@ -308,16 +308,14 @@ Proudly developed using:
 "><img src="https://blog.jetbrains.com/wp-content/uploads/2014/04/logo_resharper.gif" alt="Resharper logo" width="100" /></a>
 
 
-## License
+License
+---
 
 This project is licensed under either of the following, at your choice:
 
 * Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0))
 * GPL 3.0 license ([LICENSE-GPL](LICENSE-GPL) or [https://opensource.org/licenses/GPL-3.0](https://opensource.org/licenses/GPL-3.0))
 
-## Code of Conduct
-
-Contribution to the LiquidState project is organized under the terms of the Contributor Covenant, and such the maintainer @prasannavl  promises to intervene to uphold that code of conduct.
 
 Say thanks!
 ---
@@ -325,3 +323,10 @@ Say thanks!
 If this project helped you save time, headaches, or push the boundaries of earth, I do appreciate a coffee as thanks! :smiley:. You may buy me one here, should you wish:
 
 [![PayPalDonate](https://www.paypalobjects.com/webstatic/i/logo/rebrand/ppcom.svg)](https://www.paypal.me/prasannavl)
+
+
+Code of Conduct
+---
+
+Contribution to the LiquidState project is organized under the terms of the Contributor Covenant, and such the maintainer @prasannavl  promises to intervene to uphold that code of conduct.
+
