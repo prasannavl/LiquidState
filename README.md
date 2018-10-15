@@ -308,12 +308,16 @@ Proudly developed using:
 "><img src="https://blog.jetbrains.com/wp-content/uploads/2014/04/logo_resharper.gif" alt="Resharper logo" width="100" /></a>
 
 
-Contributions
-----
+## License
 
-If this project has helped you, the best way to `say thanks` is to contribute back :)
+This project is licensed under either of the following, at your choice:
 
-**Note:** If your contribution introduces new API surface, features, or includes either conceptual or implementational changes, it is **highly recommended** that an issue is opened first (which will be labelled accordingly), so that design notes or at-least a quick review on the direction is discussed, before any large effort is made. There's nothing I hate more than good contributions that go unmerged. :)
+* Apache License, Version 2.0, ([LICENSE-APACHE](LICENSE-APACHE) or [https://www.apache.org/licenses/LICENSE-2.0](https://www.apache.org/licenses/LICENSE-2.0))
+* GPL 3.0 license ([LICENSE-GPL](LICENSE-GPL) or [https://opensource.org/licenses/GPL-3.0](https://opensource.org/licenses/GPL-3.0))
+
+## Code of Conduct
+
+Contribution to the LiquidState project is organized under the terms of the Contributor Covenant, and such the maintainer @prasannavl  promises to intervene to uphold that code of conduct.
 
 Say thanks!
 ---
