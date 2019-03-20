@@ -86,7 +86,7 @@ namespace LiquidState.Synchronous.Core
             { nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper; }
 
 
-            var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State);
+            var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State, trigger);
 
             machine.RaiseTransitionStarted(nextStateRep.State);
 
@@ -151,7 +151,7 @@ namespace LiquidState.Synchronous.Core
             { nextStateRep = (StateRepresentation<TState, TTrigger>) triggerRep.NextStateRepresentationWrapper; }
 
 
-            var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State);
+            var transition = new Transition<TState, TTrigger>(currentStateRepresentation.State, nextStateRep.State, trigger);
 
             machine.RaiseTransitionStarted(nextStateRep.State);
 
