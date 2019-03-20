@@ -162,6 +162,14 @@ namespace LiquidState.Synchronous.Core
             Func<DynamicState<TState>> targetStatePredicate,
             Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
         {
+            return Helper.PermitDynamic(this, trigger, a => targetStatePredicate(), onEntryAction);
+        }
+
+        public StateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<TArgument, DynamicState<TState>> targetStatePredicate,
+            Action<Transition<TState, TTrigger>, TArgument> onEntryAction)
+        {
             return Helper.PermitDynamic(this, trigger, targetStatePredicate, onEntryAction);
         }
 

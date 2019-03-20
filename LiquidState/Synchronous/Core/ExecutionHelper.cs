@@ -134,7 +134,7 @@ namespace LiquidState.Synchronous.Core
             if (StateConfigurationHelper.CheckFlag(triggerRep.TransitionFlags,
                 TransitionFlag.DynamicState))
             {
-                var dynamicState = ((Func<DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)();
+                var dynamicState = ((Func<TArgument, DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)(argument);
                 if (!dynamicState.CanTransition) return;
 
                 var state = dynamicState.ResultingState;

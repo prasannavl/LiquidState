@@ -370,6 +370,41 @@ namespace LiquidState.Awaitable.Core
             Func<DynamicState<TState>> targetStateFunc,
             Action<Transition<TState, TTrigger>, TArgument> onTriggerAction)
         {
+            return PermitDynamic(trigger, a => targetStateFunc(), onTriggerAction);
+        }
+
+
+        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<Task<DynamicState<TState>>> targetStateFunc,
+            Action<Transition<TState, TTrigger>, TArgument> onTriggerAction)
+        {
+            return PermitDynamic(trigger, a => targetStateFunc(), onTriggerAction);
+        }
+
+
+        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<DynamicState<TState>> targetStateFunc,
+            Func<Transition<TState, TTrigger>, TArgument, Task> onTriggerAction)
+        {
+            return PermitDynamic(trigger, a => targetStateFunc(), onTriggerAction);
+        }
+
+
+        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<Task<DynamicState<TState>>> targetStateFunc,
+            Func<Transition<TState, TTrigger>, TArgument, Task> onTriggerAction)
+        {
+            return PermitDynamic(trigger, a => targetStateFunc(), onTriggerAction);
+        }
+
+        public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<TArgument, DynamicState<TState>> targetStateFunc,
+            Action<Transition<TState, TTrigger>, TArgument> onTriggerAction)
+        {
             return Helper.PermitDynamic(this, trigger.Trigger, targetStateFunc,
                 onTriggerAction, AwaitableTransitionFlag.DynamicState);
         }
@@ -377,7 +412,7 @@ namespace LiquidState.Awaitable.Core
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Func<Task<DynamicState<TState>>> targetStateFunc,
+            Func<TArgument, Task<DynamicState<TState>>> targetStateFunc,
             Action<Transition<TState, TTrigger>, TArgument> onTriggerAction)
         {
             return Helper.PermitDynamic(this, trigger.Trigger, targetStateFunc,
@@ -388,7 +423,7 @@ namespace LiquidState.Awaitable.Core
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Func<DynamicState<TState>> targetStateFunc,
+            Func<TArgument, DynamicState<TState>> targetStateFunc,
             Func<Transition<TState, TTrigger>, TArgument, Task> onTriggerAction)
         {
             return Helper.PermitDynamic(this, trigger.Trigger, targetStateFunc,
@@ -400,7 +435,7 @@ namespace LiquidState.Awaitable.Core
 
         public AwaitableStateConfiguration<TState, TTrigger> PermitDynamic<TArgument>(
             ParameterizedTrigger<TTrigger, TArgument> trigger,
-            Func<Task<DynamicState<TState>>> targetStateFunc,
+            Func<TArgument, Task<DynamicState<TState>>> targetStateFunc,
             Func<Transition<TState, TTrigger>, TArgument, Task> onTriggerAction)
         {
             return Helper.PermitDynamic(this, trigger.Trigger, targetStateFunc,

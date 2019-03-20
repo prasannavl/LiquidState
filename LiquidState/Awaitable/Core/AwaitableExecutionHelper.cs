@@ -223,7 +223,7 @@ namespace LiquidState.Awaitable.Core
                 AwaitableTransitionFlag.DynamicState))
             {
                 var dynamicState =
-                    await AwaitableDiagnosticsHelper.GetValidatedDynamicTransition<TState, TTrigger>(triggerRep);
+                    await AwaitableDiagnosticsHelper.GetValidatedDynamicTransition<TState, TTrigger, TArgument>(triggerRep, argument);
                 if (dynamicState == null) return;
 
                 var state = dynamicState.Value.ResultingState;

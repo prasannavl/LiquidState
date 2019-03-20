@@ -35,6 +35,22 @@ namespace LiquidState.Awaitable.Core
             return dynamicState.CanTransition ? new DynamicState<TState>?(dynamicState) : null;
         }
 
+        internal static async Task<DynamicState<TState>?> GetValidatedDynamicTransition<TState, TTrigger, TArgument>(
+            AwaitableTriggerRepresentation<TTrigger> triggerRep, TArgument argument)
+        {
+            DynamicState<TState> dynamicState;
+            if (AwaitableStateConfigurationHelper.CheckFlag(triggerRep.AwaitableTransitionFlags,
+                AwaitableTransitionFlag.DynamicStateReturnsTask)) {
+                dynamicState = await ((Func<TArgument, Task<DynamicState<TState>>>) triggerRep.NextStateRepresentationWrapper)(argument);
+            }
+            else
+            {
+                dynamicState = ((Func<TArgument, DynamicState<TState>>) triggerRep.NextStateRepresentationWrapper)(argument);
+            }
+
+            return dynamicState.CanTransition ? new DynamicState<TState>?(dynamicState) : null;
+        }
+
         internal static async Task<AwaitableTriggerRepresentation<TTrigger>>
             FindAndEvaluateTriggerRepresentationAsync
             <TState, TTrigger>(TTrigger trigger, RawAwaitableStateMachineBase<TState, TTrigger> machine,

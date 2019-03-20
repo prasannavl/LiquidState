@@ -133,5 +133,17 @@ namespace LiquidState
             return config.PermitDynamic(trigger, targetStatePredicate,
                 (t, a) => onTriggerAction(a));
         }
+
+        public static StateConfiguration<TState, TTrigger> PermitDynamic<TArgument, TState, TTrigger>(
+            this StateConfiguration<TState, TTrigger> config,
+            ParameterizedTrigger<TTrigger, TArgument> trigger,
+            Func<TArgument, DynamicState<TState>> targetStatePredicate,
+            Action<TArgument> onTriggerAction)
+        {
+            Contract.NotNull(onTriggerAction != null, nameof(onTriggerAction));
+
+            return config.PermitDynamic(trigger, targetStatePredicate,
+                (t, a) => onTriggerAction(a));
+        }
     }
 }
